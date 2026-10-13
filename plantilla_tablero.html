@@ -190,7 +190,9 @@ table.tk{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
 .tk td.big{font-weight:600;font-size:17px}
 .tk .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;background:var(--dc)}
 .tk .tbar{display:inline-block;height:7px;border-radius:2px;background:var(--dc);vertical-align:1px;margin-right:8px}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 18px;overflow-x:auto;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-top:6px}
+.tabs{display:flex;flex-wrap:wrap;gap:0 4px;border-bottom:1px solid var(--line);margin:0 0 18px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-top:6px}
+/* En el celular las pestañas van en una sola fila que se desliza */
+@media (max-width:760px){.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}}
 .tabs button{border:0;background:none;padding:10px 16px 11px;font-size:15px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px;transition:color .2s ease,border-color .2s ease}
 .tabs button:hover{color:var(--ink)}
 .tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
@@ -282,6 +284,7 @@ table.at{width:100%;border-collapse:collapse;font-size:14px}
 .mchips{display:flex;flex-wrap:wrap;gap:6px}
 .mchip{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:6px 12px;font-family:var(--f-num);font-weight:500;font-size:14px;cursor:pointer;color:var(--ink)}
 .mchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.mchip:disabled{opacity:.35;cursor:default}
 .mt-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .mt-acts .btn-go{width:auto;padding:7px 14px}
 .mt-msg{font-size:13px;color:var(--muted)}
@@ -333,7 +336,7 @@ table.wst{font-size:13.5px}
 .wchip.w-low{background:#FFEB9C;color:#9C6500} .wchip.w-ok{background:#C6EFCE;color:#006100} .wchip.w-high{background:#FFC7CE;color:#9C0006}
 .kpi.k-low .val{color:#B07800} .kpi.k-high .val{color:var(--neg)}
 .tabs{position:sticky}
-.tab-ind{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:var(--accent);border-radius:3px 3px 0 0;transition:transform .35s cubic-bezier(.3,.7,.2,1),width .35s cubic-bezier(.3,.7,.2,1),background-color .3s ease;pointer-events:none}
+.tab-ind{position:absolute;left:0;top:0;height:3px;width:0;background:var(--accent);border-radius:3px 3px 0 0;transition:transform .35s cubic-bezier(.3,.7,.2,1),width .35s cubic-bezier(.3,.7,.2,1),background-color .3s ease;pointer-events:none}
 .tabs button[aria-selected="true"]{border-bottom-color:transparent}
 @media (prefers-reduced-motion:no-preference){
   .page:not([hidden]) > *{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
@@ -443,6 +446,7 @@ table.wst{font-size:13.5px}
       <button data-p="wos" aria-selected="false">Ventas por modelo</button>
       <button data-p="canales" aria-selected="false">Canales y zonas</button>
       <button data-p="activaciones" aria-selected="false">Activaciones</button>
+      <button data-p="importaciones" aria-selected="false">Importaciones</button>
     </nav>
 
     <div class="page" data-page="resumen">
@@ -476,7 +480,7 @@ table.wst{font-size:13.5px}
 
     <div class="page" data-page="metas" hidden>
     <div class="mt-top">
-      <div><div class="flabel-sm">Mes</div><div class="mchips" id="mtMonths"></div></div>
+      <div><div class="flabel-sm" id="mtYearLbl">Mes</div><div class="mchips" id="mtMonths"></div></div>
       <div class="mt-acts"><span class="mt-msg" id="mtMsg"></span><button class="btn" id="mtEdit">Editar metas</button><button class="btn btn-go" id="mtSave" hidden>Guardar metas</button></div>
     </div>
     <div class="anote" id="mtNote"></div>
@@ -489,7 +493,7 @@ table.wst{font-size:13.5px}
       <div class="ph"><h3 id="hMtC">Avance contra la meta</h3><span class="hint">Porcentaje de cumplimiento; la línea roja es el 100%</span></div>
       <div class="chart-box" id="mtChartBox"><canvas id="cMt"></canvas></div>
     </section>
-    <p class="afoot">Esta página no usa los filtros del panel izquierdo, pero sí el selector de empresa: con Lidenar o Movilcelistic muestra solo lo facturado y los clientes atendidos en esa empresa; con Consolidado suma ambas. La facturación cuenta Samsung en Lidenar, Xiaomi en Movilcelistic y ambas marcas en Consolidado, siempre venta neta sin IVA (las notas de crédito restan). Clientes atendidos = clientes únicos con al menos una factura en el mes, de cualquier marca; en Consolidado, si un cliente compró en Lidenar y en Movilcelistic cuenta una sola vez, por eso Clientes únicos puede ser menor que Cl. Lidenar más Cl. Movilcelistic (se reconoce aunque el nombre cambie en mayúsculas, puntos o espacios). Si dos vendedores atendieron al mismo cliente, cada uno lo suma a su meta, pero en el total del equipo cuenta una vez. La proyección supone que el vendedor mantiene su ritmo diario hasta fin de mes.</p>
+    <p class="afoot">Esta página usa del panel izquierdo solo el filtro de Año (sin año elegido muestra el año del último dato), y además el selector de empresa: con Lidenar o Movilcelistic muestra solo lo facturado y los clientes atendidos en esa empresa; con Consolidado suma ambas. La facturación cuenta Samsung en Lidenar, Xiaomi en Movilcelistic y ambas marcas en Consolidado, siempre venta neta sin IVA (las notas de crédito restan). Clientes atendidos = clientes únicos con al menos una factura en el mes, de cualquier marca; en Consolidado, si un cliente compró en Lidenar y en Movilcelistic cuenta una sola vez, por eso Clientes únicos puede ser menor que Cl. Lidenar más Cl. Movilcelistic (se reconoce aunque el nombre cambie en mayúsculas, puntos o espacios). Si dos vendedores atendieron al mismo cliente, cada uno lo suma a su meta, pero en el total del equipo cuenta una vez. La proyección supone que el vendedor mantiene su ritmo diario hasta fin de mes.</p>
     </div>
 
     <div class="page" data-page="clientes" hidden>
@@ -624,6 +628,39 @@ table.wst{font-size:13.5px}
     </div>
     <p class="afoot" id="aFoot"></p>
     </div>
+
+    <div class="page" data-page="importaciones" hidden>
+    <div class="afilters" id="ipFilters"><button class="btn" id="ipClear">Quitar importador, marca y producto</button></div>
+    <div class="anote" id="ipNote"></div>
+    <div id="ipBody">
+    <section class="kpis" id="ipKpis" aria-label="Indicadores de importaciones"></section>
+    <div class="grid2">
+      <section class="panel" aria-labelledby="hIpM">
+        <div class="ph"><h3 id="hIpM">CIF importado por mes</h3><span class="hint">US$, por marca</span></div>
+        <div class="chart-box tall"><canvas id="cIp"></canvas></div>
+      </section>
+      <section class="panel" aria-labelledby="hIpI">
+        <div class="ph"><h3 id="hIpI">Importadores</h3><span class="hint">Toca uno para filtrar</span></div>
+        <ul class="bl" id="ipImp"></ul>
+      </section>
+    </div>
+    <section class="panel stack" aria-labelledby="hIpP">
+      <div class="ph"><h3 id="hIpP">Productos importados <span class="hint" id="ipCountP"></span></h3>
+        <span class="hint">Toca un producto para filtrar. Toca un encabezado para ordenar.</span></div>
+      <input type="search" class="asearch" id="ipSearchP" placeholder="Buscar producto o marca">
+      <div class="mx-wrap"><table class="at" id="ipProd"></table></div>
+      <div class="amore"><button class="btn" id="ipMoreP"></button></div>
+    </section>
+    <section class="panel stack" aria-labelledby="hIpX">
+      <div class="ph"><h3 id="hIpX">Importador por producto <span class="hint" id="ipCountX"></span></h3>
+        <span class="hint">Toca un encabezado para ordenar.</span></div>
+      <input type="search" class="asearch" id="ipSearchX" placeholder="Buscar importador, marca o producto">
+      <div class="mx-wrap"><table class="at plain" id="ipX"></table></div>
+      <div class="amore"><button class="btn" id="ipMoreX"></button></div>
+    </section>
+    </div>
+    <p class="afoot" id="ipFoot"></p>
+    </div>
   </main>
 </div>
 
@@ -676,8 +713,10 @@ const fmtDate = d => { const t=dateOf(d); return t.getUTCDate()+' '+mesc[t.getUT
 const mKey = d => { const t=dateOf(d); return (t.getUTCFullYear()-ANIO)*12+t.getUTCMonth()+1; };
 const mYear = m => ANIO+Math.floor((m-1)/12);
 const mIdx = m => ((m-1)%12+12)%12;
-const mLab = m => MES[mIdx(m)]+(MULTI?' '+String(mYear(m)).slice(2):'');
-const mLabL = m => MES_L[mIdx(m)]+(MULTI?' '+mYear(m):'');
+// Con datos de varios años la etiqueta lleva el año, salvo que haya un solo año elegido en el filtro
+const yrTag = () => MULTI && S.years.size!==1;
+const mLab = m => MES[mIdx(m)]+(yrTag()?' '+String(mYear(m)).slice(2):'');
+const mLabL = m => MES_L[mIdx(m)]+(yrTag()?' '+mYear(m):'');
 const isoWk = w => { const t=dateOf(w*7-WOFF+3); return 1+Math.floor((t-Date.UTC(t.getUTCFullYear(),0,1))/6048e5); }; // semana ISO (la del jueves)
 
 const EMP = RAW.empresas; const isIC = new Uint8Array(N); const icSet=new Set(RAW.icClients);
@@ -686,7 +725,11 @@ const month = new Int16Array(N), week = new Int16Array(N), year = new Int16Array
 let maxD = 0, minD = 1e9;
 for (let i=0;i<N;i++){ const d=C.d[i]; month[i]=mKey(d); year[i]=mYear(month[i]); week[i]=Math.floor((d+WOFF)/7); if(d>maxD)maxD=d; if(d<minD)minD=d; }
 const monthsAvail = [...new Set(month)].sort((a,b)=>a-b);
-const yearsAvail = [...new Set(monthsAvail.map(mYear))];
+// Los filtros de Año y Mes también ofrecen los meses que solo tienen importaciones
+const IMP_MK = (RAW.imp && RAW.imp.rows) ? [...new Set(RAW.imp.cols.y.map((y,i)=>(y-ANIO)*12+RAW.imp.cols.m[i]))] : [];
+const monthsAll = [...new Set(monthsAvail.concat(IMP_MK))].sort((a,b)=>a-b);
+const monthsAllInScope = () => S.years.size ? monthsAll.filter(m=>S.years.has(mYear(m))) : monthsAll;
+const yearsAvail = [...new Set(monthsAll.map(mYear))];
 // Meses disponibles dentro de los años elegidos (todos si no hay año elegido)
 const monthsInScope = () => S.years.size ? monthsAvail.filter(m=>S.years.has(mYear(m))) : monthsAvail;
 const lastMonth = monthsAvail[monthsAvail.length-1];
@@ -764,20 +807,26 @@ for(const y of yearsAvail){
   const b=document.createElement('button'); b.className='chip'; b.textContent=y; b.dataset.y=y;
   b.setAttribute('aria-pressed','false');
   b.addEventListener('click',()=>{
-    toggle(S.years,y);
-    if(S.years.size) [...S.months].forEach(m=>{ if(!S.years.has(mYear(m))) S.months.delete(m); });
+    toggle(S.years,y); syncMonthsToYears();
     S.weeks.clear(); render();
   });
   yearsEl.appendChild(b);
 }
 
 // ---------- Rail: meses ----------
+// 12 botones (Ene..Dic). Elegir un mes marca ese mes en los años elegidos (o en todos los años si no hay año elegido);
+// internamente S.months sigue guardando meses continuos, así el resto del tablero no cambia.
 const monthsEl = document.getElementById('months');
-for(let m=(MULTI?monthsAvail[0]:1);m<=(MULTI?lastMonth:12);m++){
-  const b=document.createElement('button'); b.className='chip'; b.textContent=mLab(m); b.dataset.m=m;
+const selMonthIdx = () => new Set([...S.months].map(mIdx));
+function syncMonthsToYears(){ const k=selMonthIdx(); if(!k.size) return; S.months.clear(); monthsAllInScope().forEach(m=>{ if(k.has(mIdx(m))) S.months.add(m); }); }
+for(let k=0;k<12;k++){
+  const b=document.createElement('button'); b.className='chip'; b.textContent=MES[k]; b.dataset.k=k;
   b.setAttribute('aria-pressed','false');
-  if(!monthsAvail.includes(m)) b.disabled=true;
-  b.addEventListener('click',()=>{ toggle(S.months,m); S.weeks.clear(); render(); });
+  b.addEventListener('click',()=>{
+    if(selMonthIdx().has(k)) [...S.months].forEach(m=>{ if(mIdx(m)===k) S.months.delete(m); });
+    else monthsAllInScope().forEach(m=>{ if(mIdx(m)===k) S.months.add(m); });
+    S.weeks.clear(); render();
+  });
   monthsEl.appendChild(b);
 }
 
@@ -832,7 +881,7 @@ document.getElementById('metricSeg').addEventListener('click',e=>{ const b=e.tar
 document.getElementById('granSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.gran=b.dataset.g; render(); });
 document.getElementById('empSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.emp=+b.dataset.e; document.documentElement.dataset.emp=S.emp; mkCharts(); S.weeks.clear(); DIMS.forEach(o=>{ if(S.emp!==2) S[o.k].forEach(v=>{ if(!PRESENT[S.emp][o.k].has(v)) S[o.k].delete(v); }); }); render(); });
 document.getElementById('ivaSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.iva=b.dataset.i==='1'; render(); });
-document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
+document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.iI.clear(); S.iB.clear(); S.iP.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
 const rail=document.getElementById('rail'), scrim=document.getElementById('scrim');
 const openRail=()=>{rail.classList.add('open');scrim.classList.add('show');};
 const closeRail=()=>{rail.classList.remove('open');scrim.classList.remove('show');};
@@ -892,10 +941,11 @@ function render(){
   document.querySelector('.top h1').textContent = 'Ventas '+yLab+', '+(S.emp===2?'consolidado':EMP[S.emp]);
   document.title = 'Ventas '+yLab+' | '+(S.emp===2?'Consolidado':EMP[S.emp]);
   document.querySelectorAll('#ivaSeg button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.i==='1')===S.iva));
-  document.getElementById('coverage').textContent = (S.emp===2?'Lidenar + Movilcelistic, incluye ventas entre ambas empresas. ':'')+'Cubo de ventas SAP, del '+fmtDate(minD)+' al '+fmtDate(maxD)+(MULTI?'':' de '+YLAB)+'. Ventas '+(S.iva?'con IVA':'sin IVA')+'.';
+  document.getElementById('coverage').textContent = !N ? 'Aún no hay ventas cargadas: toca Actualizar datos para traerlas de SAP.' : (S.emp===2?'Lidenar + Movilcelistic, incluye ventas entre ambas empresas. ':'')+'Cubo de ventas SAP, del '+fmtDate(minD)+' al '+fmtDate(maxD)+(MULTI?'':' de '+YLAB)+'. Ventas '+(S.iva?'con IVA':'sin IVA')+'.';
   document.querySelectorAll('#granSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===S.gran));
   yearsEl.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',S.years.has(+b.dataset.y)));
-  monthsEl.querySelectorAll('.chip').forEach(b=>{ b.setAttribute('aria-pressed',S.months.has(+b.dataset.m)); b.hidden = S.years.size>0 && !S.years.has(mYear(+b.dataset.m)); });
+  { const k=selMonthIdx(), avail=new Set(monthsAllInScope().map(mIdx));
+    monthsEl.querySelectorAll('.chip').forEach(b=>{ b.setAttribute('aria-pressed',k.has(+b.dataset.k)); b.disabled=!avail.has(+b.dataset.k); }); }
   Object.values(MS).forEach(o=>o.update());
   const nAct = S.years.size+S.months.size+S.weeks.size+DIMS.reduce((a,o)=>a+S[o.k].size,0);
   document.getElementById('openFilters').textContent = nAct?('Filtros ('+nAct+')'):'Filtros';
@@ -914,13 +964,14 @@ function render(){
   renderMetas();
   renderTiendas();
   renderWos();
+  renderImp();
   animateNumbers();
 }
 
 function renderPills(){
   const el=document.getElementById('pills'); const out=[];
   if(S.years.size) out.push({t:'Año',v:[...S.years].sort((a,b)=>a-b).join(', '),clr:()=>{S.years.clear();S.weeks.clear();}});
-  if(S.months.size) out.push({t:'Mes',v:[...S.months].sort((a,b)=>a-b).map(m=>mLab(m)).join(', '),clr:()=>{S.months.clear();S.weeks.clear();}});
+  if(S.months.size) out.push({t:'Mes',v:[...selMonthIdx()].sort((a,b)=>a-b).map(k=>MES[k]).join(', '),clr:()=>{S.months.clear();S.weeks.clear();}});
   if(S.weeks.size) out.push({t:'Semana',v:S.weeks.size===1?weekLabel([...S.weeks][0]).replace('Semana ',''):S.weeks.size+' semanas',clr:()=>S.weeks.clear()});
   DIMS.forEach(o=>{ if(S[o.k].size){ const s=[...S[o.k]]; out.push({t:o.label,v:s.length===1?title(D[o.k][s[0]]):s.length+' seleccionados',clr:()=>S[o.k].clear()}); } });
   el.innerHTML = out.map((p,i)=>'<button class="pill" data-i="'+i+'">'+esc(p.t)+': <b>'+esc(p.v)+'</b><i aria-hidden="true">&times;</i></button>').join('');
@@ -1299,9 +1350,16 @@ function mtStats(m){
 }
 function renderMetas(){
   const chips = document.getElementById('mtMonths');
-  const months = [...new Set(monthsAvail.concat(metasMonths()))].sort((a,b)=>a-b);
-  if(MT.month==null) MT.month = lastDataMonth();
-  chips.innerHTML = months.map(m=>'<button class="mchip" aria-pressed="'+(MT.month===m)+'" data-m="'+m+'">'+mLab(m)+'</button>').join('');
+  // Año de la página: el elegido en el filtro (el más reciente si hay varios) o el del último dato
+  const mtYear = S.years.size ? Math.max(...S.years) : mYear(lastDataMonth());
+  const base = (mtYear-ANIO)*12, months = Array.from({length:12},(_,k)=>base+k+1);
+  const has = new Set(monthsAvail.concat(metasMonths()));
+  if(MT.month==null || mYear(MT.month)!==mtYear){
+    const inYear = months.filter(m=>has.has(m)), last = lastDataMonth();
+    MT.month = mYear(last)===mtYear ? last : (inYear.length ? inYear[inYear.length-1] : base+1);
+  }
+  document.getElementById('mtYearLbl').textContent = 'Mes de '+mtYear+(S.years.size>1?' (el año más reciente elegido)':'');
+  chips.innerHTML = months.map((m,k)=>'<button class="mchip" aria-pressed="'+(MT.month===m)+'" data-m="'+m+'"'+(has.has(m)?'':' disabled')+'>'+MES[k]+'</button>').join('');
   chips.querySelectorAll('.mchip').forEach(b=>b.addEventListener('click',()=>{ MT.month=+b.dataset.m; MT.edit=false; renderMetas(); }));
   const m = MT.month, mf = metasFor(m);
   const {st, vIdx, dim, lastDay, complete, teamCl} = mtStats(m);
@@ -1847,6 +1905,155 @@ document.getElementById('clSearch').addEventListener('input', e => { CL.q = e.ta
 
 document.getElementById('clClear').addEventListener('click',()=>{ S.c.clear(); render(); });
 
+// ================= IMPORTACIONES (datos de aduana, partida 8517130090) =================
+// RAW.imp: {dims:{i,b,p,x,o,g}, cols:{y,m,i,b,p,x,o,q,c,f,fl}, rows, hasta, archivo}. Respeta Año y Mes del panel; Importador, Marca y Producto tienen filtros propios.
+const IP = RAW.imp && RAW.imp.rows ? RAW.imp : null;
+S.iI = new Set(); S.iB = new Set(); S.iP = new Set();
+const IPS = {limP:30, limX:50, sortP:'c', dirP:-1, sortX:'c', dirX:-1, qP:'', qX:''};
+const IP_LID = IP ? IP.dims.i.map((x,k)=>/LIDENAR/i.test(x)?k:-1).filter(k=>k>=0) : [];
+// opts.imp=false ignora el filtro de importador; opts.bp=false ignora marca y producto
+function ipRows(opts){
+  if(!IP) return [];
+  opts = opts||{}; const Q = IP.cols, ks = selMonthIdx(), out = [];
+  const useImp = opts.imp!==false, useBP = opts.bp!==false;
+  for(let i=0;i<IP.rows;i++){
+    if(S.years.size && !S.years.has(Q.y[i])) continue;
+    if(ks.size && !ks.has(Q.m[i]-1)) continue;
+    if(useImp && S.iI.size && !S.iI.has(Q.i[i])) continue;
+    if(useBP && S.iB.size && !S.iB.has(Q.b[i])) continue;
+    if(useBP && S.iP.size && !S.iP.has(Q.p[i])) continue;
+    out.push(i);
+  }
+  return out;
+}
+function ipSum(rows, keyFn){
+  const Q = IP.cols, m = new Map();
+  for(const i of rows){ const k = keyFn ? keyFn(i) : 0; let o = m.get(k); if(!o){ o = {k, q:0, c:0, f:0, fl:0, n:0}; m.set(k,o); } o.q+=Q.q[i]; o.c+=Q.c[i]; o.f+=Q.f[i]; o.fl+=Q.fl[i]; o.n++; }
+  return m;
+}
+const ipTop = (map) => { let b=null, bv=-Infinity; for(const [k,v] of map) if(v>bv){ bv=v; b=k; } return b; };
+function ipSortHead(st, sk, dk, k, t, tt){ return '<th class="'+(st[sk]===k?'s':'')+'" data-k="'+k+'"'+(tt?' title="'+tt+'"':'')+'>'+t+(st[sk]===k?(st[dk]<0?' ▼':' ▲'):'')+'</th>'; }
+function renderImp(){
+  const note = document.getElementById('ipNote'), body = document.getElementById('ipBody'), foot = document.getElementById('ipFoot');
+  if(!IP){ note.textContent = 'Aún no hay importaciones cargadas. Toca Actualizar datos y sube el Excel de importaciones de celulares (hoja Datos, con la columna Producto (modelo)).'; body.hidden = true; foot.textContent=''; return; }
+  body.hidden = false;
+  const Q = IP.cols, Dm = IP.dims;
+  const sel = ipRows(), base = ipRows({imp:false}), tiempo = ipRows({imp:false, bp:false});
+  const notes = [];
+  if(IP.hasta) notes.push('Datos de aduana hasta el '+IP.hasta+(IP.archivo?' ('+IP.archivo+')':'')+'.');
+  if(S.p.size||S.v.size||S.c.size||S.g.size||S.w.size||S.ci.size||S.b.size||S.m.size) notes.push('Los filtros de vendedor, cliente, canal, marca y modelo del panel no aplican aquí; usa los filtros de esta página. Sí aplican Año y Mes.');
+  note.textContent = notes.join(' ');
+
+  // KPIs
+  const T = ipSum(sel).get(0) || {q:0,c:0,f:0,fl:0,n:0};
+  const B = ipSum(base).get(0) || {q:0,c:0,f:0,fl:0,n:0};
+  const nImp = new Set(sel.map(i=>Q.i[i])).size, nProd = new Set(sel.map(i=>Q.p[i])).size;
+  let lid = 0; if(IP_LID.length){ const ls = new Set(IP_LID); for(const i of base) if(ls.has(Q.i[i])) lid += Q.c[i]; }
+  const cards = [
+    {lab:'CIF importado', val:money(T.c), foot:'FOB '+money(T.f)+' + flete y seguro '+money(T.fl)},
+    {lab:'Unidades', val:nf0.format(T.q), foot:nf0.format(nProd)+(nProd===1?' producto':' productos')},
+    {lab:'CIF por unidad', val:T.q?moneyD(T.c/T.q):'–', foot:'Costo puesto en Ecuador antes de impuestos'},
+    {lab:'Importadores', val:nf0.format(nImp), foot:'Con importaciones en la selección'},
+    {lab:'Flete y seguro', val:T.c?nf1.format(T.fl/T.c*100)+'%':'–', foot:'Del CIF'},
+    {lab:'Participación de Lidenar', val:B.c&&IP_LID.length?nf1.format(lid/B.c*100)+'%':'–', foot:IP_LID.length?money(lid)+' de '+money(B.c)+' de CIF del mercado'+(S.iB.size||S.iP.size?' (marca o producto elegidos)':''):'Lidenar no aparece como importador'}
+  ];
+  document.getElementById('ipKpis').innerHTML = cards.map(c=>'<div class="kpi"><div class="lab">'+c.lab+'</div><div class="val">'+c.val+'</div><div class="foot">'+c.foot+'</div></div>').join('');
+
+  // Importadores (sin su propio filtro, para poder elegir varios)
+  const byI = [...ipSum(base, i=>Q.i[i]).values()].sort((a,b)=>b.c-a.c);
+  const totB = byI.reduce((a,o)=>a+o.c,0)||1, mxI = byI.length?byI[0].c:1;
+  const showI = byI.slice(0, 15);
+  document.getElementById('ipImp').innerHTML = showI.map(o=>'<li data-i="'+o.k+'"'+(S.iI.has(o.k)?' class="sel"':'')+'><span class="nm">'+esc(title(Dm.i[o.k]))+'</span><span class="vv">'+compact(o.c)+'</span><span class="tr"><span style="width:'+(o.c/mxI*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(o.c/totB*100)+'% del CIF · '+nf0.format(o.q)+' u · '+(o.q?moneyD(o.c/o.q):'–')+' por unidad</span></li>').join('')
+    + (byI.length>15?'<li class="empty" style="cursor:default">y '+nf0.format(byI.length-15)+' importadores más (búscalos en el filtro Importador)</li>':'')
+    + (byI.length?'':'<li class="empty">Sin importaciones en la selección.</li>');
+  document.querySelectorAll('#ipImp li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.iI,+li.dataset.i); render(); }));
+
+  // Gráfico mensual por marca
+  if(charts.ip){ charts.ip.destroy(); delete charts.ip; }
+  if(typeof Chart!=='undefined'){
+    const mk = i => Q.y[i]*12 + Q.m[i]-1;
+    const keys = [...new Set(sel.map(mk))].sort((a,b)=>a-b);
+    const multiY = new Set(keys.map(k=>Math.floor(k/12))).size>1;
+    const byBr = [...ipSum(sel, i=>Q.b[i]).values()].sort((a,b)=>b.c-a.c);
+    const top = byBr.slice(0,6).map(o=>o.k), topS = new Set(top);
+    const ser = new Map(top.map(b=>[b, new Map()])), other = new Map();
+    for(const i of sel){ const k = mk(i), b = Q.b[i]; const mp = topS.has(b) ? ser.get(b) : other; mp.set(k, (mp.get(k)||0) + Q.c[i]); }
+    const bcol = name => BRAND_COL[name] || EXTRA[(Dm.b.indexOf(name)+3)%EXTRA.length];
+    const ds = top.map(b=>({label:Dm.b[b], data:keys.map(k=>ser.get(b).get(k)||0), backgroundColor:bcol(Dm.b[b]), borderRadius:2, maxBarThickness:46}));
+    if(other.size) ds.push({label:'Otras', data:keys.map(k=>other.get(k)||0), backgroundColor:css('--line'), borderRadius:2, maxBarThickness:46});
+    const o = baseOpts(); o.scales.x.stacked = true; o.scales.y.stacked = true; o.scales.y.ticks.callback = v=>compact(v);
+    o.plugins.tooltip.callbacks.label = ctx=>' '+ctx.dataset.label+': '+money(ctx.parsed.y);
+    o.plugins.tooltip.callbacks.footer = items=>'Total: '+money(items.reduce((a,b)=>a+b.parsed.y,0));
+    o.plugins.tooltip.itemSort = (a,b)=>b.parsed.y-a.parsed.y; o.plugins.tooltip.filter = it=>it.parsed.y!==0;
+    charts.ip = new Chart(document.getElementById('cIp'), {type:'bar', data:{labels:keys.map(k=>MES[k%12]+(multiY?' '+String(Math.floor(k/12)).slice(2):'')), datasets:ds}, options:o});
+  }
+
+  // Productos del mercado
+  const pTot = new Map(); for(const i of base){ pTot.set(Q.p[i], (pTot.get(Q.p[i])||0) + Q.c[i]); }
+  const pm = new Map();
+  for(const i of sel){ const k = Q.p[i]; let o = pm.get(k); if(!o){ o = {k, b:Q.b[i], q:0, c:0, imp:new Map()}; pm.set(k,o); } o.q+=Q.q[i]; o.c+=Q.c[i]; o.imp.set(Q.i[i], (o.imp.get(Q.i[i])||0)+Q.c[i]); }
+  let prods = [...pm.values()];
+  for(const o of prods){ o.cu = o.q ? o.c/o.q : 0; o.ni = o.imp.size; o.li = ipTop(o.imp); o.ls = o.c ? o.imp.get(o.li)/o.c : 0; }
+  if(IPS.qP){ const q = IPS.qP.toLowerCase(); prods = prods.filter(o=>Dm.p[o.k].toLowerCase().includes(q) || Dm.b[o.b].toLowerCase().includes(q)); }
+  const FP = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, ni:o=>o.ni, ls:o=>o.ls};
+  prods.sort((a,b)=>((FP[IPS.sortP]||FP.c)(b)-(FP[IPS.sortP]||FP.c)(a))*(IPS.dirP<0?1:-1));
+  const HP = (k,t,tt)=>ipSortHead(IPS,'sortP','dirP',k,t,tt);
+  let hp = '<thead><tr><th class="l">Producto</th><th class="l">Marca</th>'+HP('q','Unidades')+HP('c','CIF US$')+HP('cu','CIF por unidad')+HP('ni','Importadores')+'<th class="l">Importador líder</th>'+HP('ls','% del líder','CIF del importador líder ÷ CIF del producto')+'</tr></thead><tbody>';
+  for(const o of prods.slice(0, IPS.limP)){
+    hp += '<tr data-k="'+o.k+'"'+(S.iP.has(o.k)?' class="sel"':'')+'><td class="l" title="'+esc(Dm.p[o.k])+'">'+esc(Dm.p[o.k])+'</td><td class="l">'+esc(Dm.b[o.b])+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+o.ni+'</td><td class="l" title="'+esc(Dm.i[o.li])+'">'+esc(title(Dm.i[o.li]))+'</td><td>'+stCell({a:o.ls,n:1})+'</td></tr>';
+  }
+  if(!prods.length) hp += '<tr><td class="l" colspan="8">Sin productos para esta selección.</td></tr>';
+  const tp = document.getElementById('ipProd'); tp.innerHTML = hp+'</tbody>';
+  tp.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(IPS.sortP===k) IPS.dirP*=-1; else { IPS.sortP=k; IPS.dirP=-1; } renderImp(); }));
+  tp.querySelectorAll('tbody tr[data-k]').forEach(tr=>tr.addEventListener('click',()=>{ toggle(S.iP,+tr.dataset.k); render(); }));
+  const mp = document.getElementById('ipMoreP'); mp.parentElement.hidden = prods.length<=IPS.limP;
+  mp.textContent = 'Mostrar más productos ('+nf0.format(Math.min(IPS.limP,prods.length))+' de '+nf0.format(prods.length)+')';
+  document.getElementById('ipCountP').textContent = nf0.format(prods.length)+(prods.length===1?' producto':' productos');
+
+  // Importador por producto (como la hoja de Excel)
+  const iTot = new Map(); for(const i of tiempo){ iTot.set(Q.i[i], (iTot.get(Q.i[i])||0) + Q.c[i]); }
+  const xm = new Map();
+  for(const i of sel){ const k = Q.i[i]+'|'+Q.p[i]; let o = xm.get(k); if(!o){ o = {i:Q.i[i], p:Q.p[i], b:Q.b[i], q:0, c:0, f:0, fl:0, ex:new Map(), pa:new Map()}; xm.set(k,o); }
+    o.q+=Q.q[i]; o.c+=Q.c[i]; o.f+=Q.f[i]; o.fl+=Q.fl[i]; o.ex.set(Q.x[i], (o.ex.get(Q.x[i])||0)+Q.c[i]); o.pa.set(Q.o[i], (o.pa.get(Q.o[i])||0)+Q.c[i]); }
+  let xs = [...xm.values()];
+  for(const o of xs){ o.cu = o.q ? o.c/o.q : 0; o.pi = iTot.get(o.i) ? o.c/iTot.get(o.i) : 0; o.pp = pTot.get(o.p) ? o.c/pTot.get(o.p) : 0; }
+  if(IPS.qX){ const q = IPS.qX.toLowerCase(); xs = xs.filter(o=>Dm.i[o.i].toLowerCase().includes(q)||Dm.p[o.p].toLowerCase().includes(q)||Dm.b[o.b].toLowerCase().includes(q)); }
+  const FX = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, f:o=>o.f, fl:o=>o.fl, pi:o=>o.pi, pp:o=>o.pp};
+  if(IPS.sortX==='c' && IPS.dirX<0){ // orden por defecto: importador por CIF total y, dentro, producto por CIF
+    const it = new Map(); for(const o of xs) it.set(o.i, (it.get(o.i)||0)+o.c);
+    xs.sort((a,b)=> (it.get(b.i)-it.get(a.i)) || (a.i-b.i) || (b.c-a.c));
+  } else xs.sort((a,b)=>((FX[IPS.sortX]||FX.c)(b)-(FX[IPS.sortX]||FX.c)(a))*(IPS.dirX<0?1:-1));
+  const HX = (k,t,tt)=>ipSortHead(IPS,'sortX','dirX',k,t,tt);
+  let hx = '<thead><tr><th class="l">Importador</th><th class="l">Marca</th><th class="l">Producto</th>'+HX('q','Unidades')+HX('c','CIF US$')+HX('cu','CIF por unidad')+HX('f','FOB US$')+HX('fl','Flete y seguro')+HX('pi','% del importador','CIF de este producto ÷ CIF total del importador en el período')+HX('pp','Part. en el producto','CIF de este importador ÷ CIF de ese producto de todos los importadores')+'<th class="l">Exportador principal</th><th class="l">País de origen</th></tr></thead><tbody>';
+  for(const o of xs.slice(0, IPS.limX)){
+    const ex = ipTop(o.ex), pa = ipTop(o.pa);
+    hx += '<tr><td class="l" title="'+esc(Dm.i[o.i])+'">'+esc(title(Dm.i[o.i]))+'</td><td class="l">'+esc(Dm.b[o.b])+'</td><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+money(o.f)+'</td><td>'+money(o.fl)+'</td><td>'+nf1.format(o.pi*100)+'%</td><td>'+stCell({a:o.pp,n:1})+'</td><td class="l" title="'+esc(Dm.x[ex])+'">'+esc(title(Dm.x[ex]))+'</td><td class="l">'+esc(title(Dm.o[pa]))+'</td></tr>';
+  }
+  if(!xs.length) hx += '<tr><td class="l" colspan="12">Sin importaciones para esta selección.</td></tr>';
+  const tx = document.getElementById('ipX'); tx.innerHTML = hx+'</tbody>';
+  tx.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(IPS.sortX===k) IPS.dirX*=-1; else { IPS.sortX=k; IPS.dirX=-1; } renderImp(); }));
+  const mx2 = document.getElementById('ipMoreX'); mx2.parentElement.hidden = xs.length<=IPS.limX;
+  mx2.textContent = 'Mostrar más filas ('+nf0.format(Math.min(IPS.limX,xs.length))+' de '+nf0.format(xs.length)+')';
+  document.getElementById('ipCountX').textContent = nf0.format(xs.length)+(xs.length===1?' fila':' filas');
+
+  foot.textContent = 'Importaciones de celulares de todo el mercado ecuatoriano (partida 8517130090), según las declaraciones de aduana. CIF = costo de la mercadería más flete y seguro hasta Ecuador, en dólares. Producto = modelo comercial extraído de la descripción de la declaración (colores unificados); cuando solo viene el código de fábrica se muestra la familia con el código, por ejemplo TECNO POP (KN3). Participación de Lidenar = CIF importado por Lidenar ÷ CIF de todos los importadores, con los mismos filtros de año, mes, marca y producto. Responde a los filtros de Año y Mes del panel izquierdo.';
+}
+document.getElementById('ipMoreP').addEventListener('click',()=>{ IPS.limP+=30; renderImp(); });
+document.getElementById('ipMoreX').addEventListener('click',()=>{ IPS.limX+=50; renderImp(); });
+document.getElementById('ipSearchP').addEventListener('input',e=>{ IPS.qP=e.target.value.trim(); IPS.limP=30; renderImp(); });
+document.getElementById('ipSearchX').addEventListener('input',e=>{ IPS.qX=e.target.value.trim(); IPS.limX=50; renderImp(); });
+document.getElementById('ipClear').addEventListener('click',()=>{ S.iI.clear(); S.iB.clear(); S.iP.clear(); render(); });
+(function(){
+  if(!IP) return;
+  const box = document.getElementById('ipFilters'), clr = document.getElementById('ipClear'), tmp = document.createElement('div');
+  const Q = IP.cols;
+  const optsBy = k => { const t = new Map(); for(let i=0;i<IP.rows;i++){ if(k==='p' && S.iB.size && !S.iB.has(Q.b[i])) continue; t.set(Q[k][i], (t.get(Q[k][i])||0) + Q.c[i]); } return [...t.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]); };
+  buildMS('iI', 'Importador', ()=>optsBy('i'), i=>title(IP.dims.i[i]), tmp, 'ip_i');
+  buildMS('iB', 'Marca', ()=>optsBy('b'), i=>IP.dims.b[i], tmp, 'ip_b');
+  buildMS('iP', 'Producto', ()=>optsBy('p'), i=>IP.dims.p[i], tmp, 'ip_p');
+  [...tmp.children].forEach(n=>box.insertBefore(n, clr));
+})();
+
 // ================= ACTUALIZAR DATOS (procesa archivos de SAP en el navegador) =================
 (function(){
 const PH_TPL = '__' + 'TPL__', PH_DATA = '__' + 'DATA__';
@@ -1859,7 +2066,8 @@ const SLOTS = [
   {k:'cubM', label:'Cubo de ventas Movilcelistic', hint:'.xlsx'},
   {k:'imL',  label:'IMEI vendidos Lidenar', hint:'.xlsx'},
   {k:'imM',  label:'IMEI vendidos Movilcelistic', hint:'.xlsx'},
-  {k:'imA',  label:'Listado de IMEI activos', hint:'.xlsx, una hoja por marca'}
+  {k:'imA',  label:'Listado de IMEI activos', hint:'.xlsx, una hoja por marca'},
+  {k:'imp',  label:'Importaciones de celulares (aduana)', hint:'.xlsx con la hoja Datos y la columna Producto (modelo)'}
 ];
 const IC_NAMES = ['LIDENAR S.A.','MOVILCELISTIC DEL ECUADOR S.A.'];
 const files = {};
@@ -2040,6 +2248,40 @@ function parseVendidos(rows, e, fname, out){
   }
 }
 
+// ---------- importaciones (Excel de aduana) ----------
+function parseImp(sheets, fname){
+  const sh = sheets.find(s => s.rows[0] && s.rows[0].some(h => sp(h) === 'Importador') && s.rows[0].some(h => sp(h) === 'CIF total US$'));
+  if (!sh) throw new Error('En "' + fname + '" no encontré una hoja con las columnas Importador y CIF total US$.');
+  const h = sh.rows[0].map(sp); const ix = n => colIndex(h, n, true, fname), ox = n => colIndex(h, n, false, fname);
+  const iY = ox('Año'), iM = ox('Mes'), iF = ox('Fecha'), iI = ix('Importador'), iB = ix('Marca'), iG = ox('Grupo fabricante'),
+        iP = ox('Producto (modelo)'), iX = ox('Exportador'), iO = ox('País origen'), iQ = ix('Cantidad (U)'), iC = ix('CIF total US$'),
+        iFo = ox('FOB total US$'), iFl = ox('Flete+seguro US$');
+  if (iP < 0) log('El archivo no trae la columna Producto (modelo): los productos se agrupan solo por marca.', 'err');
+  const dims = {i:[], b:[], p:[], x:[], o:[], g:[]}, idx = {i:new Map(), b:new Map(), p:new Map(), x:new Map(), o:new Map()};
+  const id = (k, v) => { let j = idx[k].get(v); if (j == null) { j = dims[k].length; dims[k].push(v); idx[k].set(v, j); } return j; };
+  const agg = new Map(); let maxF = -Infinity, nIn = 0;
+  for (let r = 1; r < sh.rows.length; r++){
+    const x = sh.rows[r]; if (!x) continue;
+    let y = iY >= 0 ? Math.round(num(x[iY])) : 0, m = iM >= 0 ? Math.round(num(x[iM])) : 0;
+    const fv = iF >= 0 ? x[iF] : null;
+    if (typeof fv === 'number') { if (fv > maxF) maxF = fv; if (!y || !m) { const t = new Date(Math.round((fv - 25569) * 864e5)); y = t.getUTCFullYear(); m = t.getUTCMonth() + 1; } }
+    if (!y || !m) continue;
+    const marca = sp(x[iB]) || 'SIN MARCA';
+    const b = id('b', marca); if (dims.g[b] == null) dims.g[b] = iG >= 0 ? sp(x[iG]) : '';
+    const k = [y, m, id('i', orDash(x[iI])), b, id('p', iP >= 0 ? (sp(x[iP]) || marca + ' - MODELO NO IDENTIFICADO') : marca),
+               id('x', iX >= 0 ? orDash(x[iX]) : '—'), id('o', iO >= 0 ? orDash(x[iO]) : '—')].join(',');
+    let a = agg.get(k); if (!a) { a = [0, 0, 0, 0]; agg.set(k, a); }
+    a[0] += num(x[iQ]); a[1] += num(x[iC]); a[2] += iFo >= 0 ? num(x[iFo]) : 0; a[3] += iFl >= 0 ? num(x[iFl]) : 0; nIn++;
+  }
+  if (!agg.size) throw new Error('"' + fname + '" no tiene importaciones válidas.');
+  const cols = {y:[], m:[], i:[], b:[], p:[], x:[], o:[], q:[], c:[], f:[], fl:[]};
+  for (const [k, a] of agg) { const p = k.split(',').map(Number); ['y','m','i','b','p','x','o'].forEach((c, j) => cols[c].push(p[j]));
+    cols.q.push(Math.round(a[0])); cols.c.push(Math.round(a[1] * 100) / 100); cols.f.push(Math.round(a[2] * 100) / 100); cols.fl.push(Math.round(a[3] * 100) / 100); }
+  let hasta = null;
+  if (maxF > -Infinity) { const t = new Date(Math.round((maxF - 25569) * 864e5)); hasta = t.getUTCDate() + ' ' + mesc[t.getUTCMonth()] + ' ' + t.getUTCFullYear(); }
+  return {imp:{dims, cols, rows:cols.q.length, hasta, archivo:fname}, nIn};
+}
+
 // ---------- codificar todo al formato del tablero ----------
 function encode(sales, imei){
   const dimsS = {v:new Set(), c:new Set(), m:new Set(), g:new Set(), p:new Set(), b:new Set(), w:new Set(), ci:new Set()};
@@ -2158,11 +2400,21 @@ async function processAll(f, api){
     log('IMEI: ' + nf0.format(imeiRows.length) + ' únicos vendidos, ' + nf0.format(act) + ' activados (' + nf1.format(act / imeiRows.length * 100) + '%).', 'ok');
   } else imeiRows = currentImei(sh);
   await tick();
+  let impData = RAW.imp || null;
+  if (f.imp){
+    log('Leyendo importaciones...'); await tick();
+    const r = parseImp(await readSheets(f.imp), f.imp.name);
+    impData = r.imp;
+    const cif = r.imp.cols.c.reduce((a, b) => a + b, 0);
+    log('Importaciones: ' + nf0.format(r.nIn) + ' líneas, ' + nf0.format(r.imp.dims.i.length) + ' importadores, ' + nf0.format(r.imp.dims.p.length) + ' productos, CIF ' + money(cif) + (r.imp.hasta ? ', hasta el ' + r.imp.hasta : '') + '.', 'ok');
+    await tick();
+  }
   log('Armando el tablero...'); await tick();
   const data = encode(salesL.concat(salesM), imeiRows);
   data.metas = {}; for (const k in (RAW.metas || {})) data.metas[+k + shM] = RAW.metas[k];
   data.inv = newInv || (RAW.inv ? Object.assign({}, RAW.inv, {corte: RAW.inv.corte + sh}) : null);
   data.anio = anio0;
+  data.imp = impData;
   meta.actualizado = new Date().toISOString();
   data.meta = meta;
   // Año base = el año más antiguo que realmente queda en los datos
@@ -2291,7 +2543,7 @@ function showPage(p){
 function moveTabInd(){
   const b = tabsEl.querySelector('button[aria-selected="true"]'), ind = document.getElementById('tabInd');
   if(!b || !ind) return;
-  ind.style.width = b.offsetWidth+'px'; ind.style.transform = 'translateX('+b.offsetLeft+'px)';
+  ind.style.width = b.offsetWidth+'px'; ind.style.transform = 'translate('+b.offsetLeft+'px,'+(b.offsetTop+b.offsetHeight-3)+'px)';
 }
 window.addEventListener('resize', moveTabInd);
 let animQ=null; new MutationObserver(()=>{ if(animQ) return; animQ=requestAnimationFrame(()=>{ animQ=null; animateNumbers(); }); }).observe(document.querySelector('main'),{childList:true,subtree:true});
