@@ -74,12 +74,13 @@ button{font:inherit;color:inherit}
 .months{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .chip{background:var(--rail-chip);border:1px solid var(--rail-line);border-radius:6px;padding:7px 0;font-size:14px;cursor:pointer;color:var(--rail-ink);font-family:var(--f-num);font-weight:500}
 .chip:hover{border-color:var(--rail-muted)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-.chip:disabled{opacity:.35;cursor:default}
+/* Panel uniforme: mismo fondo para todo; lo elegido (chips y desplegables) con el mismo resaltado */
+.chip[aria-pressed="true"],.ms-btn.on{background:color-mix(in srgb,var(--accent) 55%,var(--rail-chip));border-color:var(--accent);color:#fff;font-weight:600}
+.chip:disabled{cursor:default;color:var(--rail-muted)}
+.chip:disabled:hover{border-color:var(--rail-line)}
 .ms{position:relative}
 .ms-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--rail-chip);border:1px solid var(--rail-line);border-radius:6px;padding:8px 10px;cursor:pointer;text-align:left;font-size:14px;color:var(--rail-ink)}
 .ms-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ms-btn.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .ms-btn svg{flex:none;opacity:.7}
 .ms-pop{margin-top:6px;background:var(--rail-chip);border:1px solid var(--rail-line);border-radius:8px;padding:8px}
 .ms-pop[hidden]{display:none}
@@ -204,6 +205,7 @@ table.tk{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
 .afilters .fgroup:first-child{width:min(180px,100%)}
 .afilters .flabel{display:block;font-size:13px;color:var(--muted);margin:0 0 5px}
 .afilters .ms-btn{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.afilters .ms-btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
 .afilters .ms-pop{position:absolute;left:0;right:0;z-index:20;background:var(--surface);border-color:var(--line);box-shadow:0 8px 24px rgba(0,0,0,.14);color:var(--ink)}
 .afilters .ms-pop input[type=search]{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
 .afilters .ms-opt:hover{background:var(--surface-2)}
@@ -311,6 +313,7 @@ table.at{width:100%;border-collapse:collapse;font-size:14px}
 .tc-g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px;border-top:1px solid var(--line);padding-top:8px;font-family:var(--f-num);font-size:13.5px;font-weight:600}
 .tc-g small{display:block;font-family:var(--f-ui);font-weight:400;font-size:11px;color:var(--muted)}
 .tdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0}
+.bdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0;background:var(--c)}
 .tchip{display:inline-flex;align-items:center}
 .tdk{grid-template-columns:repeat(4,minmax(0,1fr))}
 .ins{margin:0;padding-left:18px;font-size:14px;display:grid;gap:9px}
@@ -634,10 +637,19 @@ table.wst{font-size:13.5px}
     <div class="anote" id="ipNote"></div>
     <div id="ipBody">
     <section class="kpis" id="ipKpis" aria-label="Indicadores de importaciones"></section>
+    <section class="panel stack" aria-labelledby="hIpM">
+      <div class="ph"><div><h3 id="hIpM">Importaciones por mes y marca</h3><span class="hint" id="ipChartHint">Toca una marca de la leyenda para ocultarla</span></div>
+        <div class="seg" role="group" aria-label="Medida del gráfico" id="ipCm">
+          <button data-m="c" aria-pressed="true">CIF US$</button>
+          <button data-m="q" aria-pressed="false">Unidades</button>
+          <button data-m="p" aria-pressed="false">% del mes</button>
+        </div></div>
+      <div class="chart-box" style="height:400px"><canvas id="cIp"></canvas></div>
+    </section>
     <div class="grid2">
-      <section class="panel" aria-labelledby="hIpM">
-        <div class="ph"><h3 id="hIpM">CIF importado por mes</h3><span class="hint">US$, por marca</span></div>
-        <div class="chart-box tall"><canvas id="cIp"></canvas></div>
+      <section class="panel" aria-labelledby="hIpB">
+        <div class="ph"><h3 id="hIpB">Marcas</h3><span class="hint">Toca una para filtrar</span></div>
+        <ul class="bl brand" id="ipBr"></ul>
       </section>
       <section class="panel" aria-labelledby="hIpI">
         <div class="ph"><h3 id="hIpI">Importadores</h3><span class="hint">Toca uno para filtrar</span></div>
@@ -881,7 +893,7 @@ document.getElementById('metricSeg').addEventListener('click',e=>{ const b=e.tar
 document.getElementById('granSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.gran=b.dataset.g; render(); });
 document.getElementById('empSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.emp=+b.dataset.e; document.documentElement.dataset.emp=S.emp; mkCharts(); S.weeks.clear(); DIMS.forEach(o=>{ if(S.emp!==2) S[o.k].forEach(v=>{ if(!PRESENT[S.emp][o.k].has(v)) S[o.k].delete(v); }); }); render(); });
 document.getElementById('ivaSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.iva=b.dataset.i==='1'; render(); });
-document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.iI.clear(); S.iB.clear(); S.iP.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
+document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.iI.clear(); S.iB.clear(); S.iP.clear(); S.iS.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
 const rail=document.getElementById('rail'), scrim=document.getElementById('scrim');
 const openRail=()=>{rail.classList.add('open');scrim.classList.add('show');};
 const closeRail=()=>{rail.classList.remove('open');scrim.classList.remove('show');};
@@ -1908,8 +1920,23 @@ document.getElementById('clClear').addEventListener('click',()=>{ S.c.clear(); r
 // ================= IMPORTACIONES (datos de aduana, partida 8517130090) =================
 // RAW.imp: {dims:{i,b,p,x,o,g}, cols:{y,m,i,b,p,x,o,q,c,f,fl}, rows, hasta, archivo}. Respeta Año y Mes del panel; Importador, Marca y Producto tienen filtros propios.
 const IP = RAW.imp && RAW.imp.rows ? RAW.imp : null;
-S.iI = new Set(); S.iB = new Set(); S.iP = new Set();
-const IPS = {limP:30, limX:50, sortP:'c', dirP:-1, sortX:'c', dirX:-1, qP:'', qX:''};
+// Redmi es la línea económica de Xiaomi: en importaciones se reportan juntas como XIAOMI
+const IP_UNIR = {REDMI:'XIAOMI'};
+if(IP && IP.dims.b.some(b=>IP_UNIR[b])){
+  const nb = [], ng = [], ix = new Map();
+  const map = IP.dims.b.map((b,k)=>{ const n = IP_UNIR[b] || b; if(!ix.has(n)){ ix.set(n, nb.length); nb.push(n); ng.push(IP_UNIR[b] ? n : (IP.dims.g[k]||'')); } return ix.get(n); });
+  IP.cols.b = IP.cols.b.map(b=>map[b]); IP.dims.b = nb; IP.dims.g = ng;
+}
+// Colores fijos por marca en importaciones (el resto usa una paleta neutra)
+const IP_COL = {INFINIX:'#2E9E4F', HONOR:'#5BC0EB', SAMSUNG:'#1F4FA3', APPLE:'#9AA1A8', XIAOMI:'#F27C1E', TECNO:'#8E5BB5', ZTE:'#C0392B', MOTOROLA:'#D4537E', ITEL:'#B7950B', POCO:'#F6B26B', OPPO:'#6D4C41', REALME:'#E3B505'};
+const IP_EXTRA = ['#16A085','#7F8C8D','#2C3E50','#A0522D','#5D6D7E','#B03A2E'];
+const ipColor = b => IP_COL[IP.dims.b[b]] || IP_EXTRA[b % IP_EXTRA.length];
+S.iI = new Set(); S.iB = new Set(); S.iP = new Set(); S.iS = new Set();
+// Storage por modelo (archivos sin la columna Storage muestran "—")
+const IP_HAS_S = !!(IP && IP.cols.s && IP.dims.s && IP.dims.s.length);
+const ipS = i => IP_HAS_S ? IP.cols.s[i] : -1;
+const ipSName = s => s < 0 ? '—' : IP.dims.s[s];
+const IPS = {limP:30, limX:50, sortP:'c', dirP:-1, sortX:'c', dirX:-1, qP:'', qX:'', cm:'c'};
 const IP_LID = IP ? IP.dims.i.map((x,k)=>/LIDENAR/i.test(x)?k:-1).filter(k=>k>=0) : [];
 // opts.imp=false ignora el filtro de importador; opts.bp=false ignora marca y producto
 function ipRows(opts){
@@ -1922,6 +1949,7 @@ function ipRows(opts){
     if(useImp && S.iI.size && !S.iI.has(Q.i[i])) continue;
     if(useBP && S.iB.size && !S.iB.has(Q.b[i])) continue;
     if(useBP && S.iP.size && !S.iP.has(Q.p[i])) continue;
+    if(useBP && S.iS.size && !S.iS.has(ipS(i))) continue;
     out.push(i);
   }
   return out;
@@ -1968,68 +1996,99 @@ function renderImp(){
     + (byI.length?'':'<li class="empty">Sin importaciones en la selección.</li>');
   document.querySelectorAll('#ipImp li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.iI,+li.dataset.i); render(); }));
 
-  // Gráfico mensual por marca
+  // Marcas (sin el filtro de marca ni de producto, para poder elegir varias)
+  const brRows = ipRows({bp:false});
+  const byB = [...ipSum(brRows, i=>Q.b[i]).values()].sort((a,b)=>b.c-a.c);
+  const totBr = byB.reduce((a,o)=>a+o.c,0)||1, mxB = byB.length?byB[0].c:1;
+  document.getElementById('ipBr').innerHTML = byB.slice(0,12).map(o=>'<li data-i="'+o.k+'" style="--c:'+ipColor(o.k)+'"'+(S.iB.has(o.k)?' class="sel"':'')+'><span class="nm"><span class="sw"></span>'+esc(Dm.b[o.k])+'</span><span class="vv">'+compact(o.c)+'</span><span class="tr"><span style="width:'+(o.c/mxB*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(o.c/totBr*100)+'% del CIF · '+nf0.format(o.q)+' u · '+(o.q?moneyD(o.c/o.q):'–')+' por unidad</span></li>').join('')
+    + (byB.length>12?'<li class="empty" style="cursor:default">y '+nf0.format(byB.length-12)+' marcas más (búscalas en el filtro Marca)</li>':'');
+  document.querySelectorAll('#ipBr li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.iB,+li.dataset.i); render(); }));
+
+  // Gráfico mensual por marca: CIF, unidades o % del mes
+  document.querySelectorAll('#ipCm button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.m===IPS.cm));
   if(charts.ip){ charts.ip.destroy(); delete charts.ip; }
   if(typeof Chart!=='undefined'){
+    const cm = IPS.cm, vOf = i => cm==='q' ? Q.q[i] : Q.c[i];
     const mk = i => Q.y[i]*12 + Q.m[i]-1;
     const keys = [...new Set(sel.map(mk))].sort((a,b)=>a-b);
     const multiY = new Set(keys.map(k=>Math.floor(k/12))).size>1;
-    const byBr = [...ipSum(sel, i=>Q.b[i]).values()].sort((a,b)=>b.c-a.c);
-    const top = byBr.slice(0,6).map(o=>o.k), topS = new Set(top);
-    const ser = new Map(top.map(b=>[b, new Map()])), other = new Map();
-    for(const i of sel){ const k = mk(i), b = Q.b[i]; const mp = topS.has(b) ? ser.get(b) : other; mp.set(k, (mp.get(k)||0) + Q.c[i]); }
-    const bcol = name => BRAND_COL[name] || EXTRA[(Dm.b.indexOf(name)+3)%EXTRA.length];
-    const ds = top.map(b=>({label:Dm.b[b], data:keys.map(k=>ser.get(b).get(k)||0), backgroundColor:bcol(Dm.b[b]), borderRadius:2, maxBarThickness:46}));
-    if(other.size) ds.push({label:'Otras', data:keys.map(k=>other.get(k)||0), backgroundColor:css('--line'), borderRadius:2, maxBarThickness:46});
-    const o = baseOpts(); o.scales.x.stacked = true; o.scales.y.stacked = true; o.scales.y.ticks.callback = v=>compact(v);
-    o.plugins.tooltip.callbacks.label = ctx=>' '+ctx.dataset.label+': '+money(ctx.parsed.y);
-    o.plugins.tooltip.callbacks.footer = items=>'Total: '+money(items.reduce((a,b)=>a+b.parsed.y,0));
+    const byBr = [...ipSum(sel, i=>Q.b[i]).values()].sort((a,b)=>(cm==='q'?b.q-a.q:b.c-a.c));
+    const top = byBr.slice(0,8).map(o=>o.k), topS = new Set(top);
+    const ser = new Map(top.map(b=>[b, new Map()])), other = new Map(), tot = new Map();
+    for(const i of sel){ const k = mk(i), b = Q.b[i], v = vOf(i); const mp = topS.has(b) ? ser.get(b) : other; mp.set(k, (mp.get(k)||0) + v); tot.set(k, (tot.get(k)||0) + v); }
+    const val = (mp, k) => { const v = mp.get(k)||0; return cm==='p' ? (tot.get(k) ? v/tot.get(k)*100 : 0) : v; };
+    const surf = css('--surface');
+    const ds = top.map(b=>({label:Dm.b[b], data:keys.map(k=>val(ser.get(b),k)), raw:keys.map(k=>ser.get(b).get(k)||0), backgroundColor:ipColor(b), borderColor:surf, borderWidth:1, borderSkipped:false, maxBarThickness:58}));
+    if(other.size) ds.push({label:'Otras marcas', data:keys.map(k=>val(other,k)), raw:keys.map(k=>other.get(k)||0), backgroundColor:css('--line'), borderColor:surf, borderWidth:1, borderSkipped:false, maxBarThickness:58});
+    const fmtV = v => cm==='q' ? nf0.format(Math.round(v))+' u' : money(v);
+    const o = baseOpts(); o.scales.x.stacked = true; o.scales.y.stacked = true;
+    o.datasets = {bar:{categoryPercentage:.78, barPercentage:.92}};
+    o.layout = {padding:{top:cm==='p'?4:22}};
+    o.plugins.legend.position = 'top'; o.plugins.legend.align = 'start';
+    o.plugins.legend.labels = Object.assign({}, o.plugins.legend.labels, {usePointStyle:true, pointStyle:'rectRounded', boxWidth:12, boxHeight:12, padding:14, font:{family:'Barlow', size:13}});
+    if(cm==='p'){ o.scales.y.max = 100; o.scales.y.ticks.callback = v=>v+'%'; }
+    else o.scales.y.ticks.callback = v=>cm==='q' ? compact(v,true) : compact(v);
+    o.scales.y.ticks.maxTicksLimit = 6;
+    o.plugins.tooltip.callbacks.label = ctx=>{ const r = ctx.dataset.raw[ctx.dataIndex], t = tot.get(keys[ctx.dataIndex])||0; return ' '+ctx.dataset.label+': '+fmtV(r)+' ('+nf1.format(t?r/t*100:0)+'% del mes)'; };
+    o.plugins.tooltip.callbacks.footer = items=>items.length?'Total del mes: '+fmtV(tot.get(keys[items[0].dataIndex])||0):'';
     o.plugins.tooltip.itemSort = (a,b)=>b.parsed.y-a.parsed.y; o.plugins.tooltip.filter = it=>it.parsed.y!==0;
-    charts.ip = new Chart(document.getElementById('cIp'), {type:'bar', data:{labels:keys.map(k=>MES[k%12]+(multiY?' '+String(Math.floor(k/12)).slice(2):'')), datasets:ds}, options:o});
+    // Total encima de cada barra (solo CIF y unidades), con las marcas visibles
+    const totals = {id:'ipTotals', afterDatasetsDraw(ch){
+      if(cm==='p') return;
+      const g = ch.ctx, ys = ch.scales.y, xs = ch.scales.x;
+      g.save(); g.fillStyle = css('--ink'); g.font = '600 12px "Barlow Semi Condensed", Barlow, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'bottom';
+      keys.forEach((k,j)=>{ let s = 0; ch.data.datasets.forEach((d,di)=>{ if(ch.isDatasetVisible(di)) s += d.data[j]||0; });
+        if(s>0) g.fillText(cm==='q' ? compact(s,true) : compact(s), xs.getPixelForValue(j), ys.getPixelForValue(s)-4); });
+      g.restore(); }};
+    charts.ip = new Chart(document.getElementById('cIp'), {type:'bar', data:{labels:keys.map(k=>MES[k%12]+(multiY?' '+String(Math.floor(k/12)).slice(2):'')), datasets:ds}, options:o, plugins:[totals]});
+    document.getElementById('ipChartHint').textContent = (cm==='p' ? 'Participación de cada marca en el total del mes' : (cm==='q' ? 'Unidades importadas' : 'CIF en dólares'))+'. Toca una marca de la leyenda para ocultarla.';
   }
 
-  // Productos del mercado
-  const pTot = new Map(); for(const i of base){ pTot.set(Q.p[i], (pTot.get(Q.p[i])||0) + Q.c[i]); }
+  // Productos del mercado: una fila por modelo y storage
+  const psKey = i => Q.p[i]+'|'+ipS(i);
+  const pTot = new Map(); for(const i of base){ const k = psKey(i); pTot.set(k, (pTot.get(k)||0) + Q.c[i]); }
   const pm = new Map();
-  for(const i of sel){ const k = Q.p[i]; let o = pm.get(k); if(!o){ o = {k, b:Q.b[i], q:0, c:0, imp:new Map()}; pm.set(k,o); } o.q+=Q.q[i]; o.c+=Q.c[i]; o.imp.set(Q.i[i], (o.imp.get(Q.i[i])||0)+Q.c[i]); }
+  for(const i of sel){ const k = psKey(i); let o = pm.get(k); if(!o){ o = {k, p:Q.p[i], s:ipS(i), b:Q.b[i], q:0, c:0, imp:new Map()}; pm.set(k,o); } o.q+=Q.q[i]; o.c+=Q.c[i]; o.imp.set(Q.i[i], (o.imp.get(Q.i[i])||0)+Q.c[i]); }
   let prods = [...pm.values()];
-  for(const o of prods){ o.cu = o.q ? o.c/o.q : 0; o.ni = o.imp.size; o.li = ipTop(o.imp); o.ls = o.c ? o.imp.get(o.li)/o.c : 0; }
-  if(IPS.qP){ const q = IPS.qP.toLowerCase(); prods = prods.filter(o=>Dm.p[o.k].toLowerCase().includes(q) || Dm.b[o.b].toLowerCase().includes(q)); }
-  const FP = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, ni:o=>o.ni, ls:o=>o.ls};
+  // Unidades del modelo (todos los storage) para mostrar qué parte es cada storage
+  const mU = new Map(); for(const o of prods) mU.set(o.p, (mU.get(o.p)||0)+o.q);
+  for(const o of prods){ o.cu = o.q ? o.c/o.q : 0; o.ni = o.imp.size; o.li = ipTop(o.imp); o.ls = o.c ? o.imp.get(o.li)/o.c : 0; o.sm = mU.get(o.p) ? o.q/mU.get(o.p) : 0; }
+  if(IPS.qP){ const q = IPS.qP.toLowerCase(); prods = prods.filter(o=>Dm.p[o.p].toLowerCase().includes(q) || Dm.b[o.b].toLowerCase().includes(q) || ipSName(o.s).toLowerCase().includes(q)); }
+  const FP = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, ni:o=>o.ni, ls:o=>o.ls, sm:o=>o.sm};
   prods.sort((a,b)=>((FP[IPS.sortP]||FP.c)(b)-(FP[IPS.sortP]||FP.c)(a))*(IPS.dirP<0?1:-1));
   const HP = (k,t,tt)=>ipSortHead(IPS,'sortP','dirP',k,t,tt);
-  let hp = '<thead><tr><th class="l">Producto</th><th class="l">Marca</th>'+HP('q','Unidades')+HP('c','CIF US$')+HP('cu','CIF por unidad')+HP('ni','Importadores')+'<th class="l">Importador líder</th>'+HP('ls','% del líder','CIF del importador líder ÷ CIF del producto')+'</tr></thead><tbody>';
+  let hp = '<thead><tr><th class="l">Producto</th><th class="l">Storage</th><th class="l">Marca</th>'+HP('q','Unidades')+HP('sm','% del modelo','Unidades de este storage ÷ unidades del modelo en todos sus storage')+HP('c','CIF US$')+HP('cu','CIF por unidad')+HP('ni','Importadores')+'<th class="l">Importador líder</th>'+HP('ls','% del líder','CIF del importador líder ÷ CIF del producto con ese storage')+'</tr></thead><tbody>';
   for(const o of prods.slice(0, IPS.limP)){
-    hp += '<tr data-k="'+o.k+'"'+(S.iP.has(o.k)?' class="sel"':'')+'><td class="l" title="'+esc(Dm.p[o.k])+'">'+esc(Dm.p[o.k])+'</td><td class="l">'+esc(Dm.b[o.b])+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+o.ni+'</td><td class="l" title="'+esc(Dm.i[o.li])+'">'+esc(title(Dm.i[o.li]))+'</td><td>'+stCell({a:o.ls,n:1})+'</td></tr>';
+    hp += '<tr data-k="'+o.p+'"'+(S.iP.has(o.p)?' class="sel"':'')+'><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td class="l"><b>'+esc(ipSName(o.s))+'</b></td><td class="l"><span class="bdot" style="--c:'+ipColor(o.b)+'"></span>'+esc(Dm.b[o.b])+'</td><td>'+nf0.format(o.q)+'</td><td>'+nf0.format(o.sm*100)+'%</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+o.ni+'</td><td class="l" title="'+esc(Dm.i[o.li])+'">'+esc(title(Dm.i[o.li]))+'</td><td>'+stCell({a:o.ls,n:1})+'</td></tr>';
   }
-  if(!prods.length) hp += '<tr><td class="l" colspan="8">Sin productos para esta selección.</td></tr>';
+  if(!prods.length) hp += '<tr><td class="l" colspan="10">Sin productos para esta selección.</td></tr>';
   const tp = document.getElementById('ipProd'); tp.innerHTML = hp+'</tbody>';
   tp.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(IPS.sortP===k) IPS.dirP*=-1; else { IPS.sortP=k; IPS.dirP=-1; } renderImp(); }));
   tp.querySelectorAll('tbody tr[data-k]').forEach(tr=>tr.addEventListener('click',()=>{ toggle(S.iP,+tr.dataset.k); render(); }));
   const mp = document.getElementById('ipMoreP'); mp.parentElement.hidden = prods.length<=IPS.limP;
   mp.textContent = 'Mostrar más productos ('+nf0.format(Math.min(IPS.limP,prods.length))+' de '+nf0.format(prods.length)+')';
-  document.getElementById('ipCountP').textContent = nf0.format(prods.length)+(prods.length===1?' producto':' productos');
+  document.getElementById('ipCountP').textContent = nf0.format(prods.length)+(IP_HAS_S?' modelos y storage':(prods.length===1?' producto':' productos'));
 
   // Importador por producto (como la hoja de Excel)
   const iTot = new Map(); for(const i of tiempo){ iTot.set(Q.i[i], (iTot.get(Q.i[i])||0) + Q.c[i]); }
   const xm = new Map();
-  for(const i of sel){ const k = Q.i[i]+'|'+Q.p[i]; let o = xm.get(k); if(!o){ o = {i:Q.i[i], p:Q.p[i], b:Q.b[i], q:0, c:0, f:0, fl:0, ex:new Map(), pa:new Map()}; xm.set(k,o); }
+  for(const i of sel){ const k = Q.i[i]+'|'+psKey(i); let o = xm.get(k); if(!o){ o = {i:Q.i[i], p:Q.p[i], s:ipS(i), b:Q.b[i], q:0, c:0, f:0, fl:0, ex:new Map(), pa:new Map()}; xm.set(k,o); }
     o.q+=Q.q[i]; o.c+=Q.c[i]; o.f+=Q.f[i]; o.fl+=Q.fl[i]; o.ex.set(Q.x[i], (o.ex.get(Q.x[i])||0)+Q.c[i]); o.pa.set(Q.o[i], (o.pa.get(Q.o[i])||0)+Q.c[i]); }
   let xs = [...xm.values()];
-  for(const o of xs){ o.cu = o.q ? o.c/o.q : 0; o.pi = iTot.get(o.i) ? o.c/iTot.get(o.i) : 0; o.pp = pTot.get(o.p) ? o.c/pTot.get(o.p) : 0; }
-  if(IPS.qX){ const q = IPS.qX.toLowerCase(); xs = xs.filter(o=>Dm.i[o.i].toLowerCase().includes(q)||Dm.p[o.p].toLowerCase().includes(q)||Dm.b[o.b].toLowerCase().includes(q)); }
+  for(const o of xs){ const pk = o.p+'|'+o.s; o.cu = o.q ? o.c/o.q : 0; o.pi = iTot.get(o.i) ? o.c/iTot.get(o.i) : 0; o.pp = pTot.get(pk) ? o.c/pTot.get(pk) : 0; }
+  if(IPS.qX){ const q = IPS.qX.toLowerCase(); xs = xs.filter(o=>Dm.i[o.i].toLowerCase().includes(q)||Dm.p[o.p].toLowerCase().includes(q)||Dm.b[o.b].toLowerCase().includes(q)||ipSName(o.s).toLowerCase().includes(q)); }
   const FX = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, f:o=>o.f, fl:o=>o.fl, pi:o=>o.pi, pp:o=>o.pp};
   if(IPS.sortX==='c' && IPS.dirX<0){ // orden por defecto: importador por CIF total y, dentro, producto por CIF
     const it = new Map(); for(const o of xs) it.set(o.i, (it.get(o.i)||0)+o.c);
     xs.sort((a,b)=> (it.get(b.i)-it.get(a.i)) || (a.i-b.i) || (b.c-a.c));
   } else xs.sort((a,b)=>((FX[IPS.sortX]||FX.c)(b)-(FX[IPS.sortX]||FX.c)(a))*(IPS.dirX<0?1:-1));
   const HX = (k,t,tt)=>ipSortHead(IPS,'sortX','dirX',k,t,tt);
-  let hx = '<thead><tr><th class="l">Importador</th><th class="l">Marca</th><th class="l">Producto</th>'+HX('q','Unidades')+HX('c','CIF US$')+HX('cu','CIF por unidad')+HX('f','FOB US$')+HX('fl','Flete y seguro')+HX('pi','% del importador','CIF de este producto ÷ CIF total del importador en el período')+HX('pp','Part. en el producto','CIF de este importador ÷ CIF de ese producto de todos los importadores')+'<th class="l">Exportador principal</th><th class="l">País de origen</th></tr></thead><tbody>';
+  let hx = '<thead><tr><th class="l">Importador</th><th class="l">Marca</th><th class="l">Producto</th><th class="l">Storage</th>'+HX('q','Unidades')+HX('c','CIF US$')+HX('cu','CIF por unidad')+HX('f','FOB US$')+HX('fl','Flete y seguro')+HX('pi','% del importador','CIF de este producto ÷ CIF total del importador en el período')+HX('pp','Part. en el producto','CIF de este importador ÷ CIF de ese producto de todos los importadores')+'<th class="l">Exportador principal</th><th class="l">País de origen</th></tr></thead><tbody>';
   for(const o of xs.slice(0, IPS.limX)){
     const ex = ipTop(o.ex), pa = ipTop(o.pa);
-    hx += '<tr><td class="l" title="'+esc(Dm.i[o.i])+'">'+esc(title(Dm.i[o.i]))+'</td><td class="l">'+esc(Dm.b[o.b])+'</td><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+money(o.f)+'</td><td>'+money(o.fl)+'</td><td>'+nf1.format(o.pi*100)+'%</td><td>'+stCell({a:o.pp,n:1})+'</td><td class="l" title="'+esc(Dm.x[ex])+'">'+esc(title(Dm.x[ex]))+'</td><td class="l">'+esc(title(Dm.o[pa]))+'</td></tr>';
+    hx += '<tr><td class="l" title="'+esc(Dm.i[o.i])+'">'+esc(title(Dm.i[o.i]))+'</td><td class="l"><span class="bdot" style="--c:'+ipColor(o.b)+'"></span>'+esc(Dm.b[o.b])+'</td><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td class="l">'+esc(ipSName(o.s))+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+money(o.f)+'</td><td>'+money(o.fl)+'</td><td>'+nf1.format(o.pi*100)+'%</td><td>'+stCell({a:o.pp,n:1})+'</td><td class="l" title="'+esc(Dm.x[ex])+'">'+esc(title(Dm.x[ex]))+'</td><td class="l">'+esc(title(Dm.o[pa]))+'</td></tr>';
   }
-  if(!xs.length) hx += '<tr><td class="l" colspan="12">Sin importaciones para esta selección.</td></tr>';
+  if(!xs.length) hx += '<tr><td class="l" colspan="13">Sin importaciones para esta selección.</td></tr>';
   const tx = document.getElementById('ipX'); tx.innerHTML = hx+'</tbody>';
   tx.querySelectorAll('th[data-k]').forEach(th=>th.addEventListener('click',()=>{ const k=th.dataset.k; if(IPS.sortX===k) IPS.dirX*=-1; else { IPS.sortX=k; IPS.dirX=-1; } renderImp(); }));
   const mx2 = document.getElementById('ipMoreX'); mx2.parentElement.hidden = xs.length<=IPS.limX;
@@ -2038,19 +2097,21 @@ function renderImp(){
 
   foot.textContent = 'Importaciones de celulares de todo el mercado ecuatoriano (partida 8517130090), según las declaraciones de aduana. CIF = costo de la mercadería más flete y seguro hasta Ecuador, en dólares. Producto = modelo comercial extraído de la descripción de la declaración (colores unificados); cuando solo viene el código de fábrica se muestra la familia con el código, por ejemplo TECNO POP (KN3). Participación de Lidenar = CIF importado por Lidenar ÷ CIF de todos los importadores, con los mismos filtros de año, mes, marca y producto. Responde a los filtros de Año y Mes del panel izquierdo.';
 }
+document.getElementById('ipCm').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; IPS.cm=b.dataset.m; renderImp(); });
 document.getElementById('ipMoreP').addEventListener('click',()=>{ IPS.limP+=30; renderImp(); });
 document.getElementById('ipMoreX').addEventListener('click',()=>{ IPS.limX+=50; renderImp(); });
 document.getElementById('ipSearchP').addEventListener('input',e=>{ IPS.qP=e.target.value.trim(); IPS.limP=30; renderImp(); });
 document.getElementById('ipSearchX').addEventListener('input',e=>{ IPS.qX=e.target.value.trim(); IPS.limX=50; renderImp(); });
-document.getElementById('ipClear').addEventListener('click',()=>{ S.iI.clear(); S.iB.clear(); S.iP.clear(); render(); });
+document.getElementById('ipClear').addEventListener('click',()=>{ S.iI.clear(); S.iB.clear(); S.iP.clear(); S.iS.clear(); render(); });
 (function(){
   if(!IP) return;
   const box = document.getElementById('ipFilters'), clr = document.getElementById('ipClear'), tmp = document.createElement('div');
   const Q = IP.cols;
-  const optsBy = k => { const t = new Map(); for(let i=0;i<IP.rows;i++){ if(k==='p' && S.iB.size && !S.iB.has(Q.b[i])) continue; t.set(Q[k][i], (t.get(Q[k][i])||0) + Q.c[i]); } return [...t.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]); };
+  const optsBy = k => { const t = new Map(); for(let i=0;i<IP.rows;i++){ if((k==='p'||k==='s') && S.iB.size && !S.iB.has(Q.b[i])) continue; if(k==='s' && S.iP.size && !S.iP.has(Q.p[i])) continue; t.set(Q[k][i], (t.get(Q[k][i])||0) + Q.c[i]); } return [...t.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]); };
   buildMS('iI', 'Importador', ()=>optsBy('i'), i=>title(IP.dims.i[i]), tmp, 'ip_i');
   buildMS('iB', 'Marca', ()=>optsBy('b'), i=>IP.dims.b[i], tmp, 'ip_b');
   buildMS('iP', 'Producto', ()=>optsBy('p'), i=>IP.dims.p[i], tmp, 'ip_p');
+  if(IP_HAS_S) buildMS('iS', 'Storage', ()=>optsBy('s'), i=>IP.dims.s[i], tmp, 'ip_s');
   [...tmp.children].forEach(n=>box.insertBefore(n, clr));
 })();
 
@@ -2253,11 +2314,18 @@ function parseImp(sheets, fname){
   const sh = sheets.find(s => s.rows[0] && s.rows[0].some(h => sp(h) === 'Importador') && s.rows[0].some(h => sp(h) === 'CIF total US$'));
   if (!sh) throw new Error('En "' + fname + '" no encontré una hoja con las columnas Importador y CIF total US$.');
   const h = sh.rows[0].map(sp); const ix = n => colIndex(h, n, true, fname), ox = n => colIndex(h, n, false, fname);
-  const iY = ox('Año'), iM = ox('Mes'), iF = ox('Fecha'), iI = ix('Importador'), iB = ix('Marca'), iG = ox('Grupo fabricante'),
-        iP = ox('Producto (modelo)'), iX = ox('Exportador'), iO = ox('País origen'), iQ = ix('Cantidad (U)'), iC = ix('CIF total US$'),
+  // Modelo y marca: se usa la primera columna que exista de cada lista
+  const first = names => { for (const n of names) { const i = ox(n); if (i >= 0) return i; } return -1; };
+  const iY = ox('Año'), iM = ox('Mes'), iF = ox('Fecha'), iI = ix('Importador'), iG = ox('Grupo fabricante'),
+        iB = first(['Marca análisis', 'Marca']), iP = first(['Producto (modelo)', 'Modelo principal', 'Modelo']),
+        iS = first(['Storage', 'Almacenamiento', 'Memoria (GB)']),
+        iX = ox('Exportador'), iO = ox('País origen'), iQ = ix('Cantidad (U)'), iC = ix('CIF total US$'),
         iFo = ox('FOB total US$'), iFl = ox('Flete+seguro US$');
-  if (iP < 0) log('El archivo no trae la columna Producto (modelo): los productos se agrupan solo por marca.', 'err');
-  const dims = {i:[], b:[], p:[], x:[], o:[], g:[]}, idx = {i:new Map(), b:new Map(), p:new Map(), x:new Map(), o:new Map()};
+  if (iB < 0) throw new Error('En "' + fname + '" no encontré la columna Marca.');
+  if (iP < 0) log('El archivo no trae una columna de modelo (Producto (modelo), Modelo principal o Modelo): los productos se agrupan solo por marca.', 'err');
+  else log('Modelo tomado de la columna ' + h[iP] + ' y marca de ' + h[iB] + (iS >= 0 ? '; storage de ' + h[iS] : '; el archivo no trae storage') + '.');
+  const dims = {i:[], b:[], p:[], x:[], o:[], g:[], s:[]}, idx = {i:new Map(), b:new Map(), p:new Map(), x:new Map(), o:new Map(), s:new Map()};
+  const stor = v => { if (typeof v === 'number') return v ? (v >= 1024 ? v / 1024 + 'TB' : v + 'GB') : 'N/D'; const s = sp(v).toUpperCase(); return s || 'N/D'; };
   const id = (k, v) => { let j = idx[k].get(v); if (j == null) { j = dims[k].length; dims[k].push(v); idx[k].set(v, j); } return j; };
   const agg = new Map(); let maxF = -Infinity, nIn = 0;
   for (let r = 1; r < sh.rows.length; r++){
@@ -2269,13 +2337,13 @@ function parseImp(sheets, fname){
     const marca = sp(x[iB]) || 'SIN MARCA';
     const b = id('b', marca); if (dims.g[b] == null) dims.g[b] = iG >= 0 ? sp(x[iG]) : '';
     const k = [y, m, id('i', orDash(x[iI])), b, id('p', iP >= 0 ? (sp(x[iP]) || marca + ' - MODELO NO IDENTIFICADO') : marca),
-               id('x', iX >= 0 ? orDash(x[iX]) : '—'), id('o', iO >= 0 ? orDash(x[iO]) : '—')].join(',');
+               id('x', iX >= 0 ? orDash(x[iX]) : '—'), id('o', iO >= 0 ? orDash(x[iO]) : '—'), id('s', iS >= 0 ? stor(x[iS]) : 'N/D')].join(',');
     let a = agg.get(k); if (!a) { a = [0, 0, 0, 0]; agg.set(k, a); }
     a[0] += num(x[iQ]); a[1] += num(x[iC]); a[2] += iFo >= 0 ? num(x[iFo]) : 0; a[3] += iFl >= 0 ? num(x[iFl]) : 0; nIn++;
   }
   if (!agg.size) throw new Error('"' + fname + '" no tiene importaciones válidas.');
-  const cols = {y:[], m:[], i:[], b:[], p:[], x:[], o:[], q:[], c:[], f:[], fl:[]};
-  for (const [k, a] of agg) { const p = k.split(',').map(Number); ['y','m','i','b','p','x','o'].forEach((c, j) => cols[c].push(p[j]));
+  const cols = {y:[], m:[], i:[], b:[], p:[], x:[], o:[], s:[], q:[], c:[], f:[], fl:[]};
+  for (const [k, a] of agg) { const p = k.split(',').map(Number); ['y','m','i','b','p','x','o','s'].forEach((c, j) => cols[c].push(p[j]));
     cols.q.push(Math.round(a[0])); cols.c.push(Math.round(a[1] * 100) / 100); cols.f.push(Math.round(a[2] * 100) / 100); cols.fl.push(Math.round(a[3] * 100) / 100); }
   let hasta = null;
   if (maxF > -Infinity) { const t = new Date(Math.round((maxF - 25569) * 864e5)); hasta = t.getUTCDate() + ' ' + mesc[t.getUTCMonth()] + ' ' + t.getUTCFullYear(); }
@@ -2483,7 +2551,9 @@ async function runUpdate(f, api){
       }
     } else {
       log('Este visor no permite guardar. Te muestro los datos nuevos solo en esta pantalla (no se guardan).', 'err'); await tick();
-      document.open(); document.write(html); document.close();
+      // Chart.js ya está cargado en esta ventana: se quita su <script> para no recargarlo con document.write (Chrome lo advierte y puede bloquearlo)
+      const local = window.Chart ? html.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js@[^"]+"><\/script>/, '') : html;
+      document.open(); document.write(local); document.close();
     }
   } catch (err) {
     log((err && err.message) || String(err), 'err');
