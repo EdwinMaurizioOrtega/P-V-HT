@@ -392,6 +392,10 @@ table.wst{font-size:13.5px}
     <h2>Filtros</h2>
     <p class="sub">Todo el tablero responde a esta selección.</p>
     <div class="fgroup">
+      <span class="flabel">Año</span>
+      <div class="months" id="years"></div>
+    </div>
+    <div class="fgroup">
       <span class="flabel">Mes</span>
       <div class="months" id="months"></div>
     </div>
@@ -678,10 +682,13 @@ const isoWk = w => { const t=dateOf(w*7-WOFF+3); return 1+Math.floor((t-Date.UTC
 
 const EMP = RAW.empresas; const isIC = new Uint8Array(N); const icSet=new Set(RAW.icClients);
 for (let i=0;i<N;i++) if(icSet.has(C.c[i])) isIC[i]=1;
-const month = new Int16Array(N), week = new Int16Array(N);
+const month = new Int16Array(N), week = new Int16Array(N), year = new Int16Array(N);
 let maxD = 0, minD = 1e9;
-for (let i=0;i<N;i++){ const d=C.d[i]; month[i]=mKey(d); week[i]=Math.floor((d+WOFF)/7); if(d>maxD)maxD=d; if(d<minD)minD=d; }
+for (let i=0;i<N;i++){ const d=C.d[i]; month[i]=mKey(d); year[i]=mYear(month[i]); week[i]=Math.floor((d+WOFF)/7); if(d>maxD)maxD=d; if(d<minD)minD=d; }
 const monthsAvail = [...new Set(month)].sort((a,b)=>a-b);
+const yearsAvail = [...new Set(monthsAvail.map(mYear))];
+// Meses disponibles dentro de los años elegidos (todos si no hay año elegido)
+const monthsInScope = () => S.years.size ? monthsAvail.filter(m=>S.years.has(mYear(m))) : monthsAvail;
 const lastMonth = monthsAvail[monthsAvail.length-1];
 MULTI = monthsAvail.length>0 && (monthsAvail[0]<1 || lastMonth>12);
 const YLAB = monthsAvail.length ? (MULTI ? mYear(monthsAvail[0])+'–'+mYear(lastMonth) : String(mYear(lastMonth))) : String(ANIO);
@@ -704,7 +711,7 @@ const ORDER = {};
 DIMS.forEach(o=>{ const t=totalsBy(o.k); ORDER[o.k]=D[o.k].map((_,i)=>i).sort((a,b)=>t[b]-t[a]); PRESENT[0][o.k]=new Set(); PRESENT[1][o.k]=new Set(); for(let i=0;i<N;i++) PRESENT[C.e[i]][o.k].add(C[o.k][i]); });
 const optsFor = k => S.emp===2 ? ORDER[k] : ORDER[k].filter(i=>PRESENT[S.emp][k].has(i));
 
-const S = {months:new Set(), weeks:new Set(), metric:'n', gran:'d', iva:false, emp:0};
+const S = {years:new Set(), months:new Set(), weeks:new Set(), metric:'n', gran:'d', iva:false, emp:0};
 const inEmp = i => S.emp===2 ? true : C.e[i]===S.emp;
 DIMS.forEach(o=>S[o.k]=new Set());
 
@@ -730,12 +737,13 @@ const val = i => S.metric==='q'?C.q[i]:(S.metric==='u'?C.u[i]:sale(i));
 // ---------- Filtrado ----------
 function rowsFor(opts){
   opts = opts||{};
-  const months = opts.months||S.months, weeks = opts.weeks||S.weeks;
+  const months = opts.months||S.months, weeks = opts.weeks||S.weeks, years = opts.years||S.years;
   const act = DIMS.map(o=>o.k).filter(k=>S[k].size);
   const out = [];
   const emp = opts.emp!=null?opts.emp:S.emp;
   for(let i=0;i<N;i++){
     if(emp!==2 && C.e[i]!==emp) continue;
+    if(years.size && !years.has(year[i])) continue;
     if(months.size && !months.has(month[i])) continue;
     if(weeks.size && !weeks.has(week[i])) continue;
     let ok=true;
@@ -748,6 +756,19 @@ function kpisOf(rows){
   let n=0,q=0,u=0,t=0; const cl=new Set(), dc=new Set(), byE=[0,0]; let ic=0;
   for(const i of rows){ byE[C.e[i]]+=sale(i); if(isIC[i]) ic+=sale(i); n+=C.n[i]; q+=C.q[i]; u+=C.u[i]; t+=C.t[i]; if(C.n[i]>0){ cl.add(C.c[i]); dc.add(C.doc[i]); } }
   return {n,q,u,t,cl:cl.size,docs:dc.size,byE,ic};
+}
+
+// ---------- Rail: años ----------
+const yearsEl = document.getElementById('years');
+for(const y of yearsAvail){
+  const b=document.createElement('button'); b.className='chip'; b.textContent=y; b.dataset.y=y;
+  b.setAttribute('aria-pressed','false');
+  b.addEventListener('click',()=>{
+    toggle(S.years,y);
+    if(S.years.size) [...S.months].forEach(m=>{ if(!S.years.has(mYear(m))) S.months.delete(m); });
+    S.weeks.clear(); render();
+  });
+  yearsEl.appendChild(b);
 }
 
 // ---------- Rail: meses ----------
@@ -796,7 +817,7 @@ function closeAllMS(){ Object.values(MS).forEach(o=>{o.pop.hidden=true;o.btn.set
 const weekRange = w => fmtDate(w*7-WOFF)+' al '+fmtDate(w*7-WOFF+6);
 const weekLabel = w => 'Semana '+isoWk(w)+' ('+weekRange(w)+')';
 buildMS('weeks','Semana',()=>{
-  const ws=new Set(); for(let i=0;i<N;i++){ if(inEmp(i)&&(!S.months.size||S.months.has(month[i]))) ws.add(week[i]); }
+  const ws=new Set(); for(let i=0;i<N;i++){ if(inEmp(i)&&(!S.years.size||S.years.has(year[i]))&&(!S.months.size||S.months.has(month[i]))) ws.add(week[i]); }
   return [...ws].sort((a,b)=>a-b);
 }, weekLabel);
 DIMS.forEach(o=>{
@@ -811,7 +832,7 @@ document.getElementById('metricSeg').addEventListener('click',e=>{ const b=e.tar
 document.getElementById('granSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.gran=b.dataset.g; render(); });
 document.getElementById('empSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.emp=+b.dataset.e; document.documentElement.dataset.emp=S.emp; mkCharts(); S.weeks.clear(); DIMS.forEach(o=>{ if(S.emp!==2) S[o.k].forEach(v=>{ if(!PRESENT[S.emp][o.k].has(v)) S[o.k].delete(v); }); }); render(); });
 document.getElementById('ivaSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.iva=b.dataset.i==='1'; render(); });
-document.getElementById('clearAll').addEventListener('click',()=>{ S.months.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
+document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
 const rail=document.getElementById('rail'), scrim=document.getElementById('scrim');
 const openRail=()=>{rail.classList.add('open');scrim.classList.add('show');};
 const closeRail=()=>{rail.classList.remove('open');scrim.classList.remove('show');};
@@ -867,14 +888,16 @@ function render(){
   // botones
   document.querySelectorAll('#metricSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===S.metric));
   document.querySelectorAll('#empSeg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.e===S.emp));
-  document.querySelector('.top h1').textContent = 'Ventas '+YLAB+', '+(S.emp===2?'consolidado':EMP[S.emp]);
-  document.title = 'Ventas '+YLAB+' | '+(S.emp===2?'Consolidado':EMP[S.emp]);
+  const yLab = S.years.size ? [...S.years].sort((a,b)=>a-b).join(', ') : YLAB;
+  document.querySelector('.top h1').textContent = 'Ventas '+yLab+', '+(S.emp===2?'consolidado':EMP[S.emp]);
+  document.title = 'Ventas '+yLab+' | '+(S.emp===2?'Consolidado':EMP[S.emp]);
   document.querySelectorAll('#ivaSeg button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.i==='1')===S.iva));
   document.getElementById('coverage').textContent = (S.emp===2?'Lidenar + Movilcelistic, incluye ventas entre ambas empresas. ':'')+'Cubo de ventas SAP, del '+fmtDate(minD)+' al '+fmtDate(maxD)+(MULTI?'':' de '+YLAB)+'. Ventas '+(S.iva?'con IVA':'sin IVA')+'.';
   document.querySelectorAll('#granSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===S.gran));
-  monthsEl.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',S.months.has(+b.dataset.m)));
+  yearsEl.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',S.years.has(+b.dataset.y)));
+  monthsEl.querySelectorAll('.chip').forEach(b=>{ b.setAttribute('aria-pressed',S.months.has(+b.dataset.m)); b.hidden = S.years.size>0 && !S.years.has(mYear(+b.dataset.m)); });
   Object.values(MS).forEach(o=>o.update());
-  const nAct = S.months.size+S.weeks.size+DIMS.reduce((a,o)=>a+S[o.k].size,0);
+  const nAct = S.years.size+S.months.size+S.weeks.size+DIMS.reduce((a,o)=>a+S[o.k].size,0);
   document.getElementById('openFilters').textContent = nAct?('Filtros ('+nAct+')'):'Filtros';
   renderPills();
   renderKPIs(rows);
@@ -896,6 +919,7 @@ function render(){
 
 function renderPills(){
   const el=document.getElementById('pills'); const out=[];
+  if(S.years.size) out.push({t:'Año',v:[...S.years].sort((a,b)=>a-b).join(', '),clr:()=>{S.years.clear();S.weeks.clear();}});
   if(S.months.size) out.push({t:'Mes',v:[...S.months].sort((a,b)=>a-b).map(m=>mLab(m)).join(', '),clr:()=>{S.months.clear();S.weeks.clear();}});
   if(S.weeks.size) out.push({t:'Semana',v:S.weeks.size===1?weekLabel([...S.weeks][0]).replace('Semana ',''):S.weeks.size+' semanas',clr:()=>S.weeks.clear()});
   DIMS.forEach(o=>{ if(S[o.k].size){ const s=[...S[o.k]]; out.push({t:o.label,v:s.length===1?title(D[o.k][s[0]]):s.length+' seleccionados',clr:()=>S[o.k].clear()}); } });
@@ -913,7 +937,7 @@ function delta(cur,prev,isPct){
 function renderKPIs(rows){
   const k=kpisOf(rows);
   let p=null, single=null;
-  if(S.months.size===1 && !S.weeks.size){ single=[...S.months][0]; if(monthsAvail.includes(single-1)) p=kpisOf(rowsFor({months:new Set([single-1]),weeks:new Set()})); }
+  if(S.months.size===1 && !S.weeks.size){ single=[...S.months][0]; if(monthsAvail.includes(single-1)) p=kpisOf(rowsFor({months:new Set([single-1]),weeks:new Set(),years:new Set()})); }
   const mg=k.n?k.u/k.n:0, pmg=p&&p.n?p.u/p.n:null;
   const vs=S.iva?k.t:k.n, pvs=p?(S.iva?p.t:p.n):null;
   let foot1 = S.iva?('Sin IVA '+money(k.n)):('Con IVA '+money(k.t));
@@ -951,7 +975,7 @@ function renderTicket(){
 }
 
 function renderMatrix(rows){
-  const cols = S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsAvail;
+  const cols = S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsInScope();
   const colIx = {}; cols.forEach((m,i)=>colIx[m]=i);
   const V = D.v.length;
   const cell = Array.from({length:V},()=>new Float64Array(cols.length));
@@ -1014,7 +1038,7 @@ function renderBrands(rows){
   el.querySelectorAll('li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.b,+li.dataset.i); render(); }));
 
   if(!charts.bm) return;
-  const cols = S.months.size ? [...S.months].sort((x,y)=>x-y) : monthsAvail;
+  const cols = S.months.size ? [...S.months].sort((x,y)=>x-y) : monthsInScope();
   const top=ids.slice(0,6), topSet=new Set(top);
   const series={}; top.forEach(i=>series[i]=new Float64Array(cols.length)); const other=new Float64Array(cols.length);
   const cix={}; cols.forEach((m,j)=>cix[m]=j);
@@ -1102,6 +1126,7 @@ function imeiRows(){
   const act=A_DIMS.filter(k=>S[k].size); const out=[];
   for(let i=0;i<NI;i++){
     if(S.emp!==2 && I.e[i]!==S.emp) continue;
+    if(S.years.size && !S.years.has(mYear(iMonth[i]))) continue;
     if(S.months.size && !S.months.has(iMonth[i])) continue;
     if(S.weeks.size && !S.weeks.has(iWeek[i])) continue;
     let ok=true; for(const k of act){ if(!S[k].has(I[k][i])){ok=false;break;} }
@@ -1375,11 +1400,14 @@ const TS = {sel:new Set(), sort:'venta', dir:-1};
 const pCel = D.p.indexOf('CELULARES'), pAcc = D.p.indexOf('ACCESORIOS');
 const DOW = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 function storeRows(months){
+  // Con meses explícitos (comparación contra el mes anterior) no se aplica el filtro de año
+  const years = months ? new Set() : S.years;
   months = months || S.months;
   const act = ['v','b','m','p'].filter(k => S[k].size); const out = [];
   for(let i=0;i<N;i++){
     if(C.e[i]!==1 || !ST_BY_W.has(C.w[i])) continue;
     if(TS.sel.size && !TS.sel.has(C.w[i])) continue;
+    if(years.size && !years.has(year[i])) continue;
     if(months.size && !months.has(month[i])) continue;
     if(S.weeks.size && !S.weeks.has(week[i])) continue;
     let ok = true; for(const k of act){ if(!S[k].has(C[k][i])){ ok=false; break; } }
@@ -1506,8 +1534,8 @@ function renderTiendas(){
   if(typeof Chart === 'undefined') return;
   for(const k of ['tdm','tdw','tdx']) if(charts[k]){ charts[k].destroy(); delete charts[k]; }
   const showSt = TS.sel.size ? STORES.filter(s => TS.sel.has(s.i)) : STORES;
-  const ms = S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsAvail;
-  const allM = (()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(new Set(ms)); TS.sel = keep; return r; })();
+  const ms = S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsInScope();
+  const allM =(()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(new Set(ms)); TS.sel = keep; return r; })();
   const bySM = new Map(); for(const i of allM){ const k = C.w[i]+'_'+month[i]; bySM.set(k, (bySM.get(k)||0) + sale(i)); }
   const o1 = baseOpts(); o1.scales.y.ticks.callback = v => compact(v); o1.plugins.tooltip.callbacks.label = ctx => ' '+ctx.dataset.label+': '+money(ctx.parsed.y);
   charts.tdm = new Chart(document.getElementById('cTdM'), {type:'line', data:{labels:ms.map(m=>mLab(m)), datasets:showSt.map(s=>({label:s.n, data:ms.map(m=>bySM.get(s.i+'_'+m)||0), borderColor:s.c, backgroundColor:s.c, tension:.25, pointRadius:3, borderWidth:2.5}))}, options:o1});
@@ -1798,7 +1826,7 @@ function renderProfile(sel, prof){
   // Gráfico mensual
   if(charts.cl){ charts.cl.destroy(); delete charts.cl; }
   if(typeof Chart !== 'undefined'){
-    const ms = (S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsAvail);
+    const ms = (S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsInScope());
     const o = baseOpts(); o.plugins.tooltip.callbacks.label = ctx => ' '+ctx.dataset.label+': '+(ctx.dataset.yAxisID==='y1'?nf0.format(ctx.parsed.y)+' u':money(ctx.parsed.y));
     o.scales.y.ticks.callback = v => compact(v);
     o.scales.y1 = {position:'right', beginAtZero:true, grid:{display:false}, border:{display:false}, ticks:{color:css('--muted'), font:{family:'Barlow Semi Condensed', size:12}, callback:v=>compact(v,true)}};
@@ -1954,7 +1982,7 @@ function parseCubo(rows, e, fname){
 }
 
 // ---------- API de SAP (cubo de ventas por empresa) ----------
-const API_URL = 'http://192.168.0.154:2143/b1t/api/power_bi/cubo_de_ventas_by_company';
+const API_URL = 'http://181.199.23.11:2143/b1t/api/power_bi/cubo_de_ventas_by_company';
 const API_RUC = ['0992537442001', '1792161037001']; // 0 Lidenar (EC_SBO_LIDENAR), 1 Movilcelistic (EC_SBO_CELISTICS)
 const isoDay = s => { const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Math.round((Date.UTC(+m[1], +m[2] - 1, +m[3]) - PB) / 864e5) : null; };
 const isoOf = d => pDate(d).toISOString().slice(0, 10);
