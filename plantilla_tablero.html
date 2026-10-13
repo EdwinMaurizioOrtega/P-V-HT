@@ -703,15 +703,32 @@ table.wst{font-size:13.5px}
 <script id="data" type="application/json">__DATA__</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 <script>
-(function(){
+// Los datos se guardan comprimidos ("gz:" + gzip en base64) para que el HTML pese ~70% menos; también se acepta JSON sin comprimir.
+async function gunzipB64(b64){
+  const bin = atob(b64), u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+}
+async function gzipB64(text){
+  const buf = new Uint8Array(await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+  let b = ''; for (let i = 0; i < buf.length; i += 0x8000) b += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+  return btoa(b);
+}
+window.__gzipB64 = gzipB64;
+(async function(){
 "use strict";
 const RAW_TXT = document.getElementById('data').textContent.trim();
 const SIN_DATOS = !RAW_TXT || RAW_TXT === '__'+'DATA__';
 const RAW = SIN_DATOS ? {
   dims:{v:[],c:[],m:[],g:[],p:[],b:[],w:[],ci:[]}, cols:{v:[],c:[],m:[],g:[],p:[],b:[],w:[],ci:[],doc:[],d:[],e:[],q:[],n:[],t:[],u:[]}, rows:0,
   empresas:['Lidenar','Movilcelistic'], icClients:[], imei:{e:[],d:[],v:[],c:[],m:[],b:[],ci:[],g:[],a:[],q:[],rows:0}, inv:null, metas:{}, meta:{}
-} : JSON.parse(RAW_TXT);
+} : JSON.parse(RAW_TXT.startsWith('gz:') ? await gunzipB64(RAW_TXT.slice(3)) : RAW_TXT);
 const D = RAW.dims, C = RAW.cols, N = RAW.rows;
+// Unidades: los servicios (SERVICIOS, SERVICIOS LOGISTICOS; p. ej. almacenaje de simcards cobrado por unidad-día) no cuentan
+// como unidades vendidas; su venta y utilidad sí cuentan. Q_SAP guarda las unidades originales para volver a guardarlas tal cual.
+const Q_SAP = C.q;
+const P_SERV = new Set(D.p.map((x,i)=>/^SERVICIO/i.test(x)?i:-1).filter(i=>i>=0));
+if(P_SERV.size) C.q = Q_SAP.map((q,i)=>P_SERV.has(C.p[i])?0:q);
 const ANIO = RAW.anio || 2026;
 const BASE = Date.UTC(ANIO,0,1);
 const WOFF = (new Date(BASE).getUTCDay()+6)%7; // día de la semana del 1-ene (0 = lunes); las semanas van de lunes a domingo
@@ -1010,7 +1027,7 @@ function renderKPIs(rows){
   }
   const cards=[
     {lab:(S.iva?'Venta con IVA':'Venta sin IVA')+(S.emp===2?', consolidado':''),val:money(vs),foot:(p?delta(vs,pvs)+'<br>':'')+foot1+(S.emp===2&&vs?'<br>Lidenar '+nf1.format(k.byE[0]/vs*100)+'%, Movilcelistic '+nf1.format(k.byE[1]/vs*100)+'%':'')+(Math.abs(k.ic)>0.5?'<br>Incluye '+money(k.ic)+' entre empresas del grupo':'')},
-    {lab:'Unidades',val:nf0.format(k.q),foot:p?delta(k.q,p.q):'Todas las líneas'},
+    {lab:'Unidades',val:nf0.format(k.q),foot:p?delta(k.q,p.q):'Sin contar servicios'},
     {lab:'Utilidad bruta',val:money(k.u),foot:p?delta(k.u,p.u):'&nbsp;'},
     {lab:'Margen',val:nf1.format(mg*100)+'%',foot:p?delta(mg,pmg,true):'Utilidad / venta sin IVA'},
     {lab:'Clientes atendidos',val:nf0.format(k.cl),foot:p?delta(k.cl,p.cl):'Clientes con compra'},
@@ -2216,7 +2233,7 @@ function currentSales(e, sh){
   const out = [];
   for (let i = 0; i < N; i++) if (C.e[i] === e) out.push({
     d:C.d[i] + sh, e, v:D.v[C.v[i]], c:D.c[C.c[i]], m:D.m[C.m[i]], g:D.g[C.g[i]], p:D.p[C.p[i]],
-    b:D.b[C.b[i]], w:D.w[C.w[i]], ci:D.ci[C.ci[i]], doc:'k' + C.doc[i], q:C.q[i], n:C.n[i], t:C.t[i], u:C.u[i]});
+    b:D.b[C.b[i]], w:D.w[C.w[i]], ci:D.ci[C.ci[i]], doc:'k' + C.doc[i], q:Q_SAP[i], n:C.n[i], t:C.t[i], u:C.u[i]});
   return out;
 }
 function currentImei(sh){
@@ -2511,7 +2528,9 @@ async function buildHtml(data){
   }
   const bin = atob(tplText); const bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   const T = new TextDecoder('utf-8').decode(bytes);
-  const json = JSON.stringify(data).split('</').join('<\\/');
+  let json = JSON.stringify(data);
+  // Comprimido si el navegador lo permite; si no, JSON normal (con '</' escapado para no cerrar el <script>)
+  try { json = 'gz:' + await window.__gzipB64(json); } catch (e) { json = json.split('</').join('<\\/'); }
   return T.split(PH_TPL).join(tplText).split(PH_DATA).join(json);
 }
 
@@ -2587,6 +2606,8 @@ if (!N) {
   if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
 }
 window.__saveData = async function(data, say){
+  // Se guardan las unidades originales de SAP, no las de pantalla (sin servicios)
+  if (data === RAW) data = Object.assign({}, RAW, {cols: Object.assign({}, RAW.cols, {q: Q_SAP})});
   const html = await buildHtml(data);
   let art = null;
   try { art = window.claude && window.claude.use ? await window.claude.use('artifact') : null; } catch (e) { art = null; }
@@ -2621,6 +2642,12 @@ requestAnimationFrame(moveTabInd);
 tabsEl.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; showPage(b.dataset.p); window.scrollTo({top:0}); });
 mkCharts();
 render();
+// Si esta copia del tablero se guardó sin la línea de Chart.js, se carga aquí y se dibujan los gráficos
+if(typeof Chart==='undefined'){
+  const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js';
+  s.onload=()=>{ mkCharts(); render(); };
+  document.head.appendChild(s);
+}
 (function(){ let p=null; try{ p=localStorage.getItem('ventas_pagina'); }catch(e){} if(p && document.querySelector('.page[data-page="'+p+'"]')) showPage(p); })();
 const mq=matchMedia('(prefers-color-scheme: dark)');
 if(mq.addEventListener) mq.addEventListener('change',()=>{ mkCharts(); render(); });
