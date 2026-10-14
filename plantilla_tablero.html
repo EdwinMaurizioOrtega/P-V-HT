@@ -200,7 +200,7 @@ table.tk{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
 .page[hidden]{display:none}
 .page .kpis+.panel,.stack{margin-top:18px}
 .grid2.first,.grid3.first{margin-top:0}
-.afilters{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin:0 0 14px}
+.afilters{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin:0 0 14px;position:relative;z-index:4}
 .afilters .fgroup{margin:0;width:min(300px,100%)}
 .afilters .fgroup:first-child{width:min(180px,100%)}
 .afilters .flabel{display:block;font-size:13px;color:var(--muted);margin:0 0 5px}
@@ -210,6 +210,15 @@ table.tk{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
 .afilters .ms-pop input[type=search]{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
 .afilters .ms-opt:hover{background:var(--surface-2)}
 .afilters .ms-more{color:var(--muted)}
+/* Importaciones: Lidenar y Movilcelistic con su color; el resto de importadores en gris */
+#ipImp .tr span{background:color-mix(in srgb,var(--muted) 45%,var(--surface-2))}
+#ipImp li.grp{background:color-mix(in srgb,var(--gc) 9%,transparent);box-shadow:inset 3px 0 0 var(--gc)}
+#ipImp li.grp .tr span{background:var(--gc)}
+#ipImp li.grp.sel{background:color-mix(in srgb,var(--gc) 20%,transparent)}
+.grp-nm{color:var(--gc);font-weight:600}
+.grp-chip{display:inline-block;margin-left:7px;padding:1px 7px;border-radius:999px;background:var(--gc);color:#fff;font-size:11px;font-weight:600;vertical-align:1px;font-family:var(--f-ui)}
+#ipX tr.grp td{background:color-mix(in srgb,var(--gc) 8%,transparent)}
+#ipX tr.grp td:first-child{box-shadow:inset 3px 0 0 var(--gc)}
 .ascroll{max-height:560px;overflow-y:auto}
 .ascroll thead th{position:sticky;top:0;background:var(--surface);z-index:1}
 .anote{background:var(--accent-soft);border-radius:10px;padding:10px 14px;font-size:13.5px;margin:0 0 14px}
@@ -489,14 +498,14 @@ table.wst{font-size:13.5px}
     <div class="anote" id="mtNote"></div>
     <section class="kpis mtk" id="mtKpis"></section>
     <section class="panel" aria-labelledby="hMt">
-      <div class="ph"><h3 id="hMt">Cumplimiento por vendedor</h3><span class="hint" id="mtHint">Facturación sin IVA: Samsung en Lidenar, Xiaomi en Movilcelistic, ambas en Consolidado. Clientes únicos atendidos, todas las marcas.</span></div>
+      <div class="ph"><h3 id="hMt">Cumplimiento por vendedor</h3><span class="hint" id="mtHint">Facturación sin IVA: solo Samsung y Xiaomi. Clientes únicos atendidos, todas las marcas.</span></div>
       <div class="mx-wrap"><table class="at plain mtt" id="mtTable"></table></div>
     </section>
     <section class="panel stack" aria-labelledby="hMtC">
       <div class="ph"><h3 id="hMtC">Avance contra la meta</h3><span class="hint">Porcentaje de cumplimiento; la línea roja es el 100%</span></div>
       <div class="chart-box" id="mtChartBox"><canvas id="cMt"></canvas></div>
     </section>
-    <p class="afoot">Esta página usa del panel izquierdo solo el filtro de Año (sin año elegido muestra el año del último dato), y además el selector de empresa: con Lidenar o Movilcelistic muestra solo lo facturado y los clientes atendidos en esa empresa; con Consolidado suma ambas. La facturación cuenta Samsung en Lidenar, Xiaomi en Movilcelistic y ambas marcas en Consolidado, siempre venta neta sin IVA (las notas de crédito restan). Clientes atendidos = clientes únicos con al menos una factura en el mes, de cualquier marca; en Consolidado, si un cliente compró en Lidenar y en Movilcelistic cuenta una sola vez, por eso Clientes únicos puede ser menor que Cl. Lidenar más Cl. Movilcelistic (se reconoce aunque el nombre cambie en mayúsculas, puntos o espacios). Si dos vendedores atendieron al mismo cliente, cada uno lo suma a su meta, pero en el total del equipo cuenta una vez. La proyección supone que el vendedor mantiene su ritmo diario hasta fin de mes.</p>
+    <p class="afoot">Esta página usa del panel izquierdo solo el filtro de Año (sin año elegido muestra el año del último dato), y además el selector de empresa: con Lidenar o Movilcelistic muestra solo lo facturado y los clientes atendidos en esa empresa; con Consolidado suma ambas. La facturación cuenta solo Samsung y Xiaomi (ninguna otra marca), en la empresa elegida o en ambas con Consolidado, siempre venta neta sin IVA (las notas de crédito restan). Clientes atendidos = clientes únicos con al menos una factura en el mes, de cualquier marca; en Consolidado, si un cliente compró en Lidenar y en Movilcelistic cuenta una sola vez, por eso Clientes únicos puede ser menor que Cl. Lidenar más Cl. Movilcelistic (se reconoce aunque el nombre cambie en mayúsculas, puntos o espacios). Si dos vendedores atendieron al mismo cliente, cada uno lo suma a su meta, pero en el total del equipo cuenta una vez. La proyección supone que el vendedor mantiene su ritmo diario hasta fin de mes.</p>
     </div>
 
     <div class="page" data-page="clientes" hidden>
@@ -562,7 +571,7 @@ table.wst{font-size:13.5px}
     <section class="panel stack" aria-labelledby="hWsM"><div class="ph"><h3 id="hWsM">Resumen de ventas por modelo</h3><span class="hint">Colores unificados. Toca un encabezado para ordenar.</span></div>
       <input type="search" class="asearch" id="wsSearch" placeholder="Buscar modelo">
       <div class="mx-wrap wsw tall"><table class="at wst" id="wsModels"></table></div></section>
-    <p class="afoot">Réplica de la hoja RESUMEN VENTAS MODELO. Semanas ISO de lunes a domingo; cada semana se asigna al mes donde cae la mayoría de sus días. Unidades netas de devoluciones y sin facturas anuladas. Costo promedio ponderado = costo total del stock ÷ unidades; costo con IVA al 15%. Se excluyen las líneas de marca Varios, Genérico y Sin marca. Responde al selector de empresa y a los filtros de marca y modelo; los demás filtros no aplican aquí.</p>
+    <p class="afoot">Réplica de la hoja RESUMEN VENTAS MODELO. Semanas ISO de lunes a domingo; cada semana se asigna al mes donde cae la mayoría de sus días. Unidades netas de devoluciones y sin facturas anuladas. Costo promedio ponderado = costo total del stock ÷ unidades; costo con IVA al 15%. Se excluyen las líneas de marca Varios, Genérico y Sin marca. Responde al selector de empresa y a los filtros de Año, Mes, marca y modelo (cada semana cuenta en el año y mes de su jueves); los demás filtros no aplican aquí. La venta promedio de 4 semanas y el WOS usan siempre las 4 últimas semanas completas, sin importar el año o mes elegidos, porque se comparan contra el stock actual.</p>
     </div>
 
     <div class="page" data-page="canales" hidden>
@@ -693,7 +702,7 @@ table.wst{font-size:13.5px}
     <button class="btn btn-go" id="apiGo">Traer de SAP y guardar</button>
   </div>
   <p class="up-or">Las ventas de la empresa elegida se reemplazan completas con lo que devuelve SAP para esas fechas. IMEI, inventario y metas no vienen de esta API. O sube archivos:</p>
-  <p class="up-help">Sube solo los archivos que cambiaron, tal como salen de SAP. Los cubos se pueden subir por separado; los tres archivos de IMEI van juntos. Se aplican las mismas reglas del tablero: anuladas fuera, notas de crédito restando, Daule y Guayas en Guayaquil, y la última venta de cada IMEI.</p>
+  <p class="up-help">Sube solo los archivos que cambiaron, tal como salen de SAP. Los cubos se pueden subir por separado. Para activaciones sube los IMEI vendidos de Lidenar, de Movilcelistic o de ambas (hoja IMEIS UNIFICADO) junto con el listado de IMEI activos; la empresa que no subas conserva sus datos actuales. Se aplican las mismas reglas del tablero: anuladas fuera, notas de crédito restando, Daule y Guayas en Guayaquil, y la última venta de cada IMEI.</p>
   <div class="up-slots" id="upSlots"></div>
   <div class="up-actions"><button class="btn btn-go" id="upGo" disabled>Procesar y guardar</button></div>
   <ul class="up-log" id="upLog"></ul>
@@ -743,7 +752,7 @@ const mKey = d => { const t=dateOf(d); return (t.getUTCFullYear()-ANIO)*12+t.get
 const mYear = m => ANIO+Math.floor((m-1)/12);
 const mIdx = m => ((m-1)%12+12)%12;
 // Con datos de varios años la etiqueta lleva el año, salvo que haya un solo año elegido en el filtro
-const yrTag = () => MULTI && S.years.size!==1;
+const yrTag = () => MULTI && S.years.size!==1 && !CMP;
 const mLab = m => MES[mIdx(m)]+(yrTag()?' '+String(mYear(m)).slice(2):'');
 const mLabL = m => MES_L[mIdx(m)]+(yrTag()?' '+mYear(m):'');
 const isoWk = w => { const t=dateOf(w*7-WOFF+3); return 1+Math.floor((t-Date.UTC(t.getUTCFullYear(),0,1))/6048e5); }; // semana ISO (la del jueves)
@@ -760,7 +769,41 @@ const monthsAll = [...new Set(monthsAvail.concat(IMP_MK))].sort((a,b)=>a-b);
 const monthsAllInScope = () => S.years.size ? monthsAll.filter(m=>S.years.has(mYear(m))) : monthsAll;
 const yearsAvail = [...new Set(monthsAll.map(mYear))];
 // Meses disponibles dentro de los años elegidos (todos si no hay año elegido)
-const monthsInScope = () => S.years.size ? monthsAvail.filter(m=>S.years.has(mYear(m))) : monthsAvail;
+const monthsInScope = () => CMP ? monthsAvail.filter(m=>mYear(m)===CMP.cur) : (S.years.size ? monthsAvail.filter(m=>S.years.has(mYear(m))) : monthsAvail);
+// Columnas de mes de tablas y gráficos: los meses elegidos (solo del año actual al comparar) o todos los del alcance
+const colMonths = () => S.months.size ? [...S.months].filter(m=>!CMP||mYear(m)===CMP.cur).sort((a,b)=>a-b) : monthsInScope();
+
+// ---------- Comparación entre años ----------
+// Con exactamente 2 años elegidos el tablero muestra el más reciente y lo compara contra el otro.
+// Si el año reciente va en curso, el anterior se corta al mismo día y mes (comparación a la fecha).
+let CMP = null;
+function cmpInfo(){
+  if(S.years.size!==2) return null;
+  const [prev, cur] = [...S.years].sort((a,b)=>a-b);
+  let cut = null;
+  if(N && cur===mYear(lastMonth)){ const t = dateOf(maxD); cut = Math.round((Date.UTC(prev, t.getUTCMonth(), t.getUTCDate()) - BASE)/864e5); }
+  return {cur, prev, cut, gap:cur-prev};
+}
+const ISOC = new Map(); const isoWkC = w => { let v = ISOC.get(w); if(v==null){ v = isoWk(w); ISOC.set(w,v); } return v; };
+// ¿La fila (año, día, semana) entra en el lado pedido de la comparación? side: 'cur' | 'prev'
+// Las semanas elegidas se buscan en el año anterior por su número ISO
+const wkSide = (side, weeks) => weeks && weeks.size ? (side==='prev' ? {iso:new Set([...weeks].map(isoWkC))} : {set:weeks}) : null;
+function inSide(side, y, d, w, wk){
+  if(y !== (side==='prev' ? CMP.prev : CMP.cur)) return false;
+  if(side==='prev' && CMP.cut!=null && d>CMP.cut) return false;
+  if(wk){ if(wk.iso ? !wk.iso.has(isoWkC(w)) : !wk.set.has(w)) return false; }
+  return true;
+}
+const vsTxt = () => CMP ? 'vs '+CMP.prev+(CMP.cut!=null?' a la fecha':'') : '';
+// Variación en HTML: ▲/▼ % (o puntos con pts). Sin base anterior muestra "Nuevo" o "–".
+function yoy(c, p, o){
+  o = o||{};
+  if(o.pts){ if(p==null) return '–'; const d=(c-p)*100; return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'+':'')+nf1.format(d)+' pts</span>'; }
+  if(!p) return c>0 ? '<span class="up">Nuevo</span>' : '–';
+  const d = (c-p)/Math.abs(p)*100, f = o.d0 ? nf0 : nf1;
+  return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'▲ ':'▼ ')+f.format(Math.abs(d))+'%</span>';
+}
+const yoyV = (c,p) => p ? (c-p)/Math.abs(p) : (c>0 ? 1e9 : -1e9);
 const lastMonth = monthsAvail[monthsAvail.length-1];
 MULTI = monthsAvail.length>0 && (monthsAvail[0]<1 || lastMonth>12);
 const YLAB = monthsAvail.length ? (MULTI ? mYear(monthsAvail[0])+'–'+mYear(lastMonth) : String(mYear(lastMonth))) : String(ANIO);
@@ -810,14 +853,17 @@ const val = i => S.metric==='q'?C.q[i]:(S.metric==='u'?C.u[i]:sale(i));
 function rowsFor(opts){
   opts = opts||{};
   const months = opts.months||S.months, weeks = opts.weeks||S.weeks, years = opts.years||S.years;
+  // side: 'cur' o 'prev' al comparar años (por defecto 'cur'); false = sin comparación (ambos años juntos)
+  const side = opts.side!==undefined ? opts.side : (CMP && !opts.years ? 'cur' : false);
+  const wk = side ? wkSide(side, weeks) : null;
   const act = DIMS.map(o=>o.k).filter(k=>S[k].size);
   const out = [];
   const emp = opts.emp!=null?opts.emp:S.emp;
   for(let i=0;i<N;i++){
     if(emp!==2 && C.e[i]!==emp) continue;
-    if(years.size && !years.has(year[i])) continue;
     if(months.size && !months.has(month[i])) continue;
-    if(weeks.size && !weeks.has(week[i])) continue;
+    if(side){ if(!inSide(side, year[i], C.d[i], week[i], wk)) continue; }
+    else { if(years.size && !years.has(year[i])) continue; if(weeks.size && !weeks.has(week[i])) continue; }
     let ok=true;
     for(let j=0;j<act.length;j++){ const k=act[j]; if(!S[k].has(C[k][i])){ok=false;break;} }
     if(ok) out.push(i);
@@ -944,7 +990,8 @@ function mkCharts(){
   Object.values(charts).forEach(c=>c.destroy()); charts={}; trGran=null;
   if(typeof Chart==='undefined') return;
   const o1=baseOpts(); o1.scales.x.stacked=true; o1.scales.y.stacked=true;
-  o1.plugins.tooltip.callbacks.footer = items => 'Total: '+fmtMetric(items.reduce((a,b)=>a+b.parsed.y,0));
+  o1.plugins.tooltip.callbacks.footer = items => { const c=items.filter(x=>x.dataset.stack!=='prev'), p=items.find(x=>x.dataset.stack==='prev'), t=c.reduce((a,b)=>a+b.parsed.y,0);
+    return 'Total: '+fmtMetric(t)+(p?'\n'+p.dataset.label+': '+fmtMetric(p.parsed.y)+(p.parsed.y?' ('+(t>=p.parsed.y?'+':'')+nf1.format((t-p.parsed.y)/Math.abs(p.parsed.y)*100)+'%)':''):''); };
   o1.plugins.tooltip.itemSort=(a,b)=>b.parsed.y-a.parsed.y;
   o1.plugins.tooltip.filter = it => it.parsed.y!==0;
   o1.onClick=(e,els,ch)=>{ if(!els.length)return; const ds=ch.data.datasets[els[0].datasetIndex]; if(ds._idx!=null){ toggle(S.b,ds._idx); render(); } };
@@ -962,15 +1009,17 @@ function mkCharts(){
 
 // ---------- Render ----------
 function render(){
-  const rows = rowsFor();
+  CMP = cmpInfo();
+  const rows = rowsFor(), prevRows = CMP ? rowsFor({side:'prev'}) : null;
   // botones
   document.querySelectorAll('#metricSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===S.metric));
   document.querySelectorAll('#empSeg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.e===S.emp));
-  const yLab = S.years.size ? [...S.years].sort((a,b)=>a-b).join(', ') : YLAB;
+  const yLab = CMP ? CMP.cur+' vs '+CMP.prev : (S.years.size ? [...S.years].sort((a,b)=>a-b).join(', ') : YLAB);
   document.querySelector('.top h1').textContent = 'Ventas '+yLab+', '+(S.emp===2?'consolidado':EMP[S.emp]);
   document.title = 'Ventas '+yLab+' | '+(S.emp===2?'Consolidado':EMP[S.emp]);
   document.querySelectorAll('#ivaSeg button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.i==='1')===S.iva));
-  document.getElementById('coverage').textContent = !N ? 'Aún no hay ventas cargadas: toca Actualizar datos para traerlas de SAP.' : (S.emp===2?'Lidenar + Movilcelistic, incluye ventas entre ambas empresas. ':'')+'Cubo de ventas SAP, del '+fmtDate(minD)+' al '+fmtDate(maxD)+(MULTI?'':' de '+YLAB)+'. Ventas '+(S.iva?'con IVA':'sin IVA')+'.';
+  document.getElementById('coverage').textContent = !N ? 'Aún no hay ventas cargadas: toca Actualizar datos para traerlas de SAP.' : (S.emp===2?'Lidenar + Movilcelistic, incluye ventas entre ambas empresas. ':'')+'Cubo de ventas SAP, del '+fmtDate(minD)+' al '+fmtDate(maxD)+(MULTI?'':' de '+YLAB)+'. Ventas '+(S.iva?'con IVA':'sin IVA')+'.'+
+    (CMP ? ' Comparando '+CMP.cur+' contra '+CMP.prev+(CMP.cut!=null ? ' del 1 de enero al '+dateOf(maxD).getUTCDate()+' de '+MES_L[dateOf(maxD).getUTCMonth()]+' en ambos años, porque '+CMP.cur+' va en curso.' : ', años completos.') : '');
   document.querySelectorAll('#granSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===S.gran));
   yearsEl.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',S.years.has(+b.dataset.y)));
   { const k=selMonthIdx(), avail=new Set(monthsAllInScope().map(mIdx));
@@ -979,15 +1028,15 @@ function render(){
   const nAct = S.years.size+S.months.size+S.weeks.size+DIMS.reduce((a,o)=>a+S[o.k].size,0);
   document.getElementById('openFilters').textContent = nAct?('Filtros ('+nAct+')'):'Filtros';
   renderPills();
-  renderKPIs(rows);
+  renderKPIs(rows, prevRows);
   renderTicket();
-  renderMatrix(rows);
-  renderBrands(rows);
-  renderTrend(rows);
-  renderTop(rows);
-  renderList(rows,'g','canalList',99,false);
-  renderList(rows,'w','bodList',99,true);
-  renderList(rows,'ci','ciuList',10,true);
+  renderMatrix(rows, prevRows);
+  renderBrands(rows, prevRows);
+  renderTrend(rows, prevRows);
+  renderTop(rows, prevRows);
+  renderList(rows,'g','canalList',99,false,prevRows);
+  renderList(rows,'w','bodList',99,true,prevRows);
+  renderList(rows,'ci','ciuList',10,true,prevRows);
   renderAct();
   renderCli();
   renderMetas();
@@ -1007,17 +1056,20 @@ function renderPills(){
   el.querySelectorAll('.pill').forEach(b=>b.addEventListener('click',()=>{ out[+b.dataset.i].clr(); render(); }));
 }
 
+// Texto de comparación de las tarjetas: contra el año anterior al comparar años, si no contra el mes anterior
+const dLbl = () => CMP ? vsTxt() : 'vs mes ant.';
 function delta(cur,prev,isPct){
   if(prev==null) return '';
-  if(isPct){ const d=(cur-prev)*100; return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'+':'')+nf1.format(d)+' pts</span> vs mes ant.'; }
+  if(isPct){ const d=(cur-prev)*100; return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'+':'')+nf1.format(d)+' pts</span> '+dLbl(); }
   if(!prev) return '';
   const d=(cur-prev)/Math.abs(prev)*100;
-  return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'▲ ':'▼ ')+nf1.format(Math.abs(d))+'%</span> vs mes ant.';
+  return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'▲ ':'▼ ')+nf1.format(Math.abs(d))+'%</span> '+dLbl();
 }
-function renderKPIs(rows){
+function renderKPIs(rows, prevRows){
   const k=kpisOf(rows);
   let p=null, single=null;
-  if(S.months.size===1 && !S.weeks.size){ single=[...S.months][0]; if(monthsAvail.includes(single-1)) p=kpisOf(rowsFor({months:new Set([single-1]),weeks:new Set(),years:new Set()})); }
+  if(CMP){ p=kpisOf(prevRows); if(S.months.size && new Set([...S.months].filter(m=>mYear(m)===CMP.cur)).size===1) single=[...S.months].find(m=>mYear(m)===CMP.cur); }
+  else if(S.months.size===1 && !S.weeks.size){ single=[...S.months][0]; if(monthsAvail.includes(single-1)) p=kpisOf(rowsFor({months:new Set([single-1]),weeks:new Set(),years:new Set()})); }
   const mg=k.n?k.u/k.n:0, pmg=p&&p.n?p.u/p.n:null;
   const vs=S.iva?k.t:k.n, pvs=p?(S.iva?p.t:p.n):null;
   let foot1 = S.iva?('Sin IVA '+money(k.n)):('Con IVA '+money(k.t));
@@ -1026,7 +1078,7 @@ function renderKPIs(rows){
     if(day<dim) foot1 = 'Proyección al cierre de '+mLabL(single)+': <b>'+money(vs*dim/day)+'</b>';
   }
   const cards=[
-    {lab:(S.iva?'Venta con IVA':'Venta sin IVA')+(S.emp===2?', consolidado':''),val:money(vs),foot:(p?delta(vs,pvs)+'<br>':'')+foot1+(S.emp===2&&vs?'<br>Lidenar '+nf1.format(k.byE[0]/vs*100)+'%, Movilcelistic '+nf1.format(k.byE[1]/vs*100)+'%':'')+(Math.abs(k.ic)>0.5?'<br>Incluye '+money(k.ic)+' entre empresas del grupo':'')},
+    {lab:(S.iva?'Venta con IVA':'Venta sin IVA')+(S.emp===2?', consolidado':''),val:money(vs),foot:(p?delta(vs,pvs)+'<br>':'')+(CMP?CMP.prev+(CMP.cut!=null?' a la fecha':'')+': '+money(pvs)+'<br>':'')+foot1+(S.emp===2&&vs?'<br>Lidenar '+nf1.format(k.byE[0]/vs*100)+'%, Movilcelistic '+nf1.format(k.byE[1]/vs*100)+'%':'')+(Math.abs(k.ic)>0.5?'<br>Incluye '+money(k.ic)+' entre empresas del grupo':'')},
     {lab:'Unidades',val:nf0.format(k.q),foot:p?delta(k.q,p.q):'Sin contar servicios'},
     {lab:'Utilidad bruta',val:money(k.u),foot:p?delta(k.u,p.u):'&nbsp;'},
     {lab:'Margen',val:nf1.format(mg*100)+'%',foot:p?delta(mg,pmg,true):'Utilidad / venta sin IVA'},
@@ -1040,22 +1092,25 @@ function renderKPIs(rows){
 }
 
 function renderTicket(){
-  const all = rowsFor({emp:2});
-  const agg = [0,1,2].map(()=>({s:0,n:0,q:0,cl:new Set(),dc:new Set()}));
-  for(const i of all){ const e=C.e[i]; for(const a of [agg[e],agg[2]]){ a.s+=sale(i); a.n+=C.n[i]; a.q+=C.q[i]; if(C.n[i]>0){ a.cl.add(C.c[i]); a.dc.add(C.doc[i]); } } }
+  const aggOf = rs => { const agg = [0,1,2].map(()=>({s:0,n:0,q:0,cl:new Set(),dc:new Set()}));
+    for(const i of rs){ const e=C.e[i]; for(const a of [agg[e],agg[2]]){ a.s+=sale(i); a.n+=C.n[i]; a.q+=C.q[i]; if(C.n[i]>0){ a.cl.add(C.c[i]); a.dc.add(C.doc[i]); } } }
+    return agg; };
+  const agg = aggOf(rowsFor({emp:2})), pagg = CMP ? aggOf(rowsFor({emp:2, side:'prev'})) : null;
   const names=['Lidenar','Movilcelistic','Grupo (consolidado)'], cols=['#0D7680','#D2600A','var(--muted)'];
   const tks = agg.map(a=>a.dc.size?a.s/a.dc.size:0); const mx=Math.max(...tks.slice(0,2),1);
-  let h='<thead><tr><th>Empresa</th><th>Venta '+(S.iva?'con':'sin')+' IVA</th><th>Facturas</th><th>Ticket por factura</th><th>Ticket por unidad</th><th>Clientes</th><th>Venta por cliente</th><th>Unid. por factura</th></tr></thead><tbody>';
+  let h='<thead><tr><th>Empresa</th><th>Venta '+(S.iva?'con':'sin')+' IVA</th>'+(CMP?'<th>Venta '+CMP.prev+'</th><th>Crec.</th>':'')+'<th>Facturas</th><th>Ticket por factura</th>'+(CMP?'<th>Crec. ticket</th>':'')+'<th>Ticket por unidad</th><th>Clientes</th>'+(CMP?'<th>Crec. clientes</th>':'')+'<th>Venta por cliente</th><th>Unid. por factura</th></tr></thead><tbody>';
   agg.forEach((a,e)=>{
-    const tk=tks[e];
-    h+='<tr style="--dc:'+cols[e]+'"'+(S.emp===e?' class="cur"':'')+'><td>'+(e<2?'<span class="dot"></span>':'')+names[e]+'</td><td>'+money(a.s)+'</td><td>'+nf0.format(a.dc.size)+'</td>'+
-      '<td class="big">'+(e<2?'<span class="tbar" style="width:'+(tk/mx*60).toFixed(0)+'px"></span>':'')+money(tk)+'</td><td>'+(a.q>0?money(a.s/a.q):'–')+'</td><td>'+nf0.format(a.cl.size)+'</td><td>'+money(a.cl.size?a.s/a.cl.size:0)+'</td><td>'+(a.dc.size?nf1.format(a.q/a.dc.size):'–')+'</td></tr>';
+    const tk=tks[e], p=pagg&&pagg[e], ptk=p&&p.dc.size?p.s/p.dc.size:0;
+    h+='<tr style="--dc:'+cols[e]+'"'+(S.emp===e?' class="cur"':'')+'><td>'+(e<2?'<span class="dot"></span>':'')+names[e]+'</td><td>'+money(a.s)+'</td>'+(p?'<td>'+money(p.s)+'</td><td>'+yoy(a.s,p.s)+'</td>':'')+'<td>'+nf0.format(a.dc.size)+'</td>'+
+      '<td class="big">'+(e<2?'<span class="tbar" style="width:'+(tk/mx*60).toFixed(0)+'px"></span>':'')+money(tk)+'</td>'+(p?'<td>'+yoy(tk,ptk)+'</td>':'')+'<td>'+(a.q>0?money(a.s/a.q):'–')+'</td><td>'+nf0.format(a.cl.size)+'</td>'+(p?'<td>'+yoy(a.cl.size,p.cl.size)+'</td>':'')+'<td>'+money(a.cl.size?a.s/a.cl.size:0)+'</td><td>'+(a.dc.size?nf1.format(a.q/a.dc.size):'–')+'</td></tr>';
   });
   document.getElementById('tk').innerHTML=h+'</tbody>';
 }
 
-function renderMatrix(rows){
-  const cols = S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsInScope();
+function renderMatrix(rows, prevRows){
+  const cols = colMonths();
+  // Al comparar años: total del año anterior por vendedor y crecimiento, en lugar de la variación del último mes
+  const pT = prevRows ? new Float64Array(D.v.length) : null; if(pT) for(const i of prevRows) pT[C.v[i]]+=val(i);
   const colIx = {}; cols.forEach((m,i)=>colIx[m]=i);
   const V = D.v.length;
   const cell = Array.from({length:V},()=>new Float64Array(cols.length));
@@ -1063,15 +1118,15 @@ function renderMatrix(rows){
   const cls = Array.from({length:V},()=>new Set()); const eL=new Float64Array(V), eS=new Float64Array(V);
   const colT = new Float64Array(cols.length);
   for(const i of rows){ const v=C.v[i], ci=colIx[month[i]]; if(ci==null) continue; const x=val(i); cell[v][ci]+=x; tot[v]+=x; colT[ci]+=x; nn[v]+=C.n[i]; uu[v]+=C.u[i]; const sv=sale(i); eS[v]+=sv; if(C.e[i]===0) eL[v]+=sv; if(C.n[i]>0) cls[v].add(C.c[i]); }
-  const vs = [...Array(V).keys()].filter(v=>Math.abs(tot[v])>0.5 || cls[v].size).sort((a,b)=>tot[b]-tot[a]);
+  const vs = [...Array(V).keys()].filter(v=>Math.abs(tot[v])>0.5 || cls[v].size || (pT && Math.abs(pT[v])>0.5)).sort((a,b)=>tot[b]-tot[a] || (pT?pT[b]-pT[a]:0));
   const tbl=document.getElementById('mx');
   if(!vs.length){ tbl.innerHTML='<tbody><tr><td class="empty">No hay ventas con estos filtros. Quita alguno para ver resultados.</td></tr></tbody>'; return; }
   let mx=0; vs.forEach(v=>cell[v].forEach(x=>{ if(x>mx) mx=x; }));
   const maxTot = Math.max(...vs.map(v=>tot[v]),1);
-  const showVar = cols.length>=2;
+  const showVar = cols.length>=2 && !pT;
   const allCl=new Set(); rows.forEach(i=>{ if(C.n[i]>0) allCl.add(C.c[i]); });
   let h='<thead><tr><th class="l">Vendedor</th>'+cols.map(m=>'<th class="mh'+(S.months.has(m)?' sel':'')+'" data-m="'+m+'" title="Filtrar '+mLabL(m)+'">'+mLab(m)+'</th>').join('')+
-    '<th class="l" style="padding-left:14px">Total</th><th>Clientes</th><th>Margen</th>'+(S.emp===2?'<th title="Participación Lidenar / Movilcelistic en la venta">Lid / Mov</th>':'')+(showVar?'<th>Últ. mes</th>':'')+'</tr></thead><tbody>';
+    '<th class="l" style="padding-left:14px">Total '+(pT?CMP.cur:'')+'</th>'+(pT?'<th>Total '+CMP.prev+'</th><th title="Total '+CMP.cur+' contra '+CMP.prev+(CMP.cut!=null?' al mismo día':'')+'">Crec.</th>':'')+'<th>Clientes</th><th>Margen</th>'+(S.emp===2?'<th title="Participación Lidenar / Movilcelistic en la venta">Lid / Mov</th>':'')+(showVar?'<th>Últ. mes</th>':'')+'</tr></thead><tbody>';
   for(const v of vs){
     h+='<tr data-v="'+v+'"'+(S.v.has(v)?' class="sel"':'')+'><td class="v" title="'+esc(title(D.v[v]))+'">'+esc(title(D.v[v]))+'</td>';
     for(let j=0;j<cols.length;j++){
@@ -1083,6 +1138,7 @@ function renderMatrix(rows){
     }
     const w=Math.max(0,tot[v]/maxTot*30);
     h+='<td class="tot"><div class="tb"><span class="bar" style="width:'+w.toFixed(0)+'px"></span><span class="n">'+fmtMetric(tot[v],true)+'</span></div></td>';
+    if(pT) h+='<td class="x">'+fmtMetric(pT[v],true)+'</td><td class="x">'+yoy(tot[v],pT[v],{d0:true})+'</td>';
     h+='<td class="x">'+nf0.format(cls[v].size)+'</td><td class="x">'+(nn[v]?nf1.format(uu[v]/nn[v]*100)+'%':'–')+'</td>';
     if(S.emp===2){ h+='<td class="x">'+(eS[v]>0?nf0.format(eL[v]/eS[v]*100)+' / '+nf0.format(100-eL[v]/eS[v]*100):'–')+'</td>'; }
     if(showVar){ const a=cell[v][cols.length-1], b=cell[v][cols.length-2]; let s='–'; if(b>0){ const d=(a-b)/b*100; s='<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'▲':'▼')+' '+nf0.format(Math.abs(d))+'%</span>'; } h+='<td class="x">'+s+'</td>'; }
@@ -1090,12 +1146,15 @@ function renderMatrix(rows){
   }
   const tn=vs.reduce((a,v)=>a+nn[v],0), tu=vs.reduce((a,v)=>a+uu[v],0), tt=vs.reduce((a,v)=>a+tot[v],0);
   h+='</tbody><tfoot><tr><td class="v">Total</td>'+[...colT].map(x=>'<td class="c">'+fmtMetric(x,true)+'</td>').join('')+
-     '<td class="tot"><span class="n num" style="font-weight:600">'+fmtMetric(tt,true)+'</span></td><td class="x">'+nf0.format(allCl.size)+'</td><td class="x">'+(tn?nf1.format(tu/tn*100)+'%':'–')+'</td>'+
+     '<td class="tot"><span class="n num" style="font-weight:600">'+fmtMetric(tt,true)+'</span></td>'+(pT?(()=>{ const pt=vs.reduce((a,v)=>a+pT[v],0); return '<td class="x">'+fmtMetric(pt,true)+'</td><td class="x">'+yoy(tt,pt,{d0:true})+'</td>'; })():'')+'<td class="x">'+nf0.format(allCl.size)+'</td><td class="x">'+(tn?nf1.format(tu/tn*100)+'%':'–')+'</td>'+
      (S.emp===2?(()=>{ const a=vs.reduce((x,v)=>x+eL[v],0), b=vs.reduce((x,v)=>x+eS[v],0); return '<td class="x">'+(b>0?nf0.format(a/b*100)+' / '+nf0.format(100-a/b*100):'–')+'</td>'; })():'')+
      (showVar?'<td class="x">'+(colT[cols.length-2]>0?(()=>{const d=(colT[cols.length-1]-colT[cols.length-2])/colT[cols.length-2]*100;return '<span class="'+(d>=0?'up':'down')+'">'+(d>=0?'▲':'▼')+' '+nf0.format(Math.abs(d))+'%</span>';})():'–')+'</td>':'')+'</tr></tfoot>';
   tbl.innerHTML=h;
   tbl.querySelectorAll('tbody tr[data-v]').forEach(tr=>tr.addEventListener('click',()=>{ toggle(S.v,+tr.dataset.v); render(); }));
-  tbl.querySelectorAll('th.mh').forEach(th=>th.addEventListener('click',()=>{ toggle(S.months,+th.dataset.m); S.weeks.clear(); render(); }));
+  tbl.querySelectorAll('th.mh').forEach(th=>th.addEventListener('click',()=>{ const m=+th.dataset.m;
+    // Al comparar años el mes se marca en ambos años, como el botón del panel
+    if(CMP){ const k=mIdx(m), on=S.months.has(m); monthsAllInScope().forEach(x=>{ if(mIdx(x)===k){ on?S.months.delete(x):S.months.add(x); } }); } else toggle(S.months,m);
+    S.weeks.clear(); render(); }));
 }
 
 function aggBy(rows,key){
@@ -1103,9 +1162,9 @@ function aggBy(rows,key){
   for(const i of rows){ const k=C[key][i]; t[k]+=val(i); n[k]+=C.n[i]; q[k]+=C.q[i]; u[k]+=C.u[i]; sv[k]+=sale(i); }
   return {t,n,q,u,s:sv};
 }
-function renderBrands(rows){
-  const a=aggBy(rows,'b');
-  const ids=[...Array(D.b.length).keys()].filter(i=>Math.abs(a.t[i])>0.5).sort((x,y)=>a.t[y]-a.t[x]);
+function renderBrands(rows, prevRows){
+  const a=aggBy(rows,'b'), pa=prevRows?aggBy(prevRows,'b'):null;
+  const ids=[...Array(D.b.length).keys()].filter(i=>Math.abs(a.t[i])>0.5 || (pa&&Math.abs(pa.t[i])>0.5)).sort((x,y)=>a.t[y]-a.t[x] || (pa?pa.t[y]-pa.t[x]:0));
   const tot=ids.reduce((s,i)=>s+Math.max(0,a.t[i]),0)||1;
   const mx=Math.max(...ids.map(i=>a.t[i]),1);
   const el=document.getElementById('brandList');
@@ -1113,12 +1172,12 @@ function renderBrands(rows){
     const sh=a.t[i]/tot*100;
     return '<li data-i="'+i+'" style="--c:'+brandColor(i)+'"'+(S.b.has(i)?' class="sel"':'')+'><span class="nm"><span class="sw"></span>'+esc(D.b[i])+'</span><span class="vv">'+fmtMetric(a.t[i])+'</span>'+
       '<span class="tr"><span style="width:'+Math.max(0,a.t[i]/mx*100).toFixed(1)+'%"></span></span>'+
-      '<span class="meta">'+nf1.format(sh)+'% del total, '+nf0.format(a.q[i])+' u'+(a.q[i]>0?' a '+money(a.s[i]/a.q[i])+' prom.':'')+', margen '+(a.n[i]?nf1.format(a.u[i]/a.n[i]*100):'0')+'%</span></li>';
+      '<span class="meta">'+(pa?yoy(a.t[i],pa.t[i])+' '+vsTxt()+' ('+fmtMetric(pa.t[i],true)+'), ':'')+nf1.format(sh)+'% del total, '+nf0.format(a.q[i])+' u'+(a.q[i]>0?' a '+money(a.s[i]/a.q[i])+' prom.':'')+', margen '+(a.n[i]?nf1.format(a.u[i]/a.n[i]*100):'0')+'%</span></li>';
   }).join('') : '<li class="empty">Sin datos para esta selección.</li>';
   el.querySelectorAll('li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.b,+li.dataset.i); render(); }));
 
   if(!charts.bm) return;
-  const cols = S.months.size ? [...S.months].sort((x,y)=>x-y) : monthsInScope();
+  const cols = colMonths();
   const top=ids.slice(0,6), topSet=new Set(top);
   const series={}; top.forEach(i=>series[i]=new Float64Array(cols.length)); const other=new Float64Array(cols.length);
   const cix={}; cols.forEach((m,j)=>cix[m]=j);
@@ -1126,14 +1185,18 @@ function renderBrands(rows){
   const ds = top.map(i=>({label:D.b[i],_idx:i,data:[...series[i]],backgroundColor:brandColor(i),borderRadius:2,maxBarThickness:46}));
   if(other.some(x=>Math.abs(x)>0.5)) ds.push({label:'Otras',data:[...other],backgroundColor:css('--line'),borderRadius:2,maxBarThickness:46});
   let lo=0, hi=0; cols.forEach((_,j)=>{ let p=0,n=0; ds.forEach(d=>{ const x=d.data[j]; x>0?p+=x:n+=x; }); hi=Math.max(hi,p); lo=Math.min(lo,n); });
+  // Al comparar años: total del mismo mes del año anterior como línea
+  if(prevRows){ const pm=new Map(); for(const i of prevRows){ const k=month[i]+12*CMP.gap; pm.set(k,(pm.get(k)||0)+val(i)); }
+    ds.push({type:'line',label:'Total '+CMP.prev,stack:'prev',data:cols.map(m=>pm.get(m)||0),borderColor:css('--ink'),backgroundColor:css('--ink'),borderDash:[5,4],borderWidth:2,pointRadius:3,tension:.25,order:-1}); }
   charts.bm.options.scales.y.min = lo < -0.03*hi ? undefined : 0;
   charts.bm.data.labels=cols.map(m=>mLab(m)); charts.bm.data.datasets=ds; charts.bm.update();
 }
 
 let trGran=null;
-function renderTrend(rows){
+function renderTrend(rows, prevRows){
   if(!charts.tr) return;
   if(trGran!==S.gran){ charts.tr.destroy(); const o2=baseOpts(); o2.plugins.legend.display=false; o2.animation=REDUCED?false:{duration:500,easing:'easeOutQuart'}; charts.tr=new Chart(document.getElementById('cTrend'),{type:'bar',data:{labels:[],datasets:[]},options:o2}); trGran=S.gran; }
+  charts.tr.options.plugins.legend.display = !!prevRows;
   const map=new Map();
   for(const i of rows){ const k = S.gran==='d'?C.d[i]:(S.gran==='w'?week[i]:month[i]); map.set(k,(map.get(k)||0)+val(i)); }
   let keys=[...map.keys()].sort((a,b)=>a-b);
@@ -1147,28 +1210,42 @@ function renderTrend(rows){
     {type:S.gran==='d'?'line':'bar',label:S.gran==='d'?'Día':(S.gran==='w'?'Semana':'Mes'),data,borderColor:acc,backgroundColor:S.gran==='d'?acc+'24':acc,fill:S.gran==='d',tension:.25,pointRadius:0,pointHoverRadius:4,borderWidth:2,borderRadius:3,maxBarThickness:40},
     {label:'Promedio',data:keys.map(()=>avg),type:'line',borderColor:css('--amber'),borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false}
   ];
-  { const hi=Math.max(0,...data), lo=Math.min(0,...data); charts.tr.options.scales.y.min = lo < -0.03*hi ? undefined : 0; }
+  const ext = data.slice();
+  // Al comparar años: el mismo día, semana ISO o mes del año anterior, alineado con el actual
+  if(prevRows){
+    const g=S.gran, pm=new Map();
+    const align = i => {
+      if(g==='m') return month[i]+12*CMP.gap;
+      if(g==='w'){ let w=week[i]+52*CMP.gap; const iso=isoWkC(week[i]); for(const t of [w,w+1,w-1]) if(isoWkC(t)===iso) return t; return w; }
+      const t=dateOf(C.d[i]); return Math.round((Date.UTC(CMP.cur,t.getUTCMonth(),t.getUTCDate())-BASE)/864e5);
+    };
+    for(const i of prevRows){ const k=align(i); pm.set(k,(pm.get(k)||0)+val(i)); }
+    charts.tr.data.datasets[0].label = (g==='d'?'Día':(g==='w'?'Semana':'Mes'))+' '+CMP.cur;
+    charts.tr.data.datasets.splice(1,0,{label:CMP.prev+(CMP.cut!=null?' (a la fecha)':''),data:keys.map(k=>pm.get(k)||0),type:'line',borderColor:css('--muted'),backgroundColor:css('--muted'),borderWidth:g==='d'?1.2:2,pointRadius:g==='d'?0:3,tension:.25,fill:false});
+    ext.push(...keys.map(k=>pm.get(k)||0));
+  }
+  { const hi=Math.max(0,...ext), lo=Math.min(0,...ext); charts.tr.options.scales.y.min = lo < -0.03*hi ? undefined : 0; }
   charts.tr.options.plugins.tooltip.callbacks.title = items => items.length? (S.gran==='w'?weekLabel(keys[items[0].dataIndex]):items[0].label) : '';
   charts.tr.update();
 }
 
-function renderTop(rows){
-  const a=aggBy(rows,'m');
+function renderTop(rows, prevRows){
+  const a=aggBy(rows,'m'), pa=prevRows?aggBy(prevRows,'m'):null;
   const ids=[...Array(D.m.length).keys()].filter(i=>a.t[i]>0).sort((x,y)=>a.t[y]-a.t[x]).slice(0,20);
   const el=document.getElementById('top10');
   el.innerHTML = ids.length? ids.map(i=>{
     const sub = S.metric==='q' ? money(a.s[i]) : nf0.format(a.q[i])+' u';
-    return '<li><div style="min-width:0"><div class="nm" title="'+esc(D.m[i])+'">'+esc(D.m[i])+'</div><div class="sb">Margen '+(a.n[i]?nf1.format(a.u[i]/a.n[i]*100):'0')+'%, '+(a.q[i]>0?money(a.s[i]/a.q[i])+' por unidad':'sin unidades')+'</div></div><div class="vv">'+fmtMetric(a.t[i])+'<small>'+sub+'</small></div></li>';
+    return '<li><div style="min-width:0"><div class="nm" title="'+esc(D.m[i])+'">'+esc(D.m[i])+'</div><div class="sb">'+(pa?yoy(a.t[i],pa.t[i])+' '+vsTxt()+', ':'')+'Margen '+(a.n[i]?nf1.format(a.u[i]/a.n[i]*100):'0')+'%, '+(a.q[i]>0?money(a.s[i]/a.q[i])+' por unidad':'sin unidades')+'</div></div><div class="vv">'+fmtMetric(a.t[i])+'<small>'+sub+'</small></div></li>';
   }).join('') : '<li class="empty">Sin datos para esta selección.</li>';
 }
 
-function renderList(rows,key,elId,limit,titleCase){
-  const a=aggBy(rows,key);
+function renderList(rows,key,elId,limit,titleCase,prevRows){
+  const a=aggBy(rows,key), pa=prevRows?aggBy(prevRows,key):null;
   const ids=[...Array(D[key].length).keys()].filter(i=>Math.abs(a.t[i])>0.5).sort((x,y)=>a.t[y]-a.t[x]).slice(0,limit);
   const tot=[...a.t].reduce((s,x)=>s+Math.max(0,x),0)||1;
   const mx=Math.max(...ids.map(i=>a.t[i]),1);
   const el=document.getElementById(elId);
-  el.innerHTML = ids.length? ids.map(i=>'<li data-i="'+i+'"'+(S[key].has(i)?' class="sel"':'')+'><span class="nm">'+esc(titleCase?title(D[key][i]):D[key][i])+'</span><span class="vv">'+fmtMetric(a.t[i],true)+'</span><span class="tr"><span style="width:'+Math.max(0,a.t[i]/mx*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(a.t[i]/tot*100)+'%</span></li>').join('')
+  el.innerHTML = ids.length? ids.map(i=>'<li data-i="'+i+'"'+(S[key].has(i)?' class="sel"':'')+'><span class="nm">'+esc(titleCase?title(D[key][i]):D[key][i])+'</span><span class="vv">'+fmtMetric(a.t[i],true)+'</span><span class="tr"><span style="width:'+Math.max(0,a.t[i]/mx*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(a.t[i]/tot*100)+'%'+(pa?' · '+yoy(a.t[i],pa.t[i])+' '+vsTxt()+' ('+fmtMetric(pa.t[i],true)+')':'')+'</span></li>').join('')
     : '<li class="empty">Sin datos para esta selección.</li>';
   el.querySelectorAll('li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S[key],+li.dataset.i); render(); }));
 }
@@ -1202,13 +1279,16 @@ for(let i=0;i<NI;i++){ const d=I.d[i]; iMonth[i]=mKey(d); iWeek[i]=Math.floor((d
 const A_DIMS=['v','b','m','g','c','ci'];
 const AS = {sort:'s', dir:-1, limit:40, q:''};
 const AGE = [{l:'0 a 30 días',max:30,c:'#7FB8BE'},{l:'31 a 60',max:60,c:'#4E9AA2'},{l:'61 a 90',max:90,c:'#E0A43A'},{l:'91 a 180',max:180,c:'#D9822B'},{l:'Más de 180',max:1e9,c:'#C0392B'}];
-function imeiRows(){
+function imeiRows(side){
+  // side: 'cur' (por defecto al comparar años), 'prev' o false (ambos años)
+  if(side===undefined) side = CMP ? 'cur' : false;
+  const wk = side ? wkSide(side, S.weeks) : null;
   const act=A_DIMS.filter(k=>S[k].size); const out=[];
   for(let i=0;i<NI;i++){
     if(S.emp!==2 && I.e[i]!==S.emp) continue;
-    if(S.years.size && !S.years.has(mYear(iMonth[i]))) continue;
     if(S.months.size && !S.months.has(iMonth[i])) continue;
-    if(S.weeks.size && !S.weeks.has(iWeek[i])) continue;
+    if(side){ if(!inSide(side, mYear(iMonth[i]), I.d[i], iWeek[i], wk)) continue; }
+    else { if(S.years.size && !S.years.has(mYear(iMonth[i]))) continue; if(S.weeks.size && !S.weeks.has(iWeek[i])) continue; }
     let ok=true; for(const k of act){ if(!S[k].has(I[k][i])){ok=false;break;} }
     if(ok) out.push(i);
   }
@@ -1233,14 +1313,16 @@ function sortRows(arr){
 
 const ST = {cli:{sort:'s',dir:-1,limit:40}, cm:{sort:'s',dir:-1,limit:50}, mod:{sort:'s',dir:-1,limit:1e9}, ven:{sort:'s',dir:-1,limit:1e9}};
 const SORTF = {n:o=>o.n,a:o=>o.a,s:o=>o.s,p:o=>pct(o.a,o.n),old:o=>o.old,age:o=>o.s?o.age/o.s:-1};
-function sortTable(id, items, st, firstHtml, firstLabel, firstTitle, key, full){
-  const f=SORTF[st.sort]||SORTF.s;
+function sortTable(id, items, st, firstHtml, firstLabel, firstTitle, key, full, pmap){
+  // pmap (al comparar años): IMEI vendidos del año anterior por clave, para la columna de crecimiento
+  if(pmap) items.forEach(o=>{ o.pn = pmap.get(o.k)||0; o.cr = yoyV(o.n,o.pn); });
+  const f=(pmap?{pn:o=>o.pn,cr:o=>o.cr}:{})[st.sort]||SORTF[st.sort]||SORTF.s;
   items.sort((x,y)=>(f(y)-f(x))*(st.dir<0?1:-1));
   const H=(k,t)=>'<th class="'+(st.sort===k?'s':'')+'" data-k="'+k+'">'+t+(st.sort===k?(st.dir<0?' ▼':' ▲'):'')+'</th>';
-  let h='<thead><tr><th class="l">'+firstLabel+'</th>'+H('n','Vendidos')+H('a','Activados')+H('s','En stock')+H('p','Sell-through')+(full?H('old','Stock +90 días')+H('age','Días en percha'):'')+'</tr></thead><tbody>';
+  let h='<thead><tr><th class="l">'+firstLabel+'</th>'+H('n','Vendidos')+(pmap?H('pn','Vendidos '+CMP.prev)+H('cr','Crec.'):'')+H('a','Activados')+H('s','En stock')+H('p','Sell-through')+(full?H('old','Stock +90 días')+H('age','Días en percha'):'')+'</tr></thead><tbody>';
   for(const o of items.slice(0,st.limit)){
     const sel = key && S[key].has(o.k);
-    h+='<tr'+(key?' data-k="'+o.k+'"':'')+(sel?' class="sel"':'')+'><td class="l" title="'+esc(firstTitle(o))+'">'+firstHtml(o)+'</td><td>'+nf0.format(o.n)+'</td><td>'+nf0.format(o.a)+'</td><td><b>'+nf0.format(o.s)+'</b></td><td>'+stCell(o)+'</td>'+
+    h+='<tr'+(key?' data-k="'+o.k+'"':'')+(sel?' class="sel"':'')+'><td class="l" title="'+esc(firstTitle(o))+'">'+firstHtml(o)+'</td><td>'+nf0.format(o.n)+'</td>'+(pmap?'<td>'+nf0.format(o.pn)+'</td><td>'+yoy(o.n,o.pn,{d0:true})+'</td>':'')+'<td>'+nf0.format(o.a)+'</td><td><b>'+nf0.format(o.s)+'</b></td><td>'+stCell(o)+'</td>'+
       (full?'<td'+(o.old?' class="old"':'')+'>'+nf0.format(o.old)+'</td><td>'+(o.s?nf0.format(o.age/o.s)+' d':'–')+'</td>':'')+'</tr>';
   }
   if(!items.length) h+='<tr><td class="l" colspan="7">Sin IMEI para esta selección. Solo hay listado de activación de Infinix, Tecno y Xiaomi.</td></tr>';
@@ -1257,12 +1339,15 @@ function renderAct(){
   const rows=imeiRows();
   const T=aggAct(rows,null)[0]||{n:0,a:0,s:0,old:0,age:0};
   const cl=aggAct(rows,'c').filter(o=>o.s>0).length;
+  // Al comparar años: el mismo período del año anterior (los IMEI de ese año han tenido más tiempo para activarse)
+  const P = CMP ? (aggAct(imeiRows('prev'),null)[0]||{n:0,a:0,s:0,old:0,age:0}) : null;
+  const dv = (c,p,pts) => P ? (pts ? yoy(c,p,{pts:true}) : yoy(c,p))+' '+vsTxt()+'<br>' : '';
   document.getElementById('aAsOf').textContent='Días desde la factura, al '+fmtDate(iMaxD)+(MULTI?'':' de '+YLAB);
   const cards=[
-    {lab:'IMEI vendidos a clientes',val:nf0.format(T.n),foot:'Infinix, Tecno y Xiaomi'},
-    {lab:'Activados (sell-out)',val:nf0.format(T.a),foot:'Ya en manos del consumidor'},
-    {lab:'En stock de clientes',val:nf0.format(T.s),foot:nf0.format(cl)+(cl===1?' cliente':' clientes')+' con equipos sin activar'},
-    {lab:'Sell-through',val:nf1.format(pct(T.a,T.n))+'%',foot:'Activados / vendidos'},
+    {lab:'IMEI vendidos a clientes',val:nf0.format(T.n),foot:dv(T.n,P&&P.n)+'Infinix, Tecno y Xiaomi'},
+    {lab:'Activados (sell-out)',val:nf0.format(T.a),foot:dv(T.a,P&&P.a)+'Ya en manos del consumidor'},
+    {lab:'En stock de clientes',val:nf0.format(T.s),foot:dv(T.s,P&&P.s)+nf0.format(cl)+(cl===1?' cliente':' clientes')+' con equipos sin activar'},
+    {lab:'Sell-through',val:nf1.format(pct(T.a,T.n))+'%',foot:(P?dv(pct(T.a,T.n)/100,pct(P.a,P.n)/100,true):'')+'Activados / vendidos'},
     {lab:'Stock de más de 90 días',val:nf0.format(T.old),foot:nf1.format(pct(T.old,T.s))+'% del stock en clientes'},
     {lab:'Días promedio en percha',val:(T.s?nf0.format(T.age/T.s):'0')+' días',foot:'Tiempo promedio que el stock del cliente lleva sin venderse'}
   ];
@@ -1290,9 +1375,11 @@ function renderAct(){
   }
   // Tablas ordenables
   const gOf=new Map(); for(const i of rows) gOf.set(I.c[i],I.g[i]);
+  const pRows = CMP ? imeiRows('prev') : null;
+  const pBy = k => { if(!pRows) return null; const m=new Map(); for(const i of pRows){ const x=I[k][i]; m.set(x,(m.get(x)||0)+I.q[i]); } return m; };
   let cli=aggAct(rows,'c');
   if(AS.q){ const q=AS.q.toLowerCase(); cli=cli.filter(o=>D.c[o.k].toLowerCase().includes(q)); }
-  sortTable('aCli', cli, ST.cli, o=>esc(title(D.c[o.k]))+'<small>'+esc(title(D.g[gOf.get(o.k)]||''))+'</small>', 'Cliente', o=>D.c[o.k], 'c', true);
+  sortTable('aCli', cli, ST.cli, o=>esc(title(D.c[o.k]))+'<small>'+esc(title(D.g[gOf.get(o.k)]||''))+'</small>', 'Cliente', o=>D.c[o.k], 'c', true, pBy('c'));
   const mb=document.getElementById('aMore');
   mb.parentElement.hidden = cli.length<=ST.cli.limit;
   mb.textContent='Mostrar más clientes ('+nf0.format(Math.min(ST.cli.limit,cli.length))+' de '+nf0.format(cli.length)+')';
@@ -1307,8 +1394,8 @@ function renderAct(){
   mcm.parentElement.hidden = cm.length<=ST.cm.limit;
   mcm.textContent='Mostrar más ('+nf0.format(Math.min(ST.cm.limit,cm.length))+' de '+nf0.format(cm.length)+')';
 
-  sortTable('aMod', aggAct(rows,'m'), ST.mod, o=>esc(D.m[o.k]), 'Modelo', o=>D.m[o.k], 'm', false);
-  sortTable('aVen', aggAct(rows,'v'), ST.ven, o=>esc(title(D.v[o.k])), 'Vendedor', o=>D.v[o.k], 'v', false);
+  sortTable('aMod', aggAct(rows,'m'), ST.mod, o=>esc(D.m[o.k]), 'Modelo', o=>D.m[o.k], 'm', false, pBy('m'));
+  sortTable('aVen', aggAct(rows,'v'), ST.ven, o=>esc(title(D.v[o.k])), 'Vendedor', o=>D.v[o.k], 'v', false, pBy('v'));
   // Canal (sell-through)
   const can=aggAct(rows,'g').sort((x,y)=>y.n-x.n);
   const ce=document.getElementById('aCan');
@@ -1344,8 +1431,8 @@ const MT = {month:null, edit:false};
 const CK = (()=>{ const seen = new Map(); return D.c.map((x,i)=>{ const k = x.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9Ñ]/g,''); if(!seen.has(k)) seen.set(k,i); return seen.get(k); }); })();
 const MT_BRANDS = new Set(D.b.map((x,i)=>[x,i]).filter(([x])=>x==='SAMSUNG'||x==='XIAOMI').map(([,i])=>i));
 const bSam = D.b.indexOf('SAMSUNG'), bXia = D.b.indexOf('XIAOMI');
-const mtBrandLbl = () => S.emp===0 ? 'Samsung' : S.emp===1 ? 'Xiaomi' : 'Samsung + Xiaomi';
-const mtBrandShort = () => S.emp===0 ? 'Samsung' : S.emp===1 ? 'Xiaomi' : 'S+X';
+const mtBrandLbl = () => 'Samsung + Xiaomi';
+const mtBrandShort = () => 'S+X';
 function metasMonths(){ return Object.keys(RAW.metas||{}).map(Number).sort((a,b)=>a-b); }
 function metasFor(m){
   const ms = metasMonths(); if(!ms.length) return {list:[], from:null};
@@ -1354,18 +1441,21 @@ function metasFor(m){
   return {list:RAW.metas[src], from:src};
 }
 function lastDataMonth(){ return mKey(maxD); }
-function mtStats(m){
+function mtStats(m, cutD){
+  // cutD: último día que entra (para comparar un mes en curso contra el mismo tramo del año anterior)
   const vIdx = new Map(D.v.map((x,i)=>[x.toUpperCase(),i]));
   const st = new Map();
   const get = v => { let o=st.get(v); if(!o){ o={fac:0,sam:0,xia:0,lid:0,mov:0,cl:new Set(),clL:new Set(),clM:new Set(),clSX:new Set(),u:0,n:0}; st.set(v,o);} return o; };
   let lastD = -1; const teamCl = new Set();
   for(let i=0;i<N;i++){
     if(month[i]!==m) continue;
+    if(cutD!=null && C.d[i]>cutD) continue;
     if(C.d[i]>lastD) lastD=C.d[i];
     if(S.emp!==2 && C.e[i]!==S.emp) continue;
     const o = get(C.v[i]); const n = C.n[i];
     if(n>0){ o.cl.add(CK[C.c[i]]); teamCl.add(CK[C.c[i]]); (C.e[i]===0?o.clL:o.clM).add(CK[C.c[i]]); }
-    if(S.emp===0 ? C.b[i]===bSam : S.emp===1 ? C.b[i]===bXia : MT_BRANDS.has(C.b[i])){
+    // Facturación de la meta: solo Samsung y Xiaomi (ninguna otra marca), en cualquier empresa
+    if(MT_BRANDS.has(C.b[i])){
       o.fac += n; o.u += C.u[i];
       if(C.b[i]===bSam) o.sam += n; else o.xia += n;
       if(C.e[i]===0) o.lid += n; else o.mov += n;
@@ -1392,6 +1482,11 @@ function renderMetas(){
   chips.querySelectorAll('.mchip').forEach(b=>b.addEventListener('click',()=>{ MT.month=+b.dataset.m; MT.edit=false; renderMetas(); }));
   const m = MT.month, mf = metasFor(m);
   const {st, vIdx, dim, lastDay, complete, teamCl} = mtStats(m);
+  // Al comparar años: el mismo mes del año anterior (hasta el mismo día si el mes va en curso)
+  const pm = CMP ? m-12*CMP.gap : null;
+  const PS = CMP ? mtStats(pm, !complete && lastDay ? Math.round((Date.UTC(mYear(pm), mIdx(pm), lastDay)-BASE)/864e5) : null) : null;
+  const pOf = r => PS && r.v!=null ? PS.st.get(r.v) : null;
+  const pLbl = CMP ? MES[mIdx(m)]+' '+CMP.prev : '';
   const note = document.getElementById('mtNote');
   const notes = [];
   if(!mf.list.length) notes.push('Todavía no hay metas cargadas. Toca "Editar metas" para ingresarlas.');
@@ -1417,24 +1512,27 @@ function renderMetas(){
   const T = rows.reduce((a,r)=>{ a.fac+=r.o.fac; a.meta+=r.x.fac; a.cl+=r.o.cl.size; a.mcl+=r.x.cli; a.proj+=r.proj; if(r.pf>=1) a.ok++; if(r.pc>=1) a.okc++; return a; },{fac:0,meta:0,cl:0,mcl:0,proj:0,ok:0,okc:0});
   const pct = (a,b)=> b? nf1.format(a/b*100)+'%' : '–';
   const sumCl = T.cl; T.clU = teamU.size;
+  let pFac = 0; const pU = new Set(); rows.forEach(r=>{ const p=pOf(r); if(p){ pFac+=p.fac; p.cl.forEach(c=>pU.add(c)); } });
+  const pv = (c,p,isM) => CMP ? '<br>'+yoy(c,p)+' vs '+pLbl+(complete?'':' al día '+lastDay)+' ('+(isM?money(p):nf0.format(p))+')' : '';
   const cards = [
-    {lab:'Facturación '+mtBrandLbl()+(S.emp===2?'':', '+EMP[S.emp]), val:money(T.fac), foot:'Meta del equipo '+money(T.meta)+' ('+pct(T.fac,T.meta)+')'},
+    {lab:'Facturación '+mtBrandLbl()+(S.emp===2?'':', '+EMP[S.emp]), val:money(T.fac), foot:'Meta del equipo '+money(T.meta)+' ('+pct(T.fac,T.meta)+')'+pv(T.fac,pFac,true)},
     {lab:complete?'Cierre del mes':'Proyección al cierre', val:money(T.proj), foot:complete?'Mes completo':'Al ritmo actual; '+pct(T.proj,T.meta)+' de la meta'},
     {lab:'Vendedores en meta de facturación', val:T.ok+' de '+rows.length, foot:complete?'Cumplieron':'Ya superaron su meta'},
-    {lab:'Clientes únicos atendidos'+(S.emp===2?'':', '+EMP[S.emp]), val:nf0.format(T.clU), foot:'Suma de vendedores '+nf0.format(sumCl)+' contra metas '+nf0.format(T.mcl)+' ('+pct(sumCl,T.mcl)+'); '+T.okc+' vendedores en meta'}
+    {lab:'Clientes únicos atendidos'+(S.emp===2?'':', '+EMP[S.emp]), val:nf0.format(T.clU), foot:'Suma de vendedores '+nf0.format(sumCl)+' contra metas '+nf0.format(T.mcl)+' ('+pct(sumCl,T.mcl)+'); '+T.okc+' vendedores en meta'+pv(T.clU,pU.size)}
   ];
   document.getElementById('mtKpis').innerHTML = cards.map(c=>'<div class="kpi"><div class="lab">'+c.lab+'</div><div class="val">'+c.val+'</div><div class="foot">'+c.foot+'</div></div>').join('');
   // Tabla
   const EST = {ok:['En meta','seg-activo'], riesgo:['En riesgo','seg-riesgo'], no:[complete?'No cumplió':'Atrasado','seg-perdido'], pend:['Sin ventas aún','seg-nuevo']};
   if(complete){ EST.ok[0]='Cumplió'; }
   const bar = (p, cls) => '<span class="mbar'+(cls?' '+cls:'')+'"><i style="width:'+Math.min(100,p*100).toFixed(0)+'%"></i></span>';
-  let h = '<thead><tr><th class="l">Vendedor</th><th class="l">Estado</th><th>Facturación '+mtBrandShort()+'</th><th>Meta</th><th>Cumpl.</th>'+(S.emp===2?'<th>Samsung</th><th>Xiaomi</th><th>Fact. Lidenar</th><th>Fact. Movilcelistic</th>':'')+(complete?'':'<th>Proyección</th><th title="Lo que falta dividido entre los días que quedan del mes">Falta por día</th>')+'<th>'+(S.emp===2?'Clientes únicos':'Clientes')+'</th>'+(S.emp===2?'<th title="Clientes atendidos en Lidenar">Cl. Lidenar</th><th title="Clientes atendidos en Movilcelistic">Cl. Movilcelistic</th>':'')+'<th>Meta cl.</th><th>Cumpl. cl.</th></tr></thead><tbody>';
+  let h = '<thead><tr><th class="l">Vendedor</th><th class="l">Estado</th><th>Facturación '+mtBrandShort()+'</th><th>Meta</th><th>Cumpl.</th>'+(CMP?'<th title="Mismo mes de '+CMP.prev+(complete?'':', hasta el día '+lastDay)+'">Fact. '+pLbl+'</th><th>Crec.</th>':'')+(S.emp===2?'<th>Samsung</th><th>Xiaomi</th><th>Fact. Lidenar</th><th>Fact. Movilcelistic</th>':'')+(complete?'':'<th>Proyección</th><th title="Lo que falta dividido entre los días que quedan del mes">Falta por día</th>')+'<th>'+(S.emp===2?'Clientes únicos':'Clientes')+'</th>'+(S.emp===2?'<th title="Clientes atendidos en Lidenar">Cl. Lidenar</th><th title="Clientes atendidos en Movilcelistic">Cl. Movilcelistic</th>':'')+'<th>Meta cl.</th><th>Cumpl. cl.</th></tr></thead><tbody>';
   for(const r of rows){
     const e = EST[r.est];
     h += '<tr><td class="l">'+esc(title(r.x.v))+'</td><td class="l"><span class="seg-chip '+e[1]+'">'+e[0]+'</span></td>'+
       '<td><span class="mcell">'+bar(r.pf)+'<b>'+money(r.o.fac)+'</b></span></td>'+
       '<td>'+(MT.edit?'<input class="mtin" type="number" min="0" step="1000" data-v="'+esc(r.x.v)+'" data-f="fac" value="'+r.x.fac+'">':money(r.x.fac))+'</td>'+
       '<td class="'+(r.pf>=1?'up':'')+'"><b>'+nf0.format(r.pf*100)+'%</b></td>'+
+      (CMP?(()=>{ const p=pOf(r), pf=p?p.fac:0; return '<td>'+money(pf)+'</td><td>'+yoy(r.o.fac,pf,{d0:true})+'</td>'; })():'')+
       (S.emp===2?'<td>'+money(r.o.sam)+'</td><td>'+money(r.o.xia)+'</td><td>'+money(r.o.lid)+'</td><td>'+money(r.o.mov)+'</td>':'')+
       (complete?'':'<td>'+money(r.proj)+'</td><td>'+(r.falta>0&&r.perDay>0?money(r.perDay):'–')+'</td>')+
       '<td><span class="mcell">'+bar(r.pc,'c')+'<b>'+nf0.format(r.o.cl.size)+'</b></span></td>'+
@@ -1442,7 +1540,7 @@ function renderMetas(){
       '<td>'+(MT.edit?'<input class="mtin" type="number" min="0" step="1" data-v="'+esc(r.x.v)+'" data-f="cli" value="'+r.x.cli+'">':nf0.format(r.x.cli))+'</td>'+
       '<td class="'+(r.pc>=1?'up':'')+'"><b>'+nf0.format(r.pc*100)+'%</b></td></tr>';
   }
-  h += '<tr class="mtot"><td class="l">Equipo</td><td></td><td><b>'+money(T.fac)+'</b></td><td>'+money(T.meta)+'</td><td><b>'+pct(T.fac,T.meta)+'</b></td>'+
+  h += '<tr class="mtot"><td class="l">Equipo</td><td></td><td><b>'+money(T.fac)+'</b></td><td>'+money(T.meta)+'</td><td><b>'+pct(T.fac,T.meta)+'</b></td>'+(CMP?'<td>'+money(pFac)+'</td><td>'+yoy(T.fac,pFac,{d0:true})+'</td>':'')+
     (S.emp===2?'<td>'+money(rows.reduce((a,r)=>a+r.o.sam,0))+'</td><td>'+money(rows.reduce((a,r)=>a+r.o.xia,0))+'</td><td>'+money(rows.reduce((a,r)=>a+r.o.lid,0))+'</td><td>'+money(rows.reduce((a,r)=>a+r.o.mov,0))+'</td>':'')+
     (complete?'':'<td>'+money(T.proj)+'</td><td></td>')+'<td><b>'+nf0.format(T.clU)+' únicos</b></td>'+(S.emp===2?(()=>{ const L=new Set(),M=new Set(); rows.forEach(r=>{ r.o.clL.forEach(c=>L.add(c)); r.o.clM.forEach(c=>M.add(c)); }); return '<td>'+nf0.format(L.size)+'</td><td>'+nf0.format(M.size)+'</td>'; })():'')+'<td>'+nf0.format(T.mcl)+'</td><td><b>'+pct(T.cl,T.mcl)+'</b></td></tr>';
   document.getElementById('mtTable').innerHTML = h+'</tbody>';
@@ -1486,17 +1584,20 @@ const ST_BY_W = new Map(STORES.map(s => [s.i, s]));
 const TS = {sel:new Set(), sort:'venta', dir:-1};
 const pCel = D.p.indexOf('CELULARES'), pAcc = D.p.indexOf('ACCESORIOS');
 const DOW = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-function storeRows(months){
-  // Con meses explícitos (comparación contra el mes anterior) no se aplica el filtro de año
+function storeRows(months, side){
+  // Con meses explícitos (comparación contra el mes anterior) no se aplica el filtro de año.
+  // side 'cur'/'prev': al comparar años (por defecto 'cur' sin meses explícitos)
+  if(side===undefined) side = CMP && !months ? 'cur' : false;
   const years = months ? new Set() : S.years;
   months = months || S.months;
+  const wk = side ? wkSide(side, S.weeks) : null;
   const act = ['v','b','m','p'].filter(k => S[k].size); const out = [];
   for(let i=0;i<N;i++){
     if(C.e[i]!==1 || !ST_BY_W.has(C.w[i])) continue;
     if(TS.sel.size && !TS.sel.has(C.w[i])) continue;
-    if(years.size && !years.has(year[i])) continue;
     if(months.size && !months.has(month[i])) continue;
-    if(S.weeks.size && !S.weeks.has(week[i])) continue;
+    if(side){ if(!inSide(side, year[i], C.d[i], week[i], wk)) continue; }
+    else { if(years.size && !years.has(year[i])) continue; if(S.weeks.size && !S.weeks.has(week[i])) continue; }
     let ok = true; for(const k of act){ if(!S[k].has(C[k][i])){ ok=false; break; } }
     if(ok) out.push(i);
   }
@@ -1529,11 +1630,11 @@ function renderTiendas(){
   document.getElementById('tdNote').textContent = notes.join(' ');
 
   const rows = storeRows();
-  const single = S.months.size===1 && !S.weeks.size ? [...S.months][0] : null;
-  const prevRows = single && monthsAvail.includes(single-1) ? storeRows(new Set([single-1])) : null;
+  const single = !CMP && S.months.size===1 && !S.weeks.size ? [...S.months][0] : null;
+  const prevRows = CMP ? storeRows(undefined,'prev') : (single && monthsAvail.includes(single-1) ? storeRows(new Set([single-1])) : null);
   const T = stAgg(rows).get(0) || stAgg([]).get(0) || {venta:0,n:0,u:0,q:0,tk:0,ticket:0,upt:0,mg:0,pc:0,att:0,dias:0,vd:0,cl:new Set()};
-  const P = prevRows ? stAgg(prevRows).get(0) : null;
-  const dl = (a,b,pts) => !P || b==null ? '' : (pts ? '<span class="'+(a>=b?'up':'down')+'">'+(a>=b?'+':'')+nf1.format((a-b)*100)+' pts</span> vs mes ant.' : (b ? '<span class="'+(a>=b?'up':'down')+'">'+(a>=b?'▲ ':'▼ ')+nf1.format(Math.abs((a-b)/b*100))+'%</span> vs mes ant.' : ''));
+  const P = prevRows ? (stAgg(prevRows).get(0) || (CMP ? {venta:0,n:0,u:0,q:0,tk:0,ticket:0,upt:0,mg:0,pc:0,att:0,dias:0,vd:0,cl:new Set()} : null)) : null;
+  const dl = (a,b,pts) => !P || b==null ? '' : (pts ? '<span class="'+(a>=b?'up':'down')+'">'+(a>=b?'+':'')+nf1.format((a-b)*100)+' pts</span> '+dLbl() : (b ? '<span class="'+(a>=b?'up':'down')+'">'+(a>=b?'▲ ':'▼ ')+nf1.format(Math.abs((a-b)/b*100))+'%</span> '+dLbl() : ''));
   const cards = [
     {lab:'Venta tiendas', val:money(T.venta), foot:dl(T.venta,P&&P.venta)||'Sin IVA o con IVA según el botón de arriba'},
     {lab:'Tickets (facturas)', val:nf0.format(T.tk), foot:dl(T.tk,P&&P.tk)||nf0.format(T.cl.size)+' clientes únicos'},
@@ -1542,14 +1643,15 @@ function renderTiendas(){
     {lab:'Precio promedio por celular', val:money(T.pc), foot:dl(T.pc,P&&P.pc)||nf0.format(T.cel)+' celulares vendidos'},
     {lab:'Accesorios por celular', val:nf1.format(T.att), foot:dl(T.att,P&&P.att)||nf0.format(T.acc)+' accesorios vendidos'},
     {lab:'Margen', val:nf1.format(T.mg*100)+'%', foot:dl(T.mg,P&&P.mg,true)||'Utilidad '+money(T.u)},
-    {lab:'Venta por día con venta', val:money(T.vd), foot:nf0.format(T.dias)+' días con ventas'}
+    {lab:'Venta por día con venta', val:money(T.vd), foot:(dl(T.vd,P&&P.vd)?dl(T.vd,P&&P.vd)+'<br>':'')+nf0.format(T.dias)+' días con ventas'}
   ];
   document.getElementById('tdKpis').innerHTML = cards.map(c=>'<div class="kpi"><div class="lab">'+c.lab+'</div><div class="val">'+c.val+'</div><div class="foot">'+c.foot+'</div></div>').join('');
 
   // Tarjetas por tienda (siempre las 5, con los filtros de mes/marca/etc.)
   const all = (()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(); TS.sel = keep; return r; })();
   const byS = stAgg(all, i => C.w[i]);
-  const allPrev = single && monthsAvail.includes(single-1) ? (()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(new Set([single-1])); TS.sel = keep; return r; })() : null;
+  const allPrev = CMP ? (()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(undefined,'prev'); TS.sel = keep; return r; })()
+    : (single && monthsAvail.includes(single-1) ? (()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(new Set([single-1])); TS.sel = keep; return r; })() : null);
   const byP = allPrev ? stAgg(allPrev, i => C.w[i]) : null;
   const maxV = Math.max(1, ...STORES.map(s => (byS.get(s.i)||{venta:0}).venta));
   const totV = STORES.reduce((a,s)=>a+((byS.get(s.i)||{venta:0}).venta),0) || 1;
@@ -1577,7 +1679,7 @@ function renderTiendas(){
     const span = (()=>{ let a=1e9,b=-1; for(const i of all){ if(C.d[i]<a)a=C.d[i]; if(C.d[i]>b)b=C.d[i]; } return b>=a? b-a+1 : 0; })();
     const low = ranked.filter(x => span && x.o.dias < span*0.8);
     if(low.length) ins.push('Días sin ventas: '+low.map(x=>'<b>'+x.s.n+'</b> vendió '+x.o.dias+' de '+span+' días').join('; ')+'. Revisa horarios, aperturas o personal.');
-    if(byP){ const dn = ranked.filter(x => { const p = byP.get(x.s.i); return p && p.venta && x.o.venta < p.venta*0.9; }); if(dn.length) ins.push('Caen más de 10% contra el mes anterior: '+dn.map(x=>'<b>'+x.s.n+'</b>').join(', ')+'.'); }
+    if(byP){ const dn = ranked.filter(x => { const p = byP.get(x.s.i); return p && p.venta && x.o.venta < p.venta*0.9; }); if(dn.length) ins.push('Caen más de 10% '+(CMP?'contra '+CMP.prev+(CMP.cut!=null?' a la misma fecha':''):'contra el mes anterior')+': '+dn.map(x=>'<b>'+x.s.n+'</b>').join(', ')+'.'); }
   }
   // Concentración en clientes grandes (ventas B2B dentro de la tienda)
   const bigCl = new Map(); for(const i of rows){ bigCl.set(C.c[i], (bigCl.get(C.c[i])||0) + sale(i)); }
@@ -1590,9 +1692,9 @@ function renderTiendas(){
   const mx = f => Math.max(...cmpRows.map(x => f(x.o)));
   const best = (f, v) => cmpRows.length>1 && v === mx(f) ? ' class="best"' : '';
   const F = {venta:o=>o.venta, tk:o=>o.tk, ticket:o=>o.ticket, upt:o=>o.upt, pc:o=>o.pc, att:o=>o.att, mg:o=>o.mg, vd:o=>o.vd, dias:o=>o.dias, cl:o=>o.cl.size};
-  let h = '<thead><tr><th class="l">Tienda</th><th>Venta</th><th>Tickets</th><th>Ticket prom.</th><th>Unid./ticket</th><th>Precio celular</th><th>Acc./celular</th><th>Margen</th><th>Venta por día</th><th>Días con venta</th><th>Clientes</th></tr></thead><tbody>';
-  for(const x of cmpRows){ const o = x.o;
-    h += '<tr><td class="l"><span class="tdot" style="background:'+x.s.c+'"></span>'+x.s.n+'</td><td'+best(F.venta,o.venta)+'>'+money(o.venta)+'</td><td'+best(F.tk,o.tk)+'>'+nf0.format(o.tk)+'</td><td'+best(F.ticket,o.ticket)+'>'+money(o.ticket)+'</td><td'+best(F.upt,o.upt)+'>'+nf1.format(o.upt)+'</td><td'+best(F.pc,o.pc)+'>'+money(o.pc)+'</td><td'+best(F.att,o.att)+'>'+nf1.format(o.att)+'</td><td'+best(F.mg,o.mg)+'>'+nf1.format(o.mg*100)+'%</td><td'+best(F.vd,o.vd)+'>'+money(o.vd)+'</td><td>'+o.dias+'</td><td>'+nf0.format(o.cl.size)+'</td></tr>'; }
+  let h = '<thead><tr><th class="l">Tienda</th><th>Venta</th>'+(CMP?'<th>Venta '+CMP.prev+'</th><th>Crec.</th>':'')+'<th>Tickets</th><th>Ticket prom.</th><th>Unid./ticket</th><th>Precio celular</th><th>Acc./celular</th><th>Margen</th><th>Venta por día</th><th>Días con venta</th><th>Clientes</th></tr></thead><tbody>';
+  for(const x of cmpRows){ const o = x.o, pp = byP ? (byP.get(x.s.i)||{venta:0}).venta : 0;
+    h += '<tr><td class="l"><span class="tdot" style="background:'+x.s.c+'"></span>'+x.s.n+'</td><td'+best(F.venta,o.venta)+'>'+money(o.venta)+'</td>'+(CMP?'<td>'+money(pp)+'</td><td>'+yoy(o.venta,pp)+'</td>':'')+'<td'+best(F.tk,o.tk)+'>'+nf0.format(o.tk)+'</td><td'+best(F.ticket,o.ticket)+'>'+money(o.ticket)+'</td><td'+best(F.upt,o.upt)+'>'+nf1.format(o.upt)+'</td><td'+best(F.pc,o.pc)+'>'+money(o.pc)+'</td><td'+best(F.att,o.att)+'>'+nf1.format(o.att)+'</td><td'+best(F.mg,o.mg)+'>'+nf1.format(o.mg*100)+'%</td><td'+best(F.vd,o.vd)+'>'+money(o.vd)+'</td><td>'+o.dias+'</td><td>'+nf0.format(o.cl.size)+'</td></tr>'; }
   document.getElementById('tdCmp').innerHTML = h + '</tbody>';
 
   // Vendedores de tiendas
@@ -1600,13 +1702,15 @@ function renderTiendas(){
   const vStore = new Map(); for(const i of rows){ const k = C.v[i]; let m = vStore.get(k); if(!m){ m = new Map(); vStore.set(k,m); } m.set(C.w[i], (m.get(C.w[i])||0) + C.n[i]); }
   const storeTot = new Map(); for(const s of STORES){ const o = byS.get(s.i); storeTot.set(s.i, o ? o.venta : 0); }
   let vr = [...byV.values()].filter(o => o.venta > 50);
-  const VF = Object.assign({}, F, {share:o=>o.share});
+  const VF = Object.assign({}, F, {share:o=>o.share, cr:o=>o.cr});
+  const pV = new Map(); if(CMP && prevRows) for(const i of prevRows) pV.set(C.v[i], (pV.get(C.v[i])||0) + sale(i));
+  vr.forEach(o => { o.pv = pV.get(o.k)||0; o.cr = yoyV(o.venta, o.pv); });
   vr.forEach(o => { const m = vStore.get(o.k); let bw = null, bv = -Infinity; for(const [w,v] of m) if(v>bv){bv=v;bw=w;} o.w = bw; const sn = byS.get(bw); o.share = sn && sn.n ? bv/sn.n : 0; o.nst = m.size; });
   const f = VF[TS.sort] || VF.venta; vr.sort((a,b) => (f(b)-f(a)) * (TS.dir<0?1:-1));
   const H = (k,t,tt) => '<th class="'+(TS.sort===k?'s':'')+'" data-k="'+k+'"'+(tt?' title="'+tt+'"':'')+'>'+t+(TS.sort===k?(TS.dir<0?' ▼':' ▲'):'')+'</th>';
-  let hv = '<thead><tr><th class="l">Vendedor</th><th class="l">Tienda</th>'+H('venta','Venta')+H('share','% de la tienda')+H('tk','Tickets')+H('ticket','Ticket prom.')+H('upt','Unid./ticket')+H('pc','Precio celular')+H('att','Acc./celular')+H('mg','Margen')+H('dias','Días con venta')+H('vd','Venta por día','Venta dividida entre los días en que facturó')+'</tr></thead><tbody>';
+  let hv = '<thead><tr><th class="l">Vendedor</th><th class="l">Tienda</th>'+H('venta','Venta')+(CMP?H('cr','Crec.','Venta contra '+CMP.prev+(CMP.cut!=null?' a la misma fecha':'')):'')+H('share','% de la tienda')+H('tk','Tickets')+H('ticket','Ticket prom.')+H('upt','Unid./ticket')+H('pc','Precio celular')+H('att','Acc./celular')+H('mg','Margen')+H('dias','Días con venta')+H('vd','Venta por día','Venta dividida entre los días en que facturó')+'</tr></thead><tbody>';
   for(const o of vr){ const s = ST_BY_W.get(o.w);
-    hv += '<tr data-k="'+o.k+'"'+(S.v.has(o.k)?' class="sel"':'')+'><td class="l">'+esc(title(D.v[o.k]))+'</td><td class="l"><span class="tdot" style="background:'+(s?s.c:'#999')+'"></span>'+(s?s.n:'')+(o.nst>1?' <small>+'+(o.nst-1)+'</small>':'')+'</td><td><b>'+money(o.venta)+'</b></td><td>'+nf0.format(o.share*100)+'%</td><td>'+nf0.format(o.tk)+'</td><td>'+money(o.ticket)+'</td><td>'+nf1.format(o.upt)+'</td><td>'+(o.cel?money(o.pc):'–')+'</td><td>'+(o.cel?nf1.format(o.att):'–')+'</td><td>'+nf1.format(o.mg*100)+'%</td><td>'+o.dias+'</td><td>'+money(o.vd)+'</td></tr>'; }
+    hv += '<tr data-k="'+o.k+'"'+(S.v.has(o.k)?' class="sel"':'')+'><td class="l">'+esc(title(D.v[o.k]))+'</td><td class="l"><span class="tdot" style="background:'+(s?s.c:'#999')+'"></span>'+(s?s.n:'')+(o.nst>1?' <small>+'+(o.nst-1)+'</small>':'')+'</td><td><b>'+money(o.venta)+'</b></td>'+(CMP?'<td title="'+CMP.prev+': '+money(o.pv)+'">'+yoy(o.venta,o.pv,{d0:true})+'</td>':'')+'<td>'+nf0.format(o.share*100)+'%</td><td>'+nf0.format(o.tk)+'</td><td>'+money(o.ticket)+'</td><td>'+nf1.format(o.upt)+'</td><td>'+(o.cel?money(o.pc):'–')+'</td><td>'+(o.cel?nf1.format(o.att):'–')+'</td><td>'+nf1.format(o.mg*100)+'%</td><td>'+o.dias+'</td><td>'+money(o.vd)+'</td></tr>'; }
   if(!vr.length) hv += '<tr><td class="l" colspan="12">Sin ventas para esta selección.</td></tr>';
   const tv = document.getElementById('tdVen'); tv.innerHTML = hv + '</tbody>';
   tv.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.k; if(TS.sort===k) TS.dir*=-1; else {TS.sort=k; TS.dir=-1;} renderTiendas(); }));
@@ -1621,11 +1725,16 @@ function renderTiendas(){
   if(typeof Chart === 'undefined') return;
   for(const k of ['tdm','tdw','tdx']) if(charts[k]){ charts[k].destroy(); delete charts[k]; }
   const showSt = TS.sel.size ? STORES.filter(s => TS.sel.has(s.i)) : STORES;
-  const ms = S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsInScope();
+  const ms = colMonths();
   const allM =(()=>{ const keep = TS.sel; TS.sel = new Set(); const r = storeRows(new Set(ms)); TS.sel = keep; return r; })();
   const bySM = new Map(); for(const i of allM){ const k = C.w[i]+'_'+month[i]; bySM.set(k, (bySM.get(k)||0) + sale(i)); }
   const o1 = baseOpts(); o1.scales.y.ticks.callback = v => compact(v); o1.plugins.tooltip.callbacks.label = ctx => ' '+ctx.dataset.label+': '+money(ctx.parsed.y);
-  charts.tdm = new Chart(document.getElementById('cTdM'), {type:'line', data:{labels:ms.map(m=>mLab(m)), datasets:showSt.map(s=>({label:s.n, data:ms.map(m=>bySM.get(s.i+'_'+m)||0), borderColor:s.c, backgroundColor:s.c, tension:.25, pointRadius:3, borderWidth:2.5}))}, options:o1});
+  const dsM = showSt.map(s=>({label:s.n+(CMP?' '+CMP.cur:''), data:ms.map(m=>bySM.get(s.i+'_'+m)||0), borderColor:s.c, backgroundColor:s.c, tension:.25, pointRadius:3, borderWidth:2.5}));
+  // Al comparar años: cada tienda en el mismo mes del año anterior, punteada
+  if(CMP){ const keep = TS.sel; TS.sel = new Set(); const pr = storeRows(new Set(ms.map(m=>m-12*CMP.gap)), 'prev'); TS.sel = keep;
+    const pSM = new Map(); for(const i of pr){ const k = C.w[i]+'_'+(month[i]+12*CMP.gap); pSM.set(k, (pSM.get(k)||0) + sale(i)); }
+    showSt.forEach(s => dsM.push({label:s.n+' '+CMP.prev, data:ms.map(m=>pSM.get(s.i+'_'+m)||0), borderColor:s.c, backgroundColor:s.c, borderDash:[5,4], tension:.25, pointRadius:2, borderWidth:1.5})); }
+  charts.tdm = new Chart(document.getElementById('cTdM'), {type:'line', data:{labels:ms.map(m=>mLab(m)), datasets:dsM}, options:o1});
   // Día de la semana: venta promedio por día
   const dw = new Map(), dcount = new Map();
   for(const i of rows){ const s = C.w[i], wd = (dateOf(C.d[i]).getUTCDay()+6)%7; const k = s+'_'+wd; dw.set(k, (dw.get(k)||0) + sale(i)); let st = dcount.get(k); if(!st){ st = new Set(); dcount.set(k, st); } st.add(C.d[i]); }
@@ -1645,7 +1754,7 @@ function renderTiendas(){
 const WS = {tipo:'CELULARES', vista:'sem', fil:'all', q:'', sort:'total', dir:-1, sel:null};
 const WOS_EXCL = new Set(['VARIOS','GENERICO','SIN MARCA']);
 const wkMonth = w => mKey(w*7-WOFF+3);   // jueves de la semana ISO = mes con mayoría de días
-const wkLabel = w => 'W'+String(isoWk(w)).padStart(2,'0')+(MULTI?' '+String(dateOf(w*7-WOFF+3).getUTCFullYear()).slice(2):'');
+const wkLabel = w => 'W'+String(isoWk(w)).padStart(2,'0')+(yrTag()?' '+String(dateOf(w*7-WOFF+3).getUTCFullYear()).slice(2):'');
 const wosCls = v => v==null ? '' : (v < 4 ? 'w-low' : (v <= 12 ? 'w-ok' : 'w-high'));
 const wosTxt = v => v==null ? '–' : nf1.format(v)+' sem';
 function wosData(){
@@ -1655,18 +1764,28 @@ function wosData(){
   const wdLast = (dateOf(maxD).getUTCDay()+6)%7;
   const partial = wdLast !== 6;
   const lastComplete = partial ? lastW-1 : lastW;
-  let firstW = 1e9;
+  let firstW = 1e9, lastWs = -1e9;
   const mods = new Map();
   const inv = (S.emp===0 && RAW.inv) ? RAW.inv : null;
   const after = new Map();
+  const last4 = [lastComplete-3, lastComplete-2, lastComplete-1, lastComplete], l4 = new Set(last4);
+  // Semanas que entran en las columnas y totales: Año y Mes del panel (al comparar años, solo el año actual).
+  // Cada semana va al año y mes de su jueves, igual que las columnas. El promedio de 4 semanas y el WOS
+  // siempre usan las 4 últimas semanas completas, porque se comparan contra el stock actual.
+  const wIn = new Map();
+  const inScope = w => { let v = wIn.get(w); if(v==null){ const mk = wkMonth(w), y = mYear(mk);
+      v = (CMP ? y===CMP.cur : (!S.years.size || S.years.has(y))) && (!S.months.size || S.months.has(mk)); wIn.set(w,v); } return v; };
   for(let i=0;i<N;i++){
     if(S.emp!==2 && C.e[i]!==S.emp) continue;
     if(tipos && !tipos.has(C.p[i])) continue;
     if(WOS_EXCL.has(D.b[C.b[i]])) continue;
     let ok = true; for(const k of act){ if(!S[k].has(C[k][i])){ ok=false; break; } } if(!ok) continue;
-    const w = week[i]; if(w<firstW) firstW=w;
-    let o = mods.get(C.m[i]); if(!o){ o = {m:C.m[i], b:C.b[i], wk:new Map(), total:0}; mods.set(C.m[i], o); }
-    o.wk.set(w, (o.wk.get(w)||0) + C.q[i]); o.total += C.q[i];
+    const w = week[i];
+    let o = mods.get(C.m[i]); if(!o){ o = {m:C.m[i], b:C.b[i], wk:new Map(), total:0, yc:0, yp:0, l4:0}; mods.set(C.m[i], o); }
+    if(l4.has(w)) o.l4 += C.q[i];
+    if(inScope(w)){ if(w<firstW) firstW=w; if(w>lastWs) lastWs=w; o.wk.set(w, (o.wk.get(w)||0) + C.q[i]); o.total += C.q[i]; }
+    // Al comparar años: unidades del año actual y del anterior a la misma fecha
+    if(CMP && (!S.months.size || S.months.has(month[i]))){ if(inSide('cur', year[i], C.d[i], w, null)) o.yc += C.q[i]; else if(inSide('prev', year[i], C.d[i], w, null)) o.yp += C.q[i]; }
     if(inv && C.e[i]===0 && C.d[i] > inv.corte) after.set(C.m[i], (after.get(C.m[i])||0) + C.q[i]);
   }
   // modelos con inventario pero sin ventas
@@ -1677,16 +1796,15 @@ function wosData(){
       let mi = mIdx.get(name); if(mi==null){ mi = D.m.length; D.m.push(name); mIdx.set(name, mi); }
       const bi = bIdx.get(it[3]); if(bi==null) continue;
       if(S.b.size && !S.b.has(bi)) continue; if(S.m.size && !S.m.has(mi)) continue;
-      if(!mods.has(mi)) mods.set(mi, {m:mi, b:bi, wk:new Map(), total:0});
+      if(!mods.has(mi)) mods.set(mi, {m:mi, b:bi, wk:new Map(), total:0, yc:0, yp:0, l4:0});
     }
   }
-  if(firstW===1e9) firstW = lastW;
-  const weeks = []; for(let w=firstW; w<=lastW; w++) weeks.push(w);
+  if(firstW===1e9){ firstW = lastW; lastWs = lastW; }
+  const weeks = []; for(let w=firstW; w<=lastWs; w++) if(inScope(w)) weeks.push(w);
   const months = [...new Set(weeks.map(wkMonth))];
-  const last4 = [lastComplete-3, lastComplete-2, lastComplete-1, lastComplete];
   for(const o of mods.values()){
     o.mon = new Map(); for(const [w,q] of o.wk){ const mm = wkMonth(w); o.mon.set(mm, (o.mon.get(mm)||0) + q); }
-    o.avg = last4.reduce((a,w)=>a+(o.wk.get(w)||0),0)/4;
+    o.avg = o.l4/4;
     if(inv){ const it = inv.items[D.m[o.m]]; if(it){ o.stock = it[0] - (after.get(o.m)||0); o.cu = it[0] ? it[1]/it[0] : 0; o.costo = o.stock*o.cu; } }
     o.wos = (o.stock!=null && o.avg>0) ? o.stock/o.avg : null;
   }
@@ -1696,6 +1814,7 @@ function wosRow(o, x, iva, isTot){
   const cells = x.cols.map(c => { const v = x.vista==='sem' ? (o.wk.get(c)||0) : (o.mon.get(c)||0); return '<td class="'+(v<0?'neg':(v===0?'z':''))+'">'+(v===0?'–':nf0.format(v))+'</td>'; }).join('');
   const cp = o.stock ? o.costo/o.stock : null;
   return '<td class="tot"><b>'+nf0.format(o.total)+'</b></td>'+
+    (CMP ? '<td>'+nf0.format(o.yc)+'</td><td>'+nf0.format(o.yp)+'</td><td>'+yoy(o.yc,o.yp,{d0:true})+'</td>' : '')+
     (x.inv ? '<td>'+(o.stock!=null?nf0.format(o.stock):'–')+'</td><td>'+(o.stock!=null?money(o.costo):'–')+'</td><td>'+(cp!=null?moneyD(cp):'–')+'</td><td>'+(cp!=null?moneyD(cp*(1+iva)):'–')+'</td>' : '')+
     '<td>'+(o.avg?nf1.format(o.avg):'–')+'</td>'+(x.inv?'<td><span class="wchip '+wosCls(o.wos)+'">'+wosTxt(o.wos)+'</span></td>':'')+cells;
 }
@@ -1711,6 +1830,7 @@ function renderWos(){
   const notes = [];
   if(!x.inv) notes.push(RAW.inv ? 'El inventario cargado es solo de Lidenar: elige Lidenar arriba para ver stock, costos y WOS.' : 'Aún no hay inventario cargado; sube el cubo de Lidenar con su hoja de stock para ver WOS.');
   notes.push('WOS = stock actual ÷ venta promedio semanal de las 4 últimas semanas completas ('+wkLabel(x.last4[0])+' a '+wkLabel(x.last4[3])+', del '+fmtDate(x.last4[0]*7-WOFF)+' al '+fmtDate(x.last4[3]*7-WOFF+6)+').'+(x.partial?' '+wkLabel(x.lastW)+' va parcial hasta el '+fmtDate(maxD)+' y no entra en el promedio.':''));
+  if(CMP) notes.push('Columnas Año '+CMP.cur+', Año '+CMP.prev+' y Crec.: unidades de cada año'+(CMP.cut!=null?' del 1 de enero al '+dateOf(maxD).getUTCDate()+' de '+MES_L[dateOf(maxD).getUTCMonth()]:'')+'; Total vendido y las semanas siguen mostrando todo el período cargado.');
   if(x.inv) notes.push('Stock = inventario al '+fmtDate(x.inv.corte)+' menos lo vendido después. Semáforo: amarillo < 4 semanas (riesgo de quiebre), verde 4 a 12, rojo > 12 (exceso).');
   document.getElementById('wsNote').textContent = notes.join(' ');
   // filtros de la tabla
@@ -1721,21 +1841,22 @@ function renderWos(){
   else if(WS.fil==='nos') rows = rows.filter(o=>o.stock>0 && !o.avg);
   if(WS.q){ const q = WS.q.toLowerCase(); rows = rows.filter(o=>D.m[o.m].toLowerCase().includes(q)); }
   if(WS.fil==='all' && !WS.q) rows = rows.filter(o=>o.total!==0 || o.stock);
-  const F = {total:o=>o.total, stock:o=>o.stock??-1e9, costo:o=>o.costo??-1e9, avg:o=>o.avg, wos:o=>o.wos??-1, name:o=>0};
+  const F = {total:o=>o.total, yc:o=>o.yc, yp:o=>o.yp, cr:o=>yoyV(o.yc,o.yp), stock:o=>o.stock??-1e9, costo:o=>o.costo??-1e9, avg:o=>o.avg, wos:o=>o.wos??-1, name:o=>0};
   rows.sort((a,b)=> WS.sort==='name' ? D.m[a.m].localeCompare(D.m[b.m])*(WS.dir<0?-1:1) : (F[WS.sort](b)-F[WS.sort](a))*(WS.dir<0?1:-1));
   // marcas
   const byB = new Map();
-  for(const o of x.mods){ let t = byB.get(o.b); if(!t){ t = {b:o.b, wk:new Map(), mon:new Map(), total:0, avg:0, stock:x.inv?0:null, costo:0, has:false}; byB.set(o.b, t); }
+  for(const o of x.mods){ let t = byB.get(o.b); if(!t){ t = {b:o.b, wk:new Map(), mon:new Map(), total:0, yc:0, yp:0, avg:0, stock:x.inv?0:null, costo:0, has:false}; byB.set(o.b, t); }
     for(const [w,q] of o.wk) t.wk.set(w,(t.wk.get(w)||0)+q); for(const [m,q] of o.mon) t.mon.set(m,(t.mon.get(m)||0)+q);
-    t.total += o.total; t.avg += o.avg; if(o.stock!=null){ t.stock += o.stock; t.costo += o.costo; t.has = true; } }
+    t.total += o.total; t.yc += o.yc; t.yp += o.yp; t.avg += o.avg; if(o.stock!=null){ t.stock += o.stock; t.costo += o.costo; t.has = true; } }
   const brands = [...byB.values()].filter(t=>t.total!==0||t.has).sort((a,b)=>b.total-a.total);
-  const G = {wk:new Map(), mon:new Map(), total:0, avg:0, stock:x.inv?0:null, costo:0};
-  for(const t of brands){ for(const [w,q] of t.wk) G.wk.set(w,(G.wk.get(w)||0)+q); for(const [m,q] of t.mon) G.mon.set(m,(G.mon.get(m)||0)+q); G.total+=t.total; G.avg+=t.avg; if(t.has){ G.stock+=t.stock; G.costo+=t.costo; } }
+  const G = {wk:new Map(), mon:new Map(), total:0, yc:0, yp:0, avg:0, stock:x.inv?0:null, costo:0};
+  for(const t of brands){ for(const [w,q] of t.wk) G.wk.set(w,(G.wk.get(w)||0)+q); for(const [m,q] of t.mon) G.mon.set(m,(G.mon.get(m)||0)+q); G.total+=t.total; G.yc+=t.yc; G.yp+=t.yp; G.avg+=t.avg; if(t.has){ G.stock+=t.stock; G.costo+=t.costo; } }
   for(const t of [...brands, G]){ if(!t.has && t!==G) t.stock = null; t.wos = (t.stock!=null && t.avg>0) ? t.stock/t.avg : null; }
   // KPIs
   const cnt = k => x.mods.filter(o=>o.wos!=null && (k==='low'?o.wos<4:k==='ok'?(o.wos>=4&&o.wos<=12):o.wos>12)).length;
   const cards = [
-    {lab:'Unidades vendidas en el año', val:nf0.format(G.total), foot:(WS.tipo==='ALL'?'Todos los grupos':title(WS.tipo))+(x.partial?', incluye '+wkLabel(x.lastW)+' parcial':'')},
+    CMP ? {lab:'Unidades vendidas en '+CMP.cur, val:nf0.format(G.yc), foot:yoy(G.yc,G.yp)+' '+vsTxt()+' ('+nf0.format(G.yp)+')<br>'+(WS.tipo==='ALL'?'Todos los grupos':title(WS.tipo))}
+      : {lab:'Unidades vendidas'+(S.years.size?' en '+[...S.years].sort((a,b)=>a-b).join(' y '):' en todo el período')+(S.months.size?' ('+[...selMonthIdx()].sort((a,b)=>a-b).map(k=>MES[k]).join(', ')+')':''), val:nf0.format(G.total), foot:(WS.tipo==='ALL'?'Todos los grupos':title(WS.tipo))+(x.partial&&x.weeks.includes(x.lastW)?', incluye '+wkLabel(x.lastW)+' parcial':'')},
     {lab:'Venta promedio semanal', val:nf0.format(G.avg), foot:'Últimas 4 semanas completas'},
     {lab:'Stock actual', val:x.inv?nf0.format(G.stock):'–', foot:x.inv?'Costo '+money(G.costo)+'; con IVA '+money(G.costo*(1+iva)):'Solo con Lidenar elegida'},
     {lab:'WOS total', val:x.inv&&G.wos!=null?nf1.format(G.wos)+' sem':'–', foot:x.inv?'Semanas que dura el stock al ritmo actual':'Solo con Lidenar elegida'},
@@ -1746,7 +1867,7 @@ function renderWos(){
   // encabezados
   const colH = x.cols.map(c => WS.vista==='sem' ? '<th title="Semana del '+fmtDate(c*7-WOFF)+'">'+wkLabel(c)+(x.partial&&c===x.lastW?'*':'')+'<small>'+fmtDate(c*7-WOFF)+'</small></th>' : '<th>'+mLab(c)+'</th>').join('');
   const H = (k,t) => '<th class="sortable'+(WS.sort===k?' s':'')+'" data-k="'+k+'">'+t+(WS.sort===k?(WS.dir<0?' ▼':' ▲'):'')+'</th>';
-  const head = (first) => '<thead><tr><th class="l stick">'+first+'</th>'+H('total','Total vendido')+(x.inv?H('stock','Stock')+H('costo','Costo stock')+'<th>Costo prom.</th><th>Costo con IVA</th>':'')+H('avg','Venta prom. 4 sem')+(x.inv?H('wos','WOS'):'')+colH+'</tr></thead>';
+  const head = (first) => '<thead><tr><th class="l stick">'+first+'</th>'+H('total','Total vendido')+(CMP?H('yc','Año '+CMP.cur)+H('yp','Año '+CMP.prev+(CMP.cut!=null?' a la fecha':''))+H('cr','Crec.'):'')+(x.inv?H('stock','Stock')+H('costo','Costo stock')+'<th>Costo prom.</th><th>Costo con IVA</th>':'')+H('avg','Venta prom. 4 sem')+(x.inv?H('wos','WOS'):'')+colH+'</tr></thead>';
   // tabla marcas
   let hb = head('Marca')+'<tbody>';
   for(const t of brands) hb += '<tr><td class="l stick"><span class="tdot" style="background:'+brandColor(t.b)+'"></span>'+esc(D.b[t.b])+'</td>'+wosRow(t, x, iva)+'</tr>';
@@ -1799,8 +1920,16 @@ function cliStats(){
     o.gN.set(C.g[i], (o.gN.get(C.g[i])||0) + C.n[i]);
     o.ciN.set(C.ci[i], (o.ciN.get(C.ci[i])||0) + C.n[i]);
   }
-  // Historia completa (sin filtro de mes/semana) para estado y tendencia
-  const all = rowsFor({months:new Set(), weeks:new Set()});
+  // Al comparar años: venta del año anterior (también clientes que ya no compran este año)
+  if(CMP){
+    for(const i of rowsFor({side:'prev'})){
+      if(STORE_G.has(C.g[i])) continue;
+      const o = get(C.c[i]); o.pv = (o.pv||0) + sale(i);
+      if(!o.n){ o.gN.set(C.g[i], (o.gN.get(C.g[i])||0) + 1e-9); o.ciN.set(C.ci[i], (o.ciN.get(C.ci[i])||0) + 1e-9); }
+    }
+  }
+  // Historia completa (sin filtro de mes/semana) para estado y tendencia; al comparar, de ambos años
+  const all = rowsFor({months:new Set(), weeks:new Set(), side:false});
   for(const i of all){
     if(STORE_G.has(C.g[i])) continue;
     const o = map.get(C.c[i]); if(!o || C.n[i] <= 0) continue;
@@ -1815,8 +1944,9 @@ function cliStats(){
     if(I.a[i]) o.ia += q; else { o.is += q; const age = iMaxD - I.d[i]; o.iage += q*age; if(age > 90) o.iold += q; }
   }
   const top = m => { let b=null, bv=-Infinity; for(const [k,v] of m) if(v>bv){bv=v;b=k;} return b; };
-  const list = [...map.values()].filter(o => o.venta !== 0 || o.docs.size);
+  const list = [...map.values()].filter(o => o.venta !== 0 || o.docs.size || o.pv);
   for(const o of list){
+    o.pv = o.pv||0; o.cr = yoyV(o.venta, o.pv);
     o.g = top(o.gN); o.ci = top(o.ciN); o.vp = top(o.vend);
     o.nf = o.docs.size; o.ticket = o.nf ? o.venta/o.nf : 0; o.mg = o.n ? o.u/o.n : 0;
     o.rec = o.last >= 0 ? maxD - o.last : 9999;
@@ -1834,7 +1964,7 @@ function renderCli(){
   const segN = {nuevo:0, activo:0, riesgo:0, perdido:0}, segV = {nuevo:0, activo:0, riesgo:0, perdido:0};
   for(const o of list){ segN[o.seg]++; segV[o.seg] += o.venta; }
   const se = document.getElementById('clSegs');
-  se.innerHTML = '<button class="segbox'+(CL.seg===null?' on':'')+'" data-s=""><span class="sl">Todos</span><span class="sv">'+nf0.format(list.length)+'</span><span class="sd">Clientes con compras en la selección</span></button>' +
+  se.innerHTML = '<button class="segbox'+(CL.seg===null?' on':'')+'" data-s=""><span class="sl">Todos</span><span class="sv">'+nf0.format(list.length)+'</span><span class="sd">'+(CMP?(()=>{ const a=list.filter(o=>o.venta>0).length, b=list.filter(o=>o.pv>0).length, n=list.filter(o=>o.venta>0&&!(o.pv>0)).length, l=list.filter(o=>o.pv>0&&!(o.venta>0)).length; return nf0.format(a)+' compraron en '+CMP.cur+' ('+yoy(a,b)+' vs '+nf0.format(b)+' en '+CMP.prev+'); '+nf0.format(n)+' no compraban en '+CMP.prev+' y '+nf0.format(l)+' dejaron de comprar'; })():'Clientes con compras en la selección')+'</span></button>' +
     SEGS.map(s => '<button class="segbox s-'+s.k+(CL.seg===s.k?' on':'')+'" data-s="'+s.k+'"><span class="sl">'+s.l+'</span><span class="sv">'+nf0.format(segN[s.k])+'</span><span class="sd">'+s.d+'. '+compact(segV[s.k])+' en ventas</span></button>').join('');
   se.querySelectorAll('.segbox').forEach(b => b.addEventListener('click', () => { CL.seg = b.dataset.s || null; CL.limit = 50; renderCli(); }));
 
@@ -1849,18 +1979,18 @@ function renderCli(){
   let rows = list.slice();
   if(CL.seg) rows = rows.filter(o => o.seg === CL.seg);
   if(CL.q){ const q = CL.q.toLowerCase(); rows = rows.filter(o => D.c[o.k].toLowerCase().includes(q)); }
-  const F = {venta:o=>o.venta, q:o=>o.q, mg:o=>o.mg, nf:o=>o.nf, ticket:o=>o.ticket, rec:o=>-o.rec, meses:o=>o.months.size, tr:o=>o.tr==null?1e9:o.tr, st:o=>o.st==null?-1:o.st, is:o=>o.is};
+  const F = {venta:o=>o.venta, pv:o=>o.pv, cr:o=>o.cr, q:o=>o.q, mg:o=>o.mg, nf:o=>o.nf, ticket:o=>o.ticket, rec:o=>-o.rec, meses:o=>o.months.size, tr:o=>o.tr==null?1e9:o.tr, st:o=>o.st==null?-1:o.st, is:o=>o.is};
   const f = F[CL.sort] || F.venta;
   rows.sort((a,b) => (f(b)-f(a)) * (CL.dir<0?1:-1));
   const H = (k,t,tt) => '<th class="'+(CL.sort===k?'s':'')+'" data-k="'+k+'"'+(tt?' title="'+tt+'"':'')+'>'+t+(CL.sort===k?(CL.dir<0?' ▼':' ▲'):'')+'</th>';
-  let h = '<thead><tr><th class="l">Cliente</th><th class="l">Estado</th>'+H('venta','Venta')+H('q','Unidades')+H('mg','Margen')+H('nf','Facturas')+H('ticket','Ticket')+H('rec','Últ. compra','Días desde la última compra')+H('meses','Meses con compra')+H('tr','Tendencia 90 d','Venta de los últimos 90 días contra los 90 anteriores')+H('st','Sell-through','Activados / IMEI vendidos (Infinix, Tecno, Xiaomi)')+H('is','En percha','IMEI sin activar en el cliente')+'</tr></thead><tbody>';
+  let h = '<thead><tr><th class="l">Cliente</th><th class="l">Estado</th>'+H('venta','Venta'+(CMP?' '+CMP.cur:''))+(CMP?H('pv','Venta '+CMP.prev,CMP.cut!=null?'Hasta la misma fecha':'')+H('cr','Crec.','Venta '+CMP.cur+' contra '+CMP.prev):'')+H('q','Unidades')+H('mg','Margen')+H('nf','Facturas')+H('ticket','Ticket')+H('rec','Últ. compra','Días desde la última compra')+H('meses','Meses con compra')+H('tr','Tendencia 90 d','Venta de los últimos 90 días contra los 90 anteriores')+H('st','Sell-through','Activados / IMEI vendidos (Infinix, Tecno, Xiaomi)')+H('is','En percha','IMEI sin activar en el cliente')+'</tr></thead><tbody>';
   for(const o of rows.slice(0, CL.limit)){
     h += '<tr data-k="'+o.k+'"'+(S.c.has(o.k)?' class="sel"':'')+'><td class="l" title="'+esc(D.c[o.k])+'">'+esc(title(D.c[o.k]))+'<small>'+esc(title(D.g[o.g]||''))+' · '+esc(title(D.ci[o.ci]||''))+'</small></td><td class="l">'+segChip(o.seg)+'</td>'+
-      '<td><b>'+money(o.venta)+'</b></td><td>'+nf0.format(o.q)+'</td><td>'+nf1.format(o.mg*100)+'%</td><td>'+nf0.format(o.nf)+'</td><td>'+money(o.ticket)+'</td>'+
+      '<td><b>'+money(o.venta)+'</b></td>'+(CMP?'<td>'+money(o.pv)+'</td><td>'+yoy(o.venta,o.pv,{d0:true})+'</td>':'')+'<td>'+nf0.format(o.q)+'</td><td>'+nf1.format(o.mg*100)+'%</td><td>'+nf0.format(o.nf)+'</td><td>'+money(o.ticket)+'</td>'+
       '<td>'+(o.rec>=9999?'–':(o.rec===0?'Hoy':nf0.format(o.rec)+' d'))+'</td><td>'+o.months.size+'</td><td>'+trCell(o)+'</td>'+
       '<td>'+(o.st==null?'–':stCell({a:o.ia,n:o.iv}))+'</td><td'+(o.iold?' class="old" title="'+nf0.format(o.iold)+' con más de 90 días"':'')+'>'+(o.iv?nf0.format(o.is):'–')+'</td></tr>';
   }
-  if(!rows.length) h += '<tr><td class="l" colspan="12">No hay clientes para esta selección.</td></tr>';
+  if(!rows.length) h += '<tr><td class="l" colspan="14">No hay clientes para esta selección.</td></tr>';
   const tb = document.getElementById('clTable'); tb.innerHTML = h + '</tbody>';
   tb.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.k; if(CL.sort===k) CL.dir*=-1; else {CL.sort=k; CL.dir=-1;} renderCli(); }));
   tb.querySelectorAll('tbody tr[data-k]').forEach(tr => tr.addEventListener('click', () => { toggle(S.c, +tr.dataset.k); render(); if(S.c.size) document.getElementById('clProfile').scrollIntoView({behavior:'smooth', block:'start'}); }));
@@ -1878,6 +2008,10 @@ function renderProfile(sel, prof){
   const months = new Set(); sel.forEach(o => o.months.forEach(m => months.add(m)));
   const cs = new Set(sel.map(o => o.k));
   const rows = rowsFor().filter(i => cs.has(C.c[i]) && !STORE_G.has(C.g[i]));
+  // Al comparar años: lo mismo del año anterior
+  const pr = CMP ? rowsFor({side:'prev'}).filter(i => cs.has(C.c[i]) && !STORE_G.has(C.g[i])) : null;
+  const P = pr ? pr.reduce((a,i)=>{ a.v+=sale(i); a.q+=C.q[i]; a.u+=C.u[i]; return a; },{v:0,q:0,u:0}) : null;
+  const pf = (c,p) => P ? yoy(c,p)+' '+vsTxt()+'<br>' : '';
   // Detalle
   const byM = new Map(), byB = new Map(), byMod = new Map(), byV = new Map();
   for(const i of rows){
@@ -1891,9 +2025,9 @@ function renderProfile(sel, prof){
   const titleTxt = one ? title(D.c[one.k]) : nf0.format(sel.length)+' clientes seleccionados';
   const sub = one ? [title(D.g[one.g]||''), title(D.ci[one.ci]||''), 'Vendedor principal: '+title(D.v[one.vp]||'')].filter(Boolean).join(' · ') : sel.slice(0,4).map(o=>title(D.c[o.k])).join(', ')+(sel.length>4?' y '+(sel.length-4)+' más':'');
   const cards = [
-    {lab:'Venta', val:money(tot.venta), foot:'Primera compra '+(tot.first<1e9?fmtDate(tot.first):'–')+', última '+(tot.last>=0?fmtDate(tot.last):'–')},
-    {lab:'Unidades', val:nf0.format(tot.q), foot:nf0.format(tot.nf)+' facturas'},
-    {lab:'Utilidad', val:money(tot.u), foot:'Margen '+nf1.format(tot.n?tot.u/tot.n*100:0)+'%'},
+    {lab:'Venta', val:money(tot.venta), foot:pf(tot.venta,P&&P.v)+'Primera compra '+(tot.first<1e9?fmtDate(tot.first):'–')+', última '+(tot.last>=0?fmtDate(tot.last):'–')},
+    {lab:'Unidades', val:nf0.format(tot.q), foot:pf(tot.q,P&&P.q)+nf0.format(tot.nf)+' facturas'},
+    {lab:'Utilidad', val:money(tot.u), foot:pf(tot.u,P&&P.u)+'Margen '+nf1.format(tot.n?tot.u/tot.n*100:0)+'%'},
     {lab:'Ticket por factura', val:money(tot.nf?tot.venta/tot.nf:0), foot:'Por unidad '+money(tot.q?tot.venta/tot.q:0)},
     {lab:'Frecuencia', val:months.size+(months.size===1?' mes':' meses'), foot:'con compras en el período; '+nf1.format(months.size?tot.nf/months.size:0)+' facturas por mes'},
     {lab:'Sell-through', val:tot.iv?nf1.format(tot.ia/tot.iv*100)+'%':'–', foot:tot.iv?nf0.format(tot.is)+' en percha, '+nf0.format(tot.iold)+' con más de 90 días':'Sin IMEI de Infinix, Tecno o Xiaomi'}
@@ -1913,14 +2047,15 @@ function renderProfile(sel, prof){
   // Gráfico mensual
   if(charts.cl){ charts.cl.destroy(); delete charts.cl; }
   if(typeof Chart !== 'undefined'){
-    const ms = (S.months.size ? [...S.months].sort((a,b)=>a-b) : monthsInScope());
+    const ms = colMonths();
     const o = baseOpts(); o.plugins.tooltip.callbacks.label = ctx => ' '+ctx.dataset.label+': '+(ctx.dataset.yAxisID==='y1'?nf0.format(ctx.parsed.y)+' u':money(ctx.parsed.y));
     o.scales.y.ticks.callback = v => compact(v);
     o.scales.y1 = {position:'right', beginAtZero:true, grid:{display:false}, border:{display:false}, ticks:{color:css('--muted'), font:{family:'Barlow Semi Condensed', size:12}, callback:v=>compact(v,true)}};
     charts.cl = new Chart(document.getElementById('cCli'), {type:'bar', data:{labels:ms.map(m=>mLab(m)), datasets:[
       {label:'Venta', data:ms.map(m=>(byM.get(m)||{v:0}).v), backgroundColor:css('--accent'), borderRadius:3, maxBarThickness:42, order:2},
       {label:'Unidades', type:'line', yAxisID:'y1', data:ms.map(m=>(byM.get(m)||{q:0}).q), borderColor:css('--amber'), backgroundColor:css('--amber'), pointRadius:3, borderWidth:2, tension:.25, order:1}
-    ]}, options:o});
+    ].concat(pr ? (()=>{ const pm=new Map(); for(const i of pr){ const k=month[i]+12*CMP.gap; pm.set(k,(pm.get(k)||0)+sale(i)); }
+      return [{label:'Venta '+CMP.prev, data:ms.map(m=>pm.get(m)||0), backgroundColor:css('--line'), borderRadius:3, maxBarThickness:42, order:3}]; })() : [])}, options:o});
   }
 }
 document.getElementById('clMore').addEventListener('click', () => { CL.limit += 50; renderCli(); });
@@ -1955,13 +2090,34 @@ const ipS = i => IP_HAS_S ? IP.cols.s[i] : -1;
 const ipSName = s => s < 0 ? '—' : IP.dims.s[s];
 const IPS = {limP:30, limX:50, sortP:'c', dirP:-1, sortX:'c', dirX:-1, qP:'', qX:'', cm:'c'};
 const IP_LID = IP ? IP.dims.i.map((x,k)=>/LIDENAR/i.test(x)?k:-1).filter(k=>k>=0) : [];
+// Importadores de nuestro grupo: color propio de cada empresa; el resto de importadores va en gris
+const GRP_COL = ['#0D7680','#D2600A'], GRP_NAME = ['Lidenar','Movilcelistic'];
+const IP_GRP = new Map(IP ? IP.dims.i.map((x,k)=>[k, /LIDENAR/i.test(x)?0:/MOVILCEL/i.test(x)?1:-1]).filter(a=>a[1]>=0) : []);
+const ipGrpAttr = k => IP_GRP.has(k) ? ' style="--gc:'+GRP_COL[IP_GRP.get(k)]+'"' : '';
+const ipImpName = k => IP_GRP.has(k) ? '<span class="grp-nm"><span class="bdot" style="--c:var(--gc)"></span>'+esc(title(IP.dims.i[k]))+'</span><span class="grp-chip">Grupo</span>' : esc(title(IP.dims.i[k]));
 // opts.imp=false ignora el filtro de importador; opts.bp=false ignora marca y producto
+// Al comparar años: último mes con importaciones del año actual; el año anterior se corta en ese mes si el actual va en curso
+let IP_CUT = null, IP_CUT_K = '';
+function ipCut(){
+  const k = CMP ? CMP.cur+'|'+CMP.prev : ''; if(k===IP_CUT_K) return IP_CUT; IP_CUT_K = k; IP_CUT = null;
+  IP_PART = null;
+  if(CMP && IP){ let mx = 0; for(let i=0;i<IP.rows;i++) if(IP.cols.y[i]===CMP.cur && IP.cols.m[i]>mx) mx = IP.cols.m[i];
+    // Si el último mes recién empieza (datos de aduana hasta antes del día 25), se compara hasta el mes anterior en ambos años
+    const h = String(IP.hasta||'').match(/^(\d+)\s+(\S+)\s+(\d{4})/);
+    if(mx>1 && h && +h[3]===CMP.cur && mesc.indexOf(h[2].toLowerCase().slice(0,3))===mx-1 && +h[1]<25){ IP_PART = {m:mx, d:+h[1]}; mx--; }
+    if(mx && mx<12) IP_CUT = mx; }
+  return IP_CUT;
+}
+let IP_PART = null; // mes en curso de importaciones que se deja fuera de la comparación
 function ipRows(opts){
   if(!IP) return [];
   opts = opts||{}; const Q = IP.cols, ks = selMonthIdx(), out = [];
   const useImp = opts.imp!==false, useBP = opts.bp!==false;
+  const side = opts.side!==undefined ? opts.side : (CMP ? 'cur' : false);
+  const cut = side==='prev' ? ipCut() : (side==='cur' && (ipCut(), IP_PART) ? IP_CUT : null);
   for(let i=0;i<IP.rows;i++){
-    if(S.years.size && !S.years.has(Q.y[i])) continue;
+    if(side){ if(Q.y[i]!==(side==='prev'?CMP.prev:CMP.cur)) continue; if(cut && Q.m[i]>cut) continue; }
+    else if(S.years.size && !S.years.has(Q.y[i])) continue;
     if(ks.size && !ks.has(Q.m[i]-1)) continue;
     if(useImp && S.iI.size && !S.iI.has(Q.i[i])) continue;
     if(useBP && S.iB.size && !S.iB.has(Q.b[i])) continue;
@@ -1984,8 +2140,15 @@ function renderImp(){
   body.hidden = false;
   const Q = IP.cols, Dm = IP.dims;
   const sel = ipRows(), base = ipRows({imp:false}), tiempo = ipRows({imp:false, bp:false});
+  // Al comparar años: las mismas vistas en el año anterior (cortado al último mes del actual si va en curso)
+  const ipHasPrev = !!CMP && IP.cols.y.some(y=>y===CMP.prev);
+  const psel = ipHasPrev ? ipRows({side:'prev'}) : null, pbase = ipHasPrev ? ipRows({imp:false, side:'prev'}) : null;
+  const ipVs = () => 'vs '+CMP.prev+(ipCut()?' (ene a '+MES_L[ipCut()-1]+')':'');
   const notes = [];
   if(IP.hasta) notes.push('Datos de aduana hasta el '+IP.hasta+(IP.archivo?' ('+IP.archivo+')':'')+'.');
+  if(CMP && !ipHasPrev) notes.push('Las importaciones cargadas no incluyen '+CMP.prev+', así que aquí no hay comparación: se muestra solo '+CMP.cur+'.');
+  else if(CMP) notes.push('Comparando '+CMP.cur+' contra '+CMP.prev+(ipCut()?', de enero a '+MES_L[ipCut()-1]+' en ambos años':'')+
+    (IP_PART?' ('+MES_L[IP_PART.m-1]+' de '+CMP.cur+' recién empieza, con datos solo hasta el día '+IP_PART.d+', y se deja fuera para no comparar unos pocos días contra el mes completo).':(ipCut()?' (último mes con datos de '+CMP.cur+').':'.')));
   if(S.p.size||S.v.size||S.c.size||S.g.size||S.w.size||S.ci.size||S.b.size||S.m.size) notes.push('Los filtros de vendedor, cliente, canal, marca y modelo del panel no aplican aquí; usa los filtros de esta página. Sí aplican Año y Mes.');
   note.textContent = notes.join(' ');
 
@@ -1994,30 +2157,38 @@ function renderImp(){
   const B = ipSum(base).get(0) || {q:0,c:0,f:0,fl:0,n:0};
   const nImp = new Set(sel.map(i=>Q.i[i])).size, nProd = new Set(sel.map(i=>Q.p[i])).size;
   let lid = 0; if(IP_LID.length){ const ls = new Set(IP_LID); for(const i of base) if(ls.has(Q.i[i])) lid += Q.c[i]; }
+  const PT = psel ? (ipSum(psel).get(0) || {q:0,c:0,f:0,fl:0,n:0}) : null, PB = pbase ? (ipSum(pbase).get(0) || {q:0,c:0,f:0,fl:0,n:0}) : null;
+  let plid = 0; if(pbase && IP_LID.length){ const ls = new Set(IP_LID); for(const i of pbase) if(ls.has(Q.i[i])) plid += Q.c[i]; }
+  const pNImp = psel ? new Set(psel.map(i=>Q.i[i])).size : 0;
+  const dv = (c,p,pts) => PT ? (pts ? yoy(c,p,{pts:true}) : yoy(c,p))+' '+ipVs()+'<br>' : '';
   const cards = [
-    {lab:'CIF importado', val:money(T.c), foot:'FOB '+money(T.f)+' + flete y seguro '+money(T.fl)},
-    {lab:'Unidades', val:nf0.format(T.q), foot:nf0.format(nProd)+(nProd===1?' producto':' productos')},
-    {lab:'CIF por unidad', val:T.q?moneyD(T.c/T.q):'–', foot:'Costo puesto en Ecuador antes de impuestos'},
-    {lab:'Importadores', val:nf0.format(nImp), foot:'Con importaciones en la selección'},
-    {lab:'Flete y seguro', val:T.c?nf1.format(T.fl/T.c*100)+'%':'–', foot:'Del CIF'},
-    {lab:'Participación de Lidenar', val:B.c&&IP_LID.length?nf1.format(lid/B.c*100)+'%':'–', foot:IP_LID.length?money(lid)+' de '+money(B.c)+' de CIF del mercado'+(S.iB.size||S.iP.size?' (marca o producto elegidos)':''):'Lidenar no aparece como importador'}
+    {lab:'CIF importado', val:money(T.c), foot:dv(T.c,PT&&PT.c)+'FOB '+money(T.f)+' + flete y seguro '+money(T.fl)},
+    {lab:'Unidades', val:nf0.format(T.q), foot:dv(T.q,PT&&PT.q)+nf0.format(nProd)+(nProd===1?' producto':' productos')},
+    {lab:'CIF por unidad', val:T.q?moneyD(T.c/T.q):'–', foot:(PT&&PT.q&&T.q?dv(T.c/T.q,PT.c/PT.q):'')+'Costo puesto en Ecuador antes de impuestos'},
+    {lab:'Importadores', val:nf0.format(nImp), foot:(PT?dv(nImp,pNImp)+nf0.format(pNImp)+' en '+CMP.prev:'Con importaciones en la selección')},
+    {lab:'Flete y seguro', val:T.c?nf1.format(T.fl/T.c*100)+'%':'–', foot:(PT&&PT.c&&T.c?dv(T.fl/T.c,PT.fl/PT.c,true):'')+'Del CIF'},
+    {lab:'Participación de Lidenar', val:B.c&&IP_LID.length?nf1.format(lid/B.c*100)+'%':'–', foot:(PB&&PB.c&&B.c&&IP_LID.length?dv(lid/B.c,plid/PB.c,true):'')+(IP_LID.length?money(lid)+' de '+money(B.c)+' de CIF del mercado'+(S.iB.size||S.iP.size?' (marca o producto elegidos)':''):'Lidenar no aparece como importador')}
   ];
   document.getElementById('ipKpis').innerHTML = cards.map(c=>'<div class="kpi"><div class="lab">'+c.lab+'</div><div class="val">'+c.val+'</div><div class="foot">'+c.foot+'</div></div>').join('');
 
   // Importadores (sin su propio filtro, para poder elegir varios)
   const byI = [...ipSum(base, i=>Q.i[i]).values()].sort((a,b)=>b.c-a.c);
+  const pI = pbase ? ipSum(pbase, i=>Q.i[i]) : null;
+  const ipD = (mp,k,c) => mp ? ' · '+yoy(c,(mp.get(k)||{c:0}).c,{d0:true})+' '+ipVs() : '';
   const totB = byI.reduce((a,o)=>a+o.c,0)||1, mxI = byI.length?byI[0].c:1;
-  const showI = byI.slice(0, 15);
-  document.getElementById('ipImp').innerHTML = showI.map(o=>'<li data-i="'+o.k+'"'+(S.iI.has(o.k)?' class="sel"':'')+'><span class="nm">'+esc(title(Dm.i[o.k]))+'</span><span class="vv">'+compact(o.c)+'</span><span class="tr"><span style="width:'+(o.c/mxI*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(o.c/totB*100)+'% del CIF · '+nf0.format(o.q)+' u · '+(o.q?moneyD(o.c/o.q):'–')+' por unidad</span></li>').join('')
-    + (byI.length>15?'<li class="empty" style="cursor:default">y '+nf0.format(byI.length-15)+' importadores más (búscalos en el filtro Importador)</li>':'')
+  // Los 15 mayores, más Lidenar y Movilcelistic aunque estén más abajo
+  const showI = byI.filter((o,j)=>j<15 || IP_GRP.has(o.k)), restI = byI.length - showI.length;
+  document.getElementById('ipImp').innerHTML = showI.map(o=>'<li data-i="'+o.k+'"'+ipGrpAttr(o.k)+' class="'+(IP_GRP.has(o.k)?'grp':'')+(S.iI.has(o.k)?' sel':'')+'"><span class="nm">'+ipImpName(o.k)+'</span><span class="vv">'+compact(o.c)+'</span><span class="tr"><span style="width:'+(o.c/mxI*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(o.c/totB*100)+'% del CIF · '+nf0.format(o.q)+' u · '+(o.q?moneyD(o.c/o.q):'–')+' por unidad'+ipD(pI,o.k,o.c)+'</span></li>').join('')
+    + (restI>0?'<li class="empty" style="cursor:default">y '+nf0.format(restI)+' importadores más (búscalos en el filtro Importador)</li>':'')
     + (byI.length?'':'<li class="empty">Sin importaciones en la selección.</li>');
   document.querySelectorAll('#ipImp li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.iI,+li.dataset.i); render(); }));
 
   // Marcas (sin el filtro de marca ni de producto, para poder elegir varias)
   const brRows = ipRows({bp:false});
   const byB = [...ipSum(brRows, i=>Q.b[i]).values()].sort((a,b)=>b.c-a.c);
+  const pBr = psel ? ipSum(ipRows({bp:false, side:'prev'}), i=>Q.b[i]) : null;
   const totBr = byB.reduce((a,o)=>a+o.c,0)||1, mxB = byB.length?byB[0].c:1;
-  document.getElementById('ipBr').innerHTML = byB.slice(0,12).map(o=>'<li data-i="'+o.k+'" style="--c:'+ipColor(o.k)+'"'+(S.iB.has(o.k)?' class="sel"':'')+'><span class="nm"><span class="sw"></span>'+esc(Dm.b[o.k])+'</span><span class="vv">'+compact(o.c)+'</span><span class="tr"><span style="width:'+(o.c/mxB*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(o.c/totBr*100)+'% del CIF · '+nf0.format(o.q)+' u · '+(o.q?moneyD(o.c/o.q):'–')+' por unidad</span></li>').join('')
+  document.getElementById('ipBr').innerHTML = byB.slice(0,12).map(o=>'<li data-i="'+o.k+'" style="--c:'+ipColor(o.k)+'"'+(S.iB.has(o.k)?' class="sel"':'')+'><span class="nm"><span class="sw"></span>'+esc(Dm.b[o.k])+'</span><span class="vv">'+compact(o.c)+'</span><span class="tr"><span style="width:'+(o.c/mxB*100).toFixed(1)+'%"></span></span><span class="meta">'+nf1.format(o.c/totBr*100)+'% del CIF · '+nf0.format(o.q)+' u · '+(o.q?moneyD(o.c/o.q):'–')+' por unidad'+ipD(pBr,o.k,o.c)+'</span></li>').join('')
     + (byB.length>12?'<li class="empty" style="cursor:default">y '+nf0.format(byB.length-12)+' marcas más (búscalas en el filtro Marca)</li>':'');
   document.querySelectorAll('#ipBr li[data-i]').forEach(li=>li.addEventListener('click',()=>{ toggle(S.iB,+li.dataset.i); render(); }));
 
@@ -2037,6 +2208,9 @@ function renderImp(){
     const surf = css('--surface');
     const ds = top.map(b=>({label:Dm.b[b], data:keys.map(k=>val(ser.get(b),k)), raw:keys.map(k=>ser.get(b).get(k)||0), backgroundColor:ipColor(b), borderColor:surf, borderWidth:1, borderSkipped:false, maxBarThickness:58}));
     if(other.size) ds.push({label:'Otras marcas', data:keys.map(k=>val(other,k)), raw:keys.map(k=>other.get(k)||0), backgroundColor:css('--line'), borderColor:surf, borderWidth:1, borderSkipped:false, maxBarThickness:58});
+    // Al comparar años: total del mismo mes del año anterior como línea (no en la vista de %)
+    if(psel && cm!=='p'){ const pm = new Map(); for(const i of psel){ const k = mk(i)+12*CMP.gap; pm.set(k, (pm.get(k)||0) + vOf(i)); }
+      ds.push({type:'line', label:'Total '+CMP.prev, stack:'prev', data:keys.map(k=>pm.get(k)||0), raw:keys.map(k=>pm.get(k)||0), borderColor:css('--ink'), backgroundColor:css('--ink'), borderDash:[5,4], borderWidth:2, pointRadius:3, tension:.25, order:-1}); }
     const fmtV = v => cm==='q' ? nf0.format(Math.round(v))+' u' : money(v);
     const o = baseOpts(); o.scales.x.stacked = true; o.scales.y.stacked = true;
     o.datasets = {bar:{categoryPercentage:.78, barPercentage:.92}};
@@ -2046,7 +2220,9 @@ function renderImp(){
     if(cm==='p'){ o.scales.y.max = 100; o.scales.y.ticks.callback = v=>v+'%'; }
     else o.scales.y.ticks.callback = v=>cm==='q' ? compact(v,true) : compact(v);
     o.scales.y.ticks.maxTicksLimit = 6;
-    o.plugins.tooltip.callbacks.label = ctx=>{ const r = ctx.dataset.raw[ctx.dataIndex], t = tot.get(keys[ctx.dataIndex])||0; return ' '+ctx.dataset.label+': '+fmtV(r)+' ('+nf1.format(t?r/t*100:0)+'% del mes)'; };
+    o.plugins.tooltip.callbacks.label = ctx=>{ const r = ctx.dataset.raw[ctx.dataIndex], t = tot.get(keys[ctx.dataIndex])||0;
+      if(ctx.dataset.stack==='prev') return ' '+ctx.dataset.label+': '+fmtV(r)+(r?' ('+(t>=r?'+':'')+nf1.format((t-r)/r*100)+'%)':'');
+      return ' '+ctx.dataset.label+': '+fmtV(r)+' ('+nf1.format(t?r/t*100:0)+'% del mes)'; };
     o.plugins.tooltip.callbacks.footer = items=>items.length?'Total del mes: '+fmtV(tot.get(keys[items[0].dataIndex])||0):'';
     o.plugins.tooltip.itemSort = (a,b)=>b.parsed.y-a.parsed.y; o.plugins.tooltip.filter = it=>it.parsed.y!==0;
     // Total encima de cada barra (solo CIF y unidades), con las marcas visibles
@@ -2054,7 +2230,7 @@ function renderImp(){
       if(cm==='p') return;
       const g = ch.ctx, ys = ch.scales.y, xs = ch.scales.x;
       g.save(); g.fillStyle = css('--ink'); g.font = '600 12px "Barlow Semi Condensed", Barlow, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'bottom';
-      keys.forEach((k,j)=>{ let s = 0; ch.data.datasets.forEach((d,di)=>{ if(ch.isDatasetVisible(di)) s += d.data[j]||0; });
+      keys.forEach((k,j)=>{ let s = 0; ch.data.datasets.forEach((d,di)=>{ if(ch.isDatasetVisible(di) && d.stack!=='prev') s += d.data[j]||0; });
         if(s>0) g.fillText(cm==='q' ? compact(s,true) : compact(s), xs.getPixelForValue(j), ys.getPixelForValue(s)-4); });
       g.restore(); }};
     charts.ip = new Chart(document.getElementById('cIp'), {type:'bar', data:{labels:keys.map(k=>MES[k%12]+(multiY?' '+String(Math.floor(k/12)).slice(2):'')), datasets:ds}, options:o, plugins:[totals]});
@@ -2069,14 +2245,16 @@ function renderImp(){
   let prods = [...pm.values()];
   // Unidades del modelo (todos los storage) para mostrar qué parte es cada storage
   const mU = new Map(); for(const o of prods) mU.set(o.p, (mU.get(o.p)||0)+o.q);
+  const pP = new Map(); if(psel) for(const i of psel){ const k = psKey(i); pP.set(k, (pP.get(k)||0) + Q.c[i]); }
+  for(const o of prods){ o.pc = pP.get(o.k)||0; o.cr = yoyV(o.c, o.pc); }
   for(const o of prods){ o.cu = o.q ? o.c/o.q : 0; o.ni = o.imp.size; o.li = ipTop(o.imp); o.ls = o.c ? o.imp.get(o.li)/o.c : 0; o.sm = mU.get(o.p) ? o.q/mU.get(o.p) : 0; }
   if(IPS.qP){ const q = IPS.qP.toLowerCase(); prods = prods.filter(o=>Dm.p[o.p].toLowerCase().includes(q) || Dm.b[o.b].toLowerCase().includes(q) || ipSName(o.s).toLowerCase().includes(q)); }
-  const FP = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, ni:o=>o.ni, ls:o=>o.ls, sm:o=>o.sm};
+  const FP = {q:o=>o.q, c:o=>o.c, cr:o=>o.cr, cu:o=>o.cu, ni:o=>o.ni, ls:o=>o.ls, sm:o=>o.sm};
   prods.sort((a,b)=>((FP[IPS.sortP]||FP.c)(b)-(FP[IPS.sortP]||FP.c)(a))*(IPS.dirP<0?1:-1));
   const HP = (k,t,tt)=>ipSortHead(IPS,'sortP','dirP',k,t,tt);
-  let hp = '<thead><tr><th class="l">Producto</th><th class="l">Storage</th><th class="l">Marca</th>'+HP('q','Unidades')+HP('sm','% del modelo','Unidades de este storage ÷ unidades del modelo en todos sus storage')+HP('c','CIF US$')+HP('cu','CIF por unidad')+HP('ni','Importadores')+'<th class="l">Importador líder</th>'+HP('ls','% del líder','CIF del importador líder ÷ CIF del producto con ese storage')+'</tr></thead><tbody>';
+  let hp = '<thead><tr><th class="l">Producto</th><th class="l">Storage</th><th class="l">Marca</th>'+HP('q','Unidades')+HP('sm','% del modelo','Unidades de este storage ÷ unidades del modelo en todos sus storage')+HP('c','CIF US$')+(psel?HP('cr','Crec.','CIF contra '+CMP.prev+(ipCut()?' de enero a '+MES_L[ipCut()-1]:'')):'')+HP('cu','CIF por unidad')+HP('ni','Importadores')+'<th class="l">Importador líder</th>'+HP('ls','% del líder','CIF del importador líder ÷ CIF del producto con ese storage')+'</tr></thead><tbody>';
   for(const o of prods.slice(0, IPS.limP)){
-    hp += '<tr data-k="'+o.p+'"'+(S.iP.has(o.p)?' class="sel"':'')+'><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td class="l"><b>'+esc(ipSName(o.s))+'</b></td><td class="l"><span class="bdot" style="--c:'+ipColor(o.b)+'"></span>'+esc(Dm.b[o.b])+'</td><td>'+nf0.format(o.q)+'</td><td>'+nf0.format(o.sm*100)+'%</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+o.ni+'</td><td class="l" title="'+esc(Dm.i[o.li])+'">'+esc(title(Dm.i[o.li]))+'</td><td>'+stCell({a:o.ls,n:1})+'</td></tr>';
+    hp += '<tr data-k="'+o.p+'"'+(S.iP.has(o.p)?' class="sel"':'')+'><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td class="l"><b>'+esc(ipSName(o.s))+'</b></td><td class="l"><span class="bdot" style="--c:'+ipColor(o.b)+'"></span>'+esc(Dm.b[o.b])+'</td><td>'+nf0.format(o.q)+'</td><td>'+nf0.format(o.sm*100)+'%</td><td><b>'+money(o.c)+'</b></td>'+(psel?'<td title="'+CMP.prev+': '+money(o.pc)+'">'+yoy(o.c,o.pc,{d0:true})+'</td>':'')+'<td>'+moneyD(o.cu)+'</td><td>'+o.ni+'</td><td class="l" title="'+esc(Dm.i[o.li])+'"'+ipGrpAttr(o.li)+'>'+ipImpName(o.li)+'</td><td>'+stCell({a:o.ls,n:1})+'</td></tr>';
   }
   if(!prods.length) hp += '<tr><td class="l" colspan="10">Sin productos para esta selección.</td></tr>';
   const tp = document.getElementById('ipProd'); tp.innerHTML = hp+'</tbody>';
@@ -2092,18 +2270,20 @@ function renderImp(){
   for(const i of sel){ const k = Q.i[i]+'|'+psKey(i); let o = xm.get(k); if(!o){ o = {i:Q.i[i], p:Q.p[i], s:ipS(i), b:Q.b[i], q:0, c:0, f:0, fl:0, ex:new Map(), pa:new Map()}; xm.set(k,o); }
     o.q+=Q.q[i]; o.c+=Q.c[i]; o.f+=Q.f[i]; o.fl+=Q.fl[i]; o.ex.set(Q.x[i], (o.ex.get(Q.x[i])||0)+Q.c[i]); o.pa.set(Q.o[i], (o.pa.get(Q.o[i])||0)+Q.c[i]); }
   let xs = [...xm.values()];
+  const pX = new Map(); if(psel) for(const i of psel){ const k = Q.i[i]+'|'+psKey(i); pX.set(k, (pX.get(k)||0) + Q.c[i]); }
+  for(const o of xs){ o.pc = pX.get(o.i+'|'+o.p+'|'+o.s)||0; o.cr = yoyV(o.c, o.pc); }
   for(const o of xs){ const pk = o.p+'|'+o.s; o.cu = o.q ? o.c/o.q : 0; o.pi = iTot.get(o.i) ? o.c/iTot.get(o.i) : 0; o.pp = pTot.get(pk) ? o.c/pTot.get(pk) : 0; }
   if(IPS.qX){ const q = IPS.qX.toLowerCase(); xs = xs.filter(o=>Dm.i[o.i].toLowerCase().includes(q)||Dm.p[o.p].toLowerCase().includes(q)||Dm.b[o.b].toLowerCase().includes(q)||ipSName(o.s).toLowerCase().includes(q)); }
-  const FX = {q:o=>o.q, c:o=>o.c, cu:o=>o.cu, f:o=>o.f, fl:o=>o.fl, pi:o=>o.pi, pp:o=>o.pp};
+  const FX = {q:o=>o.q, c:o=>o.c, cr:o=>o.cr, cu:o=>o.cu, f:o=>o.f, fl:o=>o.fl, pi:o=>o.pi, pp:o=>o.pp};
   if(IPS.sortX==='c' && IPS.dirX<0){ // orden por defecto: importador por CIF total y, dentro, producto por CIF
     const it = new Map(); for(const o of xs) it.set(o.i, (it.get(o.i)||0)+o.c);
     xs.sort((a,b)=> (it.get(b.i)-it.get(a.i)) || (a.i-b.i) || (b.c-a.c));
   } else xs.sort((a,b)=>((FX[IPS.sortX]||FX.c)(b)-(FX[IPS.sortX]||FX.c)(a))*(IPS.dirX<0?1:-1));
   const HX = (k,t,tt)=>ipSortHead(IPS,'sortX','dirX',k,t,tt);
-  let hx = '<thead><tr><th class="l">Importador</th><th class="l">Marca</th><th class="l">Producto</th><th class="l">Storage</th>'+HX('q','Unidades')+HX('c','CIF US$')+HX('cu','CIF por unidad')+HX('f','FOB US$')+HX('fl','Flete y seguro')+HX('pi','% del importador','CIF de este producto ÷ CIF total del importador en el período')+HX('pp','Part. en el producto','CIF de este importador ÷ CIF de ese producto de todos los importadores')+'<th class="l">Exportador principal</th><th class="l">País de origen</th></tr></thead><tbody>';
+  let hx = '<thead><tr><th class="l">Importador</th><th class="l">Marca</th><th class="l">Producto</th><th class="l">Storage</th>'+HX('q','Unidades')+HX('c','CIF US$')+(psel?HX('cr','Crec.','CIF contra '+CMP.prev+(ipCut()?' de enero a '+MES_L[ipCut()-1]:'')):'')+HX('cu','CIF por unidad')+HX('f','FOB US$')+HX('fl','Flete y seguro')+HX('pi','% del importador','CIF de este producto ÷ CIF total del importador en el período')+HX('pp','Part. en el producto','CIF de este importador ÷ CIF de ese producto de todos los importadores')+'<th class="l">Exportador principal</th><th class="l">País de origen</th></tr></thead><tbody>';
   for(const o of xs.slice(0, IPS.limX)){
     const ex = ipTop(o.ex), pa = ipTop(o.pa);
-    hx += '<tr><td class="l" title="'+esc(Dm.i[o.i])+'">'+esc(title(Dm.i[o.i]))+'</td><td class="l"><span class="bdot" style="--c:'+ipColor(o.b)+'"></span>'+esc(Dm.b[o.b])+'</td><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td class="l">'+esc(ipSName(o.s))+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td><td>'+moneyD(o.cu)+'</td><td>'+money(o.f)+'</td><td>'+money(o.fl)+'</td><td>'+nf1.format(o.pi*100)+'%</td><td>'+stCell({a:o.pp,n:1})+'</td><td class="l" title="'+esc(Dm.x[ex])+'">'+esc(title(Dm.x[ex]))+'</td><td class="l">'+esc(title(Dm.o[pa]))+'</td></tr>';
+    hx += '<tr'+ipGrpAttr(o.i)+(IP_GRP.has(o.i)?' class="grp"':'')+'><td class="l" title="'+esc(Dm.i[o.i])+'">'+ipImpName(o.i)+'</td><td class="l"><span class="bdot" style="--c:'+ipColor(o.b)+'"></span>'+esc(Dm.b[o.b])+'</td><td class="l" title="'+esc(Dm.p[o.p])+'">'+esc(Dm.p[o.p])+'</td><td class="l">'+esc(ipSName(o.s))+'</td><td>'+nf0.format(o.q)+'</td><td><b>'+money(o.c)+'</b></td>'+(psel?'<td title="'+CMP.prev+': '+money(o.pc)+'">'+yoy(o.c,o.pc,{d0:true})+'</td>':'')+'<td>'+moneyD(o.cu)+'</td><td>'+money(o.f)+'</td><td>'+money(o.fl)+'</td><td>'+nf1.format(o.pi*100)+'%</td><td>'+stCell({a:o.pp,n:1})+'</td><td class="l" title="'+esc(Dm.x[ex])+'">'+esc(title(Dm.x[ex]))+'</td><td class="l">'+esc(title(Dm.o[pa]))+'</td></tr>';
   }
   if(!xs.length) hx += '<tr><td class="l" colspan="13">Sin importaciones para esta selección.</td></tr>';
   const tx = document.getElementById('ipX'); tx.innerHTML = hx+'</tbody>';
@@ -2142,9 +2322,9 @@ const pFmt = d => { const t = pDate(d); return t.getUTCDate() + ' ' + mesc[t.get
 const SLOTS = [
   {k:'cubL', label:'Cubo de ventas Lidenar', hint:'El .xls que exporta SAP'},
   {k:'cubM', label:'Cubo de ventas Movilcelistic', hint:'.xlsx'},
-  {k:'imL',  label:'IMEI vendidos Lidenar', hint:'.xlsx'},
-  {k:'imM',  label:'IMEI vendidos Movilcelistic', hint:'.xlsx'},
-  {k:'imA',  label:'Listado de IMEI activos', hint:'.xlsx, una hoja por marca'},
+  {k:'imL',  label:'IMEI vendidos Lidenar', hint:'.xlsx, hoja IMEIS UNIFICADO (Fecha, Cliente, Vendedor, Descripción, Número de serie)'},
+  {k:'imM',  label:'IMEI vendidos Movilcelistic', hint:'.xlsx, hoja IMEIS UNIFICADO (el vendedor y la ciudad se toman del cubo)'},
+  {k:'imA',  label:'Listado de IMEI activos', hint:'.xlsx con las hojas INFINIX (Lidenar) y XIAOMI (Movilcelistic), un IMEI por fila'},
   {k:'imp',  label:'Importaciones de celulares (aduana)', hint:'.xlsx con la hoja Datos y la columna Producto (modelo)'}
 ];
 const IC_NAMES = ['LIDENAR S.A.','MOVILCELISTIC DEL ECUADOR S.A.'];
@@ -2309,21 +2489,63 @@ async function fetchApiSales(e, lo, hi){
 }
 
 // ---------- IMEI ----------
+// Acepta el formato "IMEIS UNIFICADO" (Fecha de contabilización, Nombre de cliente/proveedor, vendedor o número de
+// vendedor autorizado, Descripción artículo/serv., Número de serie) y el formato anterior con ciudad y marca.
+// Vendedor y ciudad, si el archivo no los trae, se completan después desde el cubo de ventas (ver completarImei).
+const IMEI_MARCA = {INFINIX:'INFINIX', NFINIX:'INFINIX', INFINX:'INFINIX', TECNO:'TECNO', XIAOMI:'XIAOMI', REDMI:'XIAOMI', POCO:'XIAOMI'};
 function parseVendidos(rows, e, fname, out){
-  const h = rows[0].map(sp);
-  const ix = n => colIndex(h, n, true, fname);
+  const hr = rows.findIndex(r => r && r.some(c => sp(c).toLowerCase() === 'número de serie'));
+  if (hr < 0) throw new Error('En "' + fname + '" no encontré la columna "Número de serie". Revisa que sea el archivo de IMEI vendidos.');
+  const h = rows[hr].map(sp);
+  const ix = n => colIndex(h, n, true, fname), ox = n => colIndex(h, n, false, fname);
   const iS = ix('Número de serie'), iF = ix('Fecha de contabilización'), iC = ix('Nombre de cliente/proveedor'),
-        iV = ix('Nombre de empleado del departamento de ventas'), iCi = ix('Destinatario de factura: Ciudad'),
-        iDs = ix('Descripción artículo/serv.'), iBr = colIndex(h, 'Name', false, fname);
-  for (let r = 1; r < rows.length; r++){
+        iV = ox('Nombre de empleado del departamento de ventas'), iCi = ox('Destinatario de factura: Ciudad'),
+        iDs = ix('Descripción artículo/serv.'), iBr = ox('Name');
+  let n = 0, otras = 0;
+  for (let r = hr + 1; r < rows.length; r++){
     const x = rows[r]; if (!x) continue;
     const imei = sp(x[iS]); if (!/^\d{15}$/.test(imei)) continue;
     const desc = x[iDs];
-    const marca = (iBr >= 0 && sp(x[iBr]) ? sp(x[iBr]) : sp(desc).split(' ')[0] || '').toUpperCase();
-    if (marca !== 'INFINIX' && marca !== 'TECNO' && marca !== 'XIAOMI') continue;
+    const raw = (iBr >= 0 && sp(x[iBr]) ? sp(x[iBr]) : sp(desc).split(' ')[0] || '').toUpperCase();
+    const marca = IMEI_MARCA[raw];
+    if (!marca) { otras++; continue; } // solo hay listado de activación de Infinix, Tecno y Xiaomi
     const d = dayIdx(x[iF]); if (d == null) continue;
-    out.push({imei, e, d, ord:r, c:orDash(x[iC]), v:orDash(x[iV]), ci:ciudadImei(x[iCi]), m:modelo(desc), b:marca});
+    out.push({imei, e, d, ord:r, c:orDash(x[iC]), v:iV >= 0 ? orDash(x[iV]) : null, ci:iCi >= 0 ? ciudadImei(x[iCi]) : null, m:modelo(desc), b:marca});
+    n++;
   }
+  if (!n) throw new Error('"' + fname + '" no tiene IMEI de Infinix, Tecno o Xiaomi.');
+  return {n, otras};
+}
+// Corrige fechas con día y mes invertidos y completa vendedor y ciudad con el cubo de ventas de la misma empresa:
+// misma empresa, cliente y día; si no, el vendedor y la ciudad con más venta de ese cliente.
+function completarImei(list, sales, hoyD){
+  const byDay = new Map(), byCli = new Map();
+  for (const s of sales){
+    if (!(s.n > 0)) continue;
+    const k1 = s.e + '|' + s.c + '|' + s.d, k2 = s.e + '|' + s.c;
+    for (const [mp, k] of [[byDay, k1], [byCli, k2]]){
+      let o = mp.get(k); if (!o){ o = {v:new Map(), ci:new Map()}; mp.set(k, o); }
+      o.v.set(s.v, (o.v.get(s.v) || 0) + s.n); o.ci.set(s.ci, (o.ci.get(s.ci) || 0) + s.n);
+    }
+  }
+  const top = m => { let b = null, bv = -Infinity; for (const [k, v] of m) if (v > bv){ bv = v; b = k; } return b; };
+  const st = {swap:0, fut:0, vDia:0, vCli:0, sinV:0};
+  for (const r of list){
+    // Día y mes invertidos: fecha futura, o la invertida coincide con una venta al cliente y la original no
+    const t = pDate(r.d), dd = t.getUTCDate(), mm = t.getUTCMonth() + 1;
+    if (dd <= 12 && dd !== mm){
+      const alt = Math.round((Date.UTC(t.getUTCFullYear(), dd - 1, mm) - PB) / 864e5);
+      const okA = byDay.has(r.e + '|' + r.c + '|' + alt), okD = byDay.has(r.e + '|' + r.c + '|' + r.d);
+      if ((r.d > hoyD && alt <= hoyD) || (okA && !okD)){ r.d = alt; st.swap++; }
+    }
+    if (r.d > hoyD) st.fut++;
+    if (r.v != null && r.ci != null) continue;
+    const o = byDay.get(r.e + '|' + r.c + '|' + r.d) || byCli.get(r.e + '|' + r.c);
+    if (o && byDay.has(r.e + '|' + r.c + '|' + r.d)) st.vDia++; else if (o) st.vCli++; else st.sinV++;
+    if (r.v == null) r.v = o ? top(o.v) : '—';
+    if (r.ci == null) r.ci = o ? String(top(o.ci) || '—').toUpperCase() : '—';
+  }
+  return st;
 }
 
 // ---------- importaciones (Excel de aduana) ----------
@@ -2463,26 +2685,52 @@ async function processAll(f, api){
   }
   const imeiNew = f.imL || f.imM || f.imA;
   if (imeiNew){
-    if (!(f.imL && f.imM && f.imA)) throw new Error('Para actualizar activaciones sube los tres archivos de IMEI juntos (vendidos Lidenar, vendidos Movilcelistic y activos).');
+    if (!f.imA) throw new Error('Para actualizar activaciones sube también el listado de IMEI activos: sin él no se sabe qué equipos ya se activaron.');
+    if (!f.imL && !f.imM) throw new Error('Con el listado de activos sube también los IMEI vendidos de Lidenar, de Movilcelistic o de ambas.');
     const sold = [];
-    log('Leyendo IMEI vendidos de Lidenar (archivo grande, puede tardar 1 o 2 minutos)...'); await tick();
-    parseVendidos(await readTable(f.imL), 0, f.imL.name, sold); await tick();
-    log('Leyendo IMEI vendidos de Movilcelistic...'); await tick();
-    parseVendidos(await readTable(f.imM), 1, f.imM.name, sold); await tick();
+    const hoyD = Math.round((Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()) - PB) / 864e5);
+    for (const [k, e] of [['imL', 0], ['imM', 1]]){
+      if (!f[k]) continue;
+      log('Leyendo IMEI vendidos de ' + EMP[e] + ' (archivo grande, puede tardar 1 o 2 minutos)...'); await tick();
+      const part = [], r = parseVendidos(await readTable(f[k]), e, f[k].name, part); await tick();
+      const st = completarImei(part, e === 0 ? salesL : salesM, hoyD);
+      for (const x of part) sold.push(x);
+      log(EMP[e] + ': ' + nf0.format(r.n) + ' IMEI de Infinix, Tecno y Xiaomi' + (r.otras ? ' (' + nf0.format(r.otras) + ' de otras marcas no entran: no tienen listado de activación)' : '') + '.' +
+        (st.swap ? ' ' + nf0.format(st.swap) + ' fechas tenían día y mes invertidos y se corrigieron.' : '') +
+        (st.vDia + st.vCli + st.sinV ? ' Vendedor y ciudad tomados del cubo de ventas: ' + nf0.format(st.vDia) + ' por la factura del mismo día, ' + nf0.format(st.vCli) + ' por el cliente' + (st.sinV ? ', ' + nf0.format(st.sinV) + ' sin dato' : '') + '.' : ''), 'ok');
+      if (st.fut) log(EMP[e] + ': ' + nf0.format(st.fut) + ' IMEI quedan con fecha posterior a hoy; revisa el archivo.', 'err');
+      await tick();
+    }
+    // La empresa que no se subió conserva sus activaciones actuales
+    const keep = [0, 1].filter(e => !f[e === 0 ? 'imL' : 'imM']);
     log('Leyendo listado de IMEI activos...'); await tick();
+    // Listado de activos: hoja INFINIX (activados de Infinix y Tecno, que vende Lidenar) y hoja XIAOMI (activados de Xiaomi,
+    // que vende Movilcelistic). Cada fila trae un IMEI de 15 dígitos, con cualquier encabezado (IMEI ACTIVADOS, Número de serie).
     const AI = new Set(), AX = new Set();
     for (const sh of await readSheets(f.imA)){
-      const target = /XIAOMI/i.test(sh.name) ? AX : AI;
-      for (const x of sh.rows){ const s = sp(x && x[0]); if (/^\d{15}$/.test(s)) target.add(s); }
+      const target = /XIAOMI|REDMI/i.test(sh.name) ? AX : AI;
+      let n = 0;
+      for (const x of sh.rows){ if (!x) continue; for (const c of x){ const s = sp(c); if (/^\d{15}$/.test(s)){ target.add(s); n++; break; } } }
+      if (n) log('Activos, hoja ' + sh.name + ': ' + nf0.format(n) + ' IMEI (' + (target === AX ? 'Xiaomi' : 'Infinix y Tecno') + ').');
     }
-    if (!AI.size && !AX.size) throw new Error('El listado de activos no tiene IMEI válidos de 15 dígitos en la primera columna.');
+    if (!AI.size && !AX.size) throw new Error('El listado de activos no tiene IMEI válidos de 15 dígitos. Debe traer las hojas INFINIX y XIAOMI con un IMEI por fila.');
     sold.sort((a, b) => a.d - b.d || a.e - b.e || a.ord - b.ord);
-    const last = new Map(); for (const r of sold) last.set(r.imei, r);
+    // Si solo se sube una empresa, sus ventas a la otra empresa del grupo no cuentan (ese IMEI lo revende la otra)
+    const icOther = keep.length ? new Set(IC_NAMES) : null;
+    const last = new Map(); for (const r of sold) if (!icOther || !icOther.has(String(r.c).toUpperCase())) last.set(r.imei, r);
     imeiRows = [];
     for (const r of last.values()) { r.a = r.b === 'XIAOMI' ? AX.has(r.imei) : AI.has(r.imei); r.q = 1; imeiRows.push(r); }
+    // Años que el listado de activos no cubre (menos del 2% activado): se quitan para no mostrar stock falso en clientes
+    { const byY = new Map(); for (const r of imeiRows){ const y = pDate(r.d).getUTCFullYear(); const o = byY.get(y) || {n:0, a:0}; o.n++; if (r.a) o.a++; byY.set(y, o); }
+      const fuera = [...byY].filter(([, o]) => o.n >= 100 && o.a / o.n < 0.02).map(([y]) => y).sort();
+      if (fuera.length){ const n0 = imeiRows.length; imeiRows = imeiRows.filter(r => !fuera.includes(pDate(r.d).getUTCFullYear()));
+        log('Se quitan ' + nf0.format(n0 - imeiRows.length) + ' IMEI vendidos en ' + fuera.join(' y ') + ': el listado de activos no cubre ese año (menos del 2% aparece activado), así que se verían como stock falso en clientes.', 'err'); }
+      if (!imeiRows.length) throw new Error('El listado de activos no cubre ninguno de los años de los IMEI vendidos.'); }
     const act = imeiRows.filter(r => r.a).length;
-    meta.imei = imeiRows.reduce((a, x) => x.d > a ? x.d : a, -1e9);
     log('IMEI: ' + nf0.format(imeiRows.length) + ' únicos vendidos, ' + nf0.format(act) + ' activados (' + nf1.format(act / imeiRows.length * 100) + '%).', 'ok');
+    if (keep.length){ const old = currentImei(sh).filter(r => keep.includes(r.e)); for (const r of old) imeiRows.push(r);
+      log(EMP[keep[0]] + ' conserva sus IMEI y activaciones actuales (' + nf0.format(old.reduce((a, r) => a + r.q, 0)) + ' IMEI).'); }
+    meta.imei = imeiRows.reduce((a, x) => x.d > a ? x.d : a, -1e9);
   } else imeiRows = currentImei(sh);
   await tick();
   let impData = RAW.imp || null;
