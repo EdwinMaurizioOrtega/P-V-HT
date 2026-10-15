@@ -267,6 +267,8 @@ table.at{width:100%;border-collapse:collapse;font-size:14px}
 .up-api-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .up-api label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
 .up-api select,.up-api input{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);min-width:0}
+.up-api-note{margin:0;font-size:13px;color:var(--ink);background:var(--surface);border-radius:8px;padding:8px 10px;border-left:3px solid var(--amber)}
+.up-api-note[hidden]{display:none}
 .up-or{margin:0 20px 10px;font-size:12.5px;color:var(--muted);text-align:center}
 @media (max-width:520px){.up-api-row{grid-template-columns:1fr}}
 .up-log{list-style:none;margin:6px 20px 0;padding:0;font-size:13px;max-height:170px;overflow-y:auto}
@@ -700,8 +702,9 @@ table.wst{font-size:13.5px}
       <label>Fecha fin<input type="date" id="apiFin"></label>
     </div>
     <button class="btn btn-go" id="apiGo">Traer de SAP y guardar</button>
+    <p class="up-api-note" id="apiNote" hidden></p>
   </div>
-  <p class="up-or">Las ventas de la empresa elegida se reemplazan completas con lo que devuelve SAP para esas fechas. IMEI, inventario y metas no vienen de esta API. O sube archivos:</p>
+  <p class="up-or">Solo se reemplazan las ventas de la empresa elegida entre esas fechas; lo anterior y lo posterior se conserva. IMEI, inventario y metas no vienen de esta API. O sube archivos:</p>
   <p class="up-help">Sube solo los archivos que cambiaron, tal como salen de SAP. Los cubos se pueden subir por separado. Para activaciones sube los IMEI vendidos de Lidenar, de Movilcelistic o de ambas (hoja IMEIS UNIFICADO) junto con el listado de IMEI activos; la empresa que no subas conserva sus datos actuales. Se aplican las mismas reglas del tablero: anuladas fuera, notas de crédito restando, Daule y Guayas en Guayaquil, y la última venta de cada IMEI.</p>
   <div class="up-slots" id="upSlots"></div>
   <div class="up-actions"><button class="btn btn-go" id="upGo" disabled>Procesar y guardar</button></div>
@@ -1344,7 +1347,7 @@ function renderAct(){
   const dv = (c,p,pts) => P ? (pts ? yoy(c,p,{pts:true}) : yoy(c,p))+' '+vsTxt()+'<br>' : '';
   document.getElementById('aAsOf').textContent='Días desde la factura, al '+fmtDate(iMaxD)+(MULTI?'':' de '+YLAB);
   const cards=[
-    {lab:'IMEI vendidos a clientes',val:nf0.format(T.n),foot:dv(T.n,P&&P.n)+'Infinix, Tecno y Xiaomi'},
+    {lab:'IMEI vendidos a clientes',val:nf0.format(T.n),foot:dv(T.n,P&&P.n)+(S.emp===0?'Solo Infinix':S.emp===1?'Xiaomi e Infinix':'Lidenar: Infinix; Movilcelistic: Xiaomi e Infinix')},
     {lab:'Activados (sell-out)',val:nf0.format(T.a),foot:dv(T.a,P&&P.a)+'Ya en manos del consumidor'},
     {lab:'En stock de clientes',val:nf0.format(T.s),foot:dv(T.s,P&&P.s)+nf0.format(cl)+(cl===1?' cliente':' clientes')+' con equipos sin activar'},
     {lab:'Sell-through',val:nf1.format(pct(T.a,T.n))+'%',foot:(P?dv(pct(T.a,T.n)/100,pct(P.a,P.n)/100,true):'')+'Activados / vendidos'},
@@ -1406,7 +1409,7 @@ function renderAct(){
   const ie=document.getElementById('aCiu');
   ie.innerHTML=ciu.map(o=>'<li data-i="'+o.k+'"'+(S.ci.has(o.k)?' class="sel"':'')+'><span class="nm">'+esc(title(D.ci[o.k]))+'</span><span class="vv">'+nf0.format(o.s)+'</span><span class="tr"><span style="width:'+(o.s/mxs*100).toFixed(1)+'%"></span></span><span class="meta">Sell-through '+nf1.format(pct(o.a,o.n))+'%, '+nf0.format(o.old)+' con más de 90 días</span></li>').join('');
   ie.querySelectorAll('li').forEach(li=>li.addEventListener('click',()=>{ toggle(S.ci,+li.dataset.i); render(); }));
-  document.getElementById('aFoot').textContent='Cruce de '+nf0.format(NI?I.q.reduce((a,b)=>a+b,0):0)+' IMEI únicos vendidos en '+YLAB+' (Infinix, Tecno y Xiaomi) contra el listado de IMEI activos de cada marca. Activado = ya vendido al consumidor final; no activado = sigue en stock del cliente. Si un IMEI se facturó más de una vez (devolución y reventa, o venta entre empresas), cuenta solo la última venta y su cliente. El listado de activos no trae fecha de activación, por eso el análisis es por mes de venta. Samsung, Apple y otras marcas no tienen listado de activación. Los filtros de mes y semana usan la fecha de la factura.';
+  document.getElementById('aFoot').textContent='Cruce de '+nf0.format(NI?I.q.reduce((a,b)=>a+b,0):0)+' IMEI únicos vendidos en '+YLAB+' contra el listado de IMEI activos (hojas INFINIX y XIAOMI). En Lidenar solo se analiza Infinix; en Movilcelistic, Xiaomi e Infinix. Las marcas y años que el listado no cubre se dejan fuera. Activado = ya vendido al consumidor final; no activado = sigue en stock del cliente. Si un IMEI se facturó más de una vez (devolución y reventa, o venta entre empresas), cuenta solo la última venta y su cliente. El listado de activos no trae fecha de activación, por eso el análisis es por mes de venta. Samsung, Apple y otras marcas no tienen listado de activación. Los filtros de mes y semana usan la fecha de la factura.';
 }
 document.getElementById('aMore').addEventListener('click',()=>{ ST.cli.limit+=40; renderAct(); });
 document.getElementById('aMoreCM').addEventListener('click',()=>{ ST.cm.limit+=50; renderAct(); });
@@ -2457,7 +2460,7 @@ async function fetchApiChunk(e, ini, fin){
   const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 180000);
   let res;
   try { res = await fetch(url, {signal:ctl.signal}); }
-  catch (err) { throw new Error('No se pudo conectar con SAP (' + (err.name === 'AbortError' ? 'tiempo de espera agotado' : 'revisa la red o que el tablero no esté abierto por https') + ').'); }
+  catch (err) { throw new Error('No se pudo conectar con SAP (' + (err.name === 'AbortError' ? 'tiempo de espera agotado' : 'revisa la conexión a internet; si abriste el tablero desde el link de claude.ai, ahí no se puede: pídele a Claude que lo actualice o sube el cubo como archivo') + ').'); }
   finally { clearTimeout(to); }
   if (!res.ok) throw new Error('SAP respondió ' + res.status + ' para ' + EMP[e] + ' del ' + ini + ' al ' + fin + '.');
   const data = await res.json();
@@ -2508,12 +2511,13 @@ function parseVendidos(rows, e, fname, out){
     const desc = x[iDs];
     const raw = (iBr >= 0 && sp(x[iBr]) ? sp(x[iBr]) : sp(desc).split(' ')[0] || '').toUpperCase();
     const marca = IMEI_MARCA[raw];
-    if (!marca) { otras++; continue; } // solo hay listado de activación de Infinix, Tecno y Xiaomi
+    // Solo hay listado de activación de Infinix y Xiaomi; en Lidenar solo se analiza Infinix
+    if (!marca || (e === 0 && marca !== 'INFINIX')) { otras++; continue; }
     const d = dayIdx(x[iF]); if (d == null) continue;
     out.push({imei, e, d, ord:r, c:orDash(x[iC]), v:iV >= 0 ? orDash(x[iV]) : null, ci:iCi >= 0 ? ciudadImei(x[iCi]) : null, m:modelo(desc), b:marca});
     n++;
   }
-  if (!n) throw new Error('"' + fname + '" no tiene IMEI de Infinix, Tecno o Xiaomi.');
+  if (!n) throw new Error('"' + fname + '" no tiene IMEI de ' + (e === 0 ? 'Infinix.' : 'Infinix, Tecno o Xiaomi.'));
   return {n, otras};
 }
 // Corrige fechas con día y mes invertidos y completa vendedor y ciudad con el cubo de ventas de la misma empresa:
@@ -2675,11 +2679,14 @@ async function processAll(f, api){
   if (api){
     for (const e of api.emps){
       const fresh = await fetchApiSales(e, api.lo, api.hi);
-      const merged = fresh; // todo de la API: las ventas de la empresa se reemplazan completas
-      if (!merged.length) log('SAP no devolvió ventas de ' + EMP[e] + ' en esas fechas.', 'err');
-      const mx = merged.length ? merged.reduce((a, x) => x.d > a ? x.d : a, -1e9) : null;
+      // Solo se reemplazan las fechas pedidas; lo que hay antes y después se conserva
+      if (!fresh.length) { log('SAP no devolvió ventas de ' + EMP[e] + ' en esas fechas; se conservan las que ya había.', 'err'); continue; }
+      const prev = e === 0 ? salesL : salesM;
+      const kept = prev.filter(x => x.d < api.lo || x.d > api.hi);
+      const merged = kept.concat(fresh);
+      const mx = merged.reduce((a, x) => x.d > a ? x.d : a, -1e9);
       if (e === 0) { salesL = merged; meta.ventasL = mx; } else { salesM = merged; meta.ventasM = mx; }
-      if (mx != null) log('SAP ' + EMP[e] + ': ' + nf0.format(fresh.length) + ' líneas del ' + fmt(api.lo) + ' al ' + fmt(api.hi) + '; ventas hasta el ' + fmt(mx) + '.', 'ok');
+      log('SAP ' + EMP[e] + ': ' + nf0.format(fresh.length) + ' líneas del ' + fmt(api.lo) + ' al ' + fmt(api.hi) + ' (reemplazan ' + nf0.format(prev.length - kept.length) + '); se conservan ' + nf0.format(kept.length) + ' líneas de otras fechas. Ventas hasta el ' + fmt(mx) + '.', 'ok');
       await tick();
     }
   }
@@ -2695,7 +2702,7 @@ async function processAll(f, api){
       const part = [], r = parseVendidos(await readTable(f[k]), e, f[k].name, part); await tick();
       const st = completarImei(part, e === 0 ? salesL : salesM, hoyD);
       for (const x of part) sold.push(x);
-      log(EMP[e] + ': ' + nf0.format(r.n) + ' IMEI de Infinix, Tecno y Xiaomi' + (r.otras ? ' (' + nf0.format(r.otras) + ' de otras marcas no entran: no tienen listado de activación)' : '') + '.' +
+      log(EMP[e] + ': ' + nf0.format(r.n) + ' IMEI de ' + (e === 0 ? 'Infinix' : 'Infinix, Tecno y Xiaomi') + (r.otras ? ' (' + nf0.format(r.otras) + ' de otras marcas no entran' + (e === 0 ? ': en Lidenar solo se analiza Infinix)' : ': no tienen listado de activación)') : '') + '.' +
         (st.swap ? ' ' + nf0.format(st.swap) + ' fechas tenían día y mes invertidos y se corrigieron.' : '') +
         (st.vDia + st.vCli + st.sinV ? ' Vendedor y ciudad tomados del cubo de ventas: ' + nf0.format(st.vDia) + ' por la factura del mismo día, ' + nf0.format(st.vCli) + ' por el cliente' + (st.sinV ? ', ' + nf0.format(st.sinV) + ' sin dato' : '') + '.' : ''), 'ok');
       if (st.fut) log(EMP[e] + ': ' + nf0.format(st.fut) + ' IMEI quedan con fecha posterior a hoy; revisa el archivo.', 'err');
@@ -2721,10 +2728,12 @@ async function processAll(f, api){
     imeiRows = [];
     for (const r of last.values()) { r.a = r.b === 'XIAOMI' ? AX.has(r.imei) : AI.has(r.imei); r.q = 1; imeiRows.push(r); }
     // Años que el listado de activos no cubre (menos del 2% activado): se quitan para no mostrar stock falso en clientes
-    { const byY = new Map(); for (const r of imeiRows){ const y = pDate(r.d).getUTCFullYear(); const o = byY.get(y) || {n:0, a:0}; o.n++; if (r.a) o.a++; byY.set(y, o); }
-      const fuera = [...byY].filter(([, o]) => o.n >= 100 && o.a / o.n < 0.02).map(([y]) => y).sort();
-      if (fuera.length){ const n0 = imeiRows.length; imeiRows = imeiRows.filter(r => !fuera.includes(pDate(r.d).getUTCFullYear()));
-        log('Se quitan ' + nf0.format(n0 - imeiRows.length) + ' IMEI vendidos en ' + fuera.join(' y ') + ': el listado de activos no cubre ese año (menos del 2% aparece activado), así que se verían como stock falso en clientes.', 'err'); }
+    // Se mira cada marca y año por separado (Tecno no tiene hoja propia en el listado)
+    { const grp = r => title(r.b) + ' ' + pDate(r.d).getUTCFullYear();
+      const byY = new Map(); for (const r of imeiRows){ const k = grp(r); const o = byY.get(k) || {n:0, a:0}; o.n++; if (r.a) o.a++; byY.set(k, o); }
+      const fuera = new Set([...byY].filter(([, o]) => o.n >= 100 && o.a / o.n < 0.02).map(([k]) => k));
+      if (fuera.size){ for (const k of [...fuera].sort()) log('Se quitan ' + nf0.format(byY.get(k).n) + ' IMEI de ' + k + ': el listado de activos no cubre ese año (menos del 2% aparece activado), así que se verían como stock falso en clientes.', 'err');
+        imeiRows = imeiRows.filter(r => !fuera.has(grp(r))); }
       if (!imeiRows.length) throw new Error('El listado de activos no cubre ninguno de los años de los IMEI vendidos.'); }
     const act = imeiRows.filter(r => r.a).length;
     log('IMEI: ' + nf0.format(imeiRows.length) + ' únicos vendidos, ' + nf0.format(act) + ' activados (' + nf1.format(act / imeiRows.length * 100) + '%).', 'ok');
@@ -2824,18 +2833,29 @@ async function runUpdate(f, api){
     }
   } catch (err) {
     log((err && err.message) || String(err), 'err');
-  } finally { busy = false; apiGo.disabled = false; drawSlots(); }
+  } finally { busy = false; apiGo.disabled = EN_CLAUDE; drawSlots(); }
 }
 goBtn.addEventListener('click', () => runUpdate(files));
 
 // ---------- traer de SAP ----------
 const apiGo = document.getElementById('apiGo'), apiEmp = document.getElementById('apiEmp'),
       apiIni = document.getElementById('apiIni'), apiFin = document.getElementById('apiFin');
+// El visor de claude.ai solo deja que la página se conecte a su propia dirección (política de seguridad connect-src),
+// así que desde ahí no se puede llamar a la API de SAP, sea http o https. Fuera de claude.ai (por ejemplo, abierto
+// desde esta computadora) sí funciona.
+const EN_CLAUDE = /(^|\.)claudeusercontent\.com$|(^|\.)claude\.ai$/.test(location.hostname);
+if (EN_CLAUDE) {
+  apiGo.disabled = true;
+  const n = document.getElementById('apiNote'); n.hidden = false;
+  n.textContent = 'Desde el link de claude.ai el tablero no puede conectarse a SAP: claude.ai bloquea, por seguridad, las conexiones de la página a servidores externos (no es un problema de http o https). Para traer ventas nuevas pídele a Claude que actualice el tablero, o sube el cubo de ventas como archivo aquí abajo.';
+}
 function apiDefaults(){
   if (apiFin.value && apiIni.value) return;
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
-  apiIni.value = now.getFullYear() + '-01-01';
+  // Por defecto, desde el mes anterior hasta hoy (solo se reemplazan esas fechas)
+  const pm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  apiIni.value = pm.getFullYear() + '-' + pad(pm.getMonth() + 1) + '-01';
   apiFin.value = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
   apiEmp.value = '2';
 }
@@ -2888,6 +2908,16 @@ window.addEventListener('resize', moveTabInd);
 let animQ=null; new MutationObserver(()=>{ if(animQ) return; animQ=requestAnimationFrame(()=>{ animQ=null; animateNumbers(); }); }).observe(document.querySelector('main'),{childList:true,subtree:true});
 requestAnimationFrame(moveTabInd);
 tabsEl.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; showPage(b.dataset.p); window.scrollTo({top:0}); });
+// Al abrir, el tablero arranca filtrado en los canales principales
+const CANALES_INICIO = ['Mayoristas','Master Dealer','Operadoras','Minoristas','Retail','Corporativo','Cliente en Tienda','Tiendas','Empleados'];
+(function(){ const up = new Map(D.g.map((x,i)=>[String(x).toUpperCase(),i])); CANALES_INICIO.forEach(n=>{ const i = up.get(n.toUpperCase()); if(i!=null) S.g.add(i); }); })();
+// Al abrir, el tablero arranca filtrado en el año y mes actuales (si aún no hay datos de este mes, el último mes con ventas)
+(function(){
+  if(!monthsAvail.length) return;
+  const t = new Date(), hoy = (t.getFullYear()-ANIO)*12 + t.getMonth()+1;
+  const m = monthsAvail.includes(hoy) ? hoy : lastMonth;
+  S.years.add(mYear(m)); S.months.add(m);
+})();
 mkCharts();
 render();
 // Si esta copia del tablero se guardó sin la línea de Chart.js, se carga aquí y se dibujan los gráficos
