@@ -490,6 +490,13 @@ table.wst{font-size:13.5px}
       </div>
       <div class="mx-wrap"><table class="mx" id="mx"></table></div>
     </section>
+    <section class="panel stack" aria-labelledby="hVendB">
+      <div class="ph">
+        <h3 id="hVendB">Facturación por vendedor y marca</h3>
+        <span class="hint" id="vbHint">Total del período elegido. Toca un vendedor o una marca para filtrar.</span>
+      </div>
+      <div class="mx-wrap"><table class="mx" id="mxB"></table></div>
+    </section>
     </div>
 
     <div class="page" data-page="metas" hidden>
@@ -829,7 +836,13 @@ const ORDER = {};
 DIMS.forEach(o=>{ const t=totalsBy(o.k); ORDER[o.k]=D[o.k].map((_,i)=>i).sort((a,b)=>t[b]-t[a]); PRESENT[0][o.k]=new Set(); PRESENT[1][o.k]=new Set(); for(let i=0;i<N;i++) PRESENT[C.e[i]][o.k].add(C[o.k][i]); });
 const optsFor = k => S.emp===2 ? ORDER[k] : ORDER[k].filter(i=>PRESENT[S.emp][k].has(i));
 
-const S = {years:new Set(), months:new Set(), weeks:new Set(), metric:'n', gran:'d', iva:false, emp:0};
+const S = {years:new Set(), months:new Set(), weeks:new Set(), days:new Set(), metric:'n', gran:'d', iva:false, emp:0};
+// Al cambiar año, mes o empresa se limpian la semana y el día elegidos
+const clearWD = () => { S.weeks.clear(); S.days.clear(); };
+// Filtro de día: guarda índices de día; al comparar años, el año anterior usa el mismo día y mes
+const MDC = new Map(); const mdOf = d => { let v = MDC.get(d); if(v==null){ const t = dateOf(d); v = t.getUTCMonth()*100 + t.getUTCDate(); MDC.set(d,v); } return v; };
+const daySet = side => !S.days.size ? null : (side==='prev' ? {md:new Set([...S.days].map(mdOf))} : {set:S.days});
+const dayOK = (ds, d) => !ds || (ds.md ? ds.md.has(mdOf(d)) : ds.set.has(d));
 const inEmp = i => S.emp===2 ? true : C.e[i]===S.emp;
 DIMS.forEach(o=>S[o.k]=new Set());
 
@@ -859,6 +872,7 @@ function rowsFor(opts){
   // side: 'cur' o 'prev' al comparar años (por defecto 'cur'); false = sin comparación (ambos años juntos)
   const side = opts.side!==undefined ? opts.side : (CMP && !opts.years ? 'cur' : false);
   const wk = side ? wkSide(side, weeks) : null;
+  const ds = opts.days ? null : daySet(side);
   const act = DIMS.map(o=>o.k).filter(k=>S[k].size);
   const out = [];
   const emp = opts.emp!=null?opts.emp:S.emp;
@@ -867,6 +881,7 @@ function rowsFor(opts){
     if(months.size && !months.has(month[i])) continue;
     if(side){ if(!inSide(side, year[i], C.d[i], week[i], wk)) continue; }
     else { if(years.size && !years.has(year[i])) continue; if(weeks.size && !weeks.has(week[i])) continue; }
+    if(ds && !dayOK(ds, C.d[i])) continue;
     let ok=true;
     for(let j=0;j<act.length;j++){ const k=act[j]; if(!S[k].has(C[k][i])){ok=false;break;} }
     if(ok) out.push(i);
@@ -886,7 +901,7 @@ for(const y of yearsAvail){
   b.setAttribute('aria-pressed','false');
   b.addEventListener('click',()=>{
     toggle(S.years,y); syncMonthsToYears();
-    S.weeks.clear(); render();
+    clearWD(); render();
   });
   yearsEl.appendChild(b);
 }
@@ -903,7 +918,7 @@ for(let k=0;k<12;k++){
   b.addEventListener('click',()=>{
     if(selMonthIdx().has(k)) [...S.months].forEach(m=>{ if(mIdx(m)===k) S.months.delete(m); });
     else monthsAllInScope().forEach(m=>{ if(mIdx(m)===k) S.months.add(m); });
-    S.weeks.clear(); render();
+    clearWD(); render();
   });
   monthsEl.appendChild(b);
 }
@@ -947,6 +962,13 @@ buildMS('weeks','Semana',()=>{
   const ws=new Set(); for(let i=0;i<N;i++){ if(inEmp(i)&&(!S.years.size||S.years.has(year[i]))&&(!S.months.size||S.months.has(month[i]))) ws.add(week[i]); }
   return [...ws].sort((a,b)=>a-b);
 }, weekLabel);
+const DIA = ['dom','lun','mar','mié','jue','vie','sáb'];
+const dayLabel = d => { const t = dateOf(d); return DIA[t.getUTCDay()]+' '+t.getUTCDate()+' '+mesc[t.getUTCMonth()]+(MULTI?' '+t.getUTCFullYear():''); };
+// Día: los días con ventas dentro del año, mes y semana elegidos, del más reciente al más antiguo
+buildMS('days','Día',()=>{
+  const ds=new Set(); for(let i=0;i<N;i++){ if(inEmp(i)&&(!S.years.size||S.years.has(year[i]))&&(!S.months.size||S.months.has(month[i]))&&(!S.weeks.size||S.weeks.has(week[i]))) ds.add(C.d[i]); }
+  return [...ds].sort((a,b)=>b-a);
+}, dayLabel);
 DIMS.forEach(o=>{
   const lab = i => (o.k==='v'||o.k==='c'||o.k==='ci'||o.k==='w'||o.k==='p')?title(D[o.k][i]):D[o.k][i];
   buildMS(o.k,o.label,()=>optsFor(o.k),lab);
@@ -957,9 +979,9 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.ms')) closeAllMS()
 function toggle(set,v){ set.has(v)?set.delete(v):set.add(v); }
 document.getElementById('metricSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.metric=b.dataset.m; render(); });
 document.getElementById('granSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.gran=b.dataset.g; render(); });
-document.getElementById('empSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.emp=+b.dataset.e; document.documentElement.dataset.emp=S.emp; mkCharts(); S.weeks.clear(); DIMS.forEach(o=>{ if(S.emp!==2) S[o.k].forEach(v=>{ if(!PRESENT[S.emp][o.k].has(v)) S[o.k].delete(v); }); }); render(); });
+document.getElementById('empSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.emp=+b.dataset.e; document.documentElement.dataset.emp=S.emp; mkCharts(); clearWD(); DIMS.forEach(o=>{ if(S.emp!==2) S[o.k].forEach(v=>{ if(!PRESENT[S.emp][o.k].has(v)) S[o.k].delete(v); }); }); render(); });
 document.getElementById('ivaSeg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; S.iva=b.dataset.i==='1'; render(); });
-document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.iI.clear(); S.iB.clear(); S.iP.clear(); S.iS.clear(); S.weeks.clear(); DIMS.forEach(o=>S[o.k].clear()); render(); });
+document.getElementById('clearAll').addEventListener('click',()=>{ S.years.clear(); S.months.clear(); S.iI.clear(); S.iB.clear(); S.iP.clear(); S.iS.clear(); clearWD(); DIMS.forEach(o=>S[o.k].clear()); render(); });
 const rail=document.getElementById('rail'), scrim=document.getElementById('scrim');
 const openRail=()=>{rail.classList.add('open');scrim.classList.add('show');};
 const closeRail=()=>{rail.classList.remove('open');scrim.classList.remove('show');};
@@ -1028,12 +1050,13 @@ function render(){
   { const k=selMonthIdx(), avail=new Set(monthsAllInScope().map(mIdx));
     monthsEl.querySelectorAll('.chip').forEach(b=>{ b.setAttribute('aria-pressed',k.has(+b.dataset.k)); b.disabled=!avail.has(+b.dataset.k); }); }
   Object.values(MS).forEach(o=>o.update());
-  const nAct = S.years.size+S.months.size+S.weeks.size+DIMS.reduce((a,o)=>a+S[o.k].size,0);
+  const nAct = S.years.size+S.months.size+S.weeks.size+S.days.size+DIMS.reduce((a,o)=>a+S[o.k].size,0);
   document.getElementById('openFilters').textContent = nAct?('Filtros ('+nAct+')'):'Filtros';
   renderPills();
   renderKPIs(rows, prevRows);
   renderTicket();
   renderMatrix(rows, prevRows);
+  renderVendBrand(rows);
   renderBrands(rows, prevRows);
   renderTrend(rows, prevRows);
   renderTop(rows, prevRows);
@@ -1051,9 +1074,10 @@ function render(){
 
 function renderPills(){
   const el=document.getElementById('pills'); const out=[];
-  if(S.years.size) out.push({t:'Año',v:[...S.years].sort((a,b)=>a-b).join(', '),clr:()=>{S.years.clear();S.weeks.clear();}});
-  if(S.months.size) out.push({t:'Mes',v:[...selMonthIdx()].sort((a,b)=>a-b).map(k=>MES[k]).join(', '),clr:()=>{S.months.clear();S.weeks.clear();}});
+  if(S.years.size) out.push({t:'Año',v:[...S.years].sort((a,b)=>a-b).join(', '),clr:()=>{S.years.clear();clearWD();}});
+  if(S.months.size) out.push({t:'Mes',v:[...selMonthIdx()].sort((a,b)=>a-b).map(k=>MES[k]).join(', '),clr:()=>{S.months.clear();clearWD();}});
   if(S.weeks.size) out.push({t:'Semana',v:S.weeks.size===1?weekLabel([...S.weeks][0]).replace('Semana ',''):S.weeks.size+' semanas',clr:()=>S.weeks.clear()});
+  if(S.days.size) out.push({t:'Día',v:S.days.size===1?dayLabel([...S.days][0]):S.days.size+' días',clr:()=>S.days.clear()});
   DIMS.forEach(o=>{ if(S[o.k].size){ const s=[...S[o.k]]; out.push({t:o.label,v:s.length===1?title(D[o.k][s[0]]):s.length+' seleccionados',clr:()=>S[o.k].clear()}); } });
   el.innerHTML = out.map((p,i)=>'<button class="pill" data-i="'+i+'">'+esc(p.t)+': <b>'+esc(p.v)+'</b><i aria-hidden="true">&times;</i></button>').join('');
   el.querySelectorAll('.pill').forEach(b=>b.addEventListener('click',()=>{ out[+b.dataset.i].clr(); render(); }));
@@ -1072,7 +1096,7 @@ function renderKPIs(rows, prevRows){
   const k=kpisOf(rows);
   let p=null, single=null;
   if(CMP){ p=kpisOf(prevRows); if(S.months.size && new Set([...S.months].filter(m=>mYear(m)===CMP.cur)).size===1) single=[...S.months].find(m=>mYear(m)===CMP.cur); }
-  else if(S.months.size===1 && !S.weeks.size){ single=[...S.months][0]; if(monthsAvail.includes(single-1)) p=kpisOf(rowsFor({months:new Set([single-1]),weeks:new Set(),years:new Set()})); }
+  else if(S.months.size===1 && !S.weeks.size && !S.days.size){ single=[...S.months][0]; if(monthsAvail.includes(single-1)) p=kpisOf(rowsFor({months:new Set([single-1]),weeks:new Set(),years:new Set()})); }
   const mg=k.n?k.u/k.n:0, pmg=p&&p.n?p.u/p.n:null;
   const vs=S.iva?k.t:k.n, pvs=p?(S.iva?p.t:p.n):null;
   let foot1 = S.iva?('Sin IVA '+money(k.n)):('Con IVA '+money(k.t));
@@ -1157,9 +1181,44 @@ function renderMatrix(rows, prevRows){
   tbl.querySelectorAll('th.mh').forEach(th=>th.addEventListener('click',()=>{ const m=+th.dataset.m;
     // Al comparar años el mes se marca en ambos años, como el botón del panel
     if(CMP){ const k=mIdx(m), on=S.months.has(m); monthsAllInScope().forEach(x=>{ if(mIdx(x)===k){ on?S.months.delete(x):S.months.add(x); } }); } else toggle(S.months,m);
-    S.weeks.clear(); render(); }));
+    clearWD(); render(); }));
 }
 
+// Vendedor x marca: total facturado (medida elegida arriba) por marca, en el período y filtros actuales.
+// Columnas: las 8 marcas con más venta en la selección, el resto en "Otras", y el total.
+function renderVendBrand(rows){
+  const tbl = document.getElementById('mxB');
+  const V = D.v.length, B = D.b.length;
+  const bt = new Float64Array(B); for(const i of rows) bt[C.b[i]] += val(i);
+  const bs = [...Array(B).keys()].filter(b=>Math.abs(bt[b])>0.5).sort((a,b)=>bt[b]-bt[a]);
+  const top = bs.slice(0,8), topIx = new Map(top.map((b,j)=>[b,j])), hasOther = bs.length>8, nc = top.length+(hasOther?1:0);
+  const cell = new Map(), vt = new Float64Array(V);
+  for(const i of rows){ const v=C.v[i], x=val(i); let r=cell.get(v); if(!r){ r=new Float64Array(nc); cell.set(v,r); } const j=topIx.has(C.b[i])?topIx.get(C.b[i]):nc-1; r[j]+=x; vt[v]+=x; }
+  const vs = [...cell.keys()].filter(v=>Math.abs(vt[v])>0.5).sort((a,b)=>vt[b]-vt[a]);
+  if(!vs.length){ tbl.innerHTML='<tbody><tr><td class="empty">No hay ventas con estos filtros.</td></tr></tbody>'; return; }
+  let mx = 0; vs.forEach(v=>cell.get(v).forEach(x=>{ if(x>mx) mx=x; }));
+  const colT = new Float64Array(nc); vs.forEach(v=>cell.get(v).forEach((x,j)=>colT[j]+=x));
+  const tt = vs.reduce((a,v)=>a+vt[v],0), maxTot = Math.max(...vs.map(v=>vt[v]),1);
+  let h = '<thead><tr><th class="l">Vendedor</th>'+top.map(b=>'<th class="mh'+(S.b.has(b)?' sel':'')+'" data-b="'+b+'" title="Filtrar '+esc(D.b[b])+'"><span class="bdot" style="--c:'+brandColor(b)+'"></span>'+esc(title(D.b[b]))+'</th>').join('')+(hasOther?'<th title="'+esc(bs.slice(8).map(b=>D.b[b]).join(', '))+'">Otras</th>':'')+'<th class="l" style="padding-left:14px">Total</th></tr></thead><tbody>';
+  for(const v of vs){
+    const r = cell.get(v);
+    h += '<tr data-v="'+v+'"'+(S.v.has(v)?' class="sel"':'')+'><td class="v" title="'+esc(title(D.v[v]))+'">'+esc(title(D.v[v]))+'</td>';
+    for(let j=0;j<nc;j++){
+      const x = r[j];
+      if(Math.abs(x)<0.5){ h+='<td class="c zero">–</td>'; continue; }
+      if(x<0){ h+='<td class="c neg">'+fmtMetric(x,true)+'</td>'; continue; }
+      const pct = Math.round(Math.sqrt(x/mx)*85), nm = j<top.length ? D.b[top[j]] : 'otras marcas';
+      h += '<td class="c'+(pct>52?' hot':'')+'" style="background:color-mix(in srgb, var(--heat) '+pct+'%, transparent)" title="'+esc(title(D.v[v]))+', '+esc(nm)+': '+fmtMetric(x)+' ('+nf1.format(vt[v]?x/vt[v]*100:0)+'% del vendedor)">'+fmtMetric(x,true)+'</td>';
+    }
+    h += '<td class="tot"><div class="tb"><span class="bar" style="width:'+Math.max(0,vt[v]/maxTot*30).toFixed(0)+'px"></span><span class="n">'+fmtMetric(vt[v],true)+'</span></div></td></tr>';
+  }
+  h += '</tbody><tfoot><tr><td class="v">Total</td>'+[...colT].map(x=>'<td class="c">'+fmtMetric(x,true)+'</td>').join('')+'<td class="tot"><span class="n num" style="font-weight:600">'+fmtMetric(tt,true)+'</span></td></tr>'+
+    '<tr><td class="v" style="font-weight:400;color:var(--muted)">% del total</td>'+[...colT].map(x=>'<td class="c" style="font-weight:400;color:var(--muted)">'+(tt?nf1.format(x/tt*100)+'%':'–')+'</td>').join('')+'<td></td></tr></tfoot>';
+  tbl.innerHTML = h;
+  tbl.querySelectorAll('tbody tr[data-v]').forEach(tr=>tr.addEventListener('click',()=>{ toggle(S.v,+tr.dataset.v); render(); }));
+  tbl.querySelectorAll('th[data-b]').forEach(th=>th.addEventListener('click',()=>{ toggle(S.b,+th.dataset.b); render(); }));
+  document.getElementById('vbHint').textContent = 'Total de '+metricName()+' del período elegido'+(CMP?' ('+CMP.cur+')':'')+'. Toca un vendedor o una marca para filtrar.';
+}
 function aggBy(rows,key){
   const L=D[key].length, t=new Float64Array(L), n=new Float64Array(L), q=new Float64Array(L), u=new Float64Array(L), sv=new Float64Array(L);
   for(const i of rows){ const k=C[key][i]; t[k]+=val(i); n[k]+=C.n[i]; q[k]+=C.q[i]; u[k]+=C.u[i]; sv[k]+=sale(i); }
@@ -1286,12 +1345,14 @@ function imeiRows(side){
   // side: 'cur' (por defecto al comparar años), 'prev' o false (ambos años)
   if(side===undefined) side = CMP ? 'cur' : false;
   const wk = side ? wkSide(side, S.weeks) : null;
+  const ds = daySet(side);
   const act=A_DIMS.filter(k=>S[k].size); const out=[];
   for(let i=0;i<NI;i++){
     if(S.emp!==2 && I.e[i]!==S.emp) continue;
     if(S.months.size && !S.months.has(iMonth[i])) continue;
     if(side){ if(!inSide(side, mYear(iMonth[i]), I.d[i], iWeek[i], wk)) continue; }
     else { if(S.years.size && !S.years.has(mYear(iMonth[i]))) continue; if(S.weeks.size && !S.weeks.has(iWeek[i])) continue; }
+    if(ds && !dayOK(ds, I.d[i])) continue;
     let ok=true; for(const k of act){ if(!S[k].has(I[k][i])){ok=false;break;} }
     if(ok) out.push(i);
   }
@@ -1592,6 +1653,7 @@ function storeRows(months, side){
   // side 'cur'/'prev': al comparar años (por defecto 'cur' sin meses explícitos)
   if(side===undefined) side = CMP && !months ? 'cur' : false;
   const years = months ? new Set() : S.years;
+  const ds = months ? null : daySet(side); // el día elegido no aplica a los meses explícitos (gráfico mensual)
   months = months || S.months;
   const wk = side ? wkSide(side, S.weeks) : null;
   const act = ['v','b','m','p'].filter(k => S[k].size); const out = [];
@@ -1601,6 +1663,7 @@ function storeRows(months, side){
     if(months.size && !months.has(month[i])) continue;
     if(side){ if(!inSide(side, year[i], C.d[i], week[i], wk)) continue; }
     else { if(years.size && !years.has(year[i])) continue; if(S.weeks.size && !S.weeks.has(week[i])) continue; }
+    if(ds && !dayOK(ds, C.d[i])) continue;
     let ok = true; for(const k of act){ if(!S[k].has(C[k][i])){ ok=false; break; } }
     if(ok) out.push(i);
   }
@@ -1633,7 +1696,7 @@ function renderTiendas(){
   document.getElementById('tdNote').textContent = notes.join(' ');
 
   const rows = storeRows();
-  const single = !CMP && S.months.size===1 && !S.weeks.size ? [...S.months][0] : null;
+  const single = !CMP && S.months.size===1 && !S.weeks.size && !S.days.size ? [...S.months][0] : null;
   const prevRows = CMP ? storeRows(undefined,'prev') : (single && monthsAvail.includes(single-1) ? storeRows(new Set([single-1])) : null);
   const T = stAgg(rows).get(0) || stAgg([]).get(0) || {venta:0,n:0,u:0,q:0,tk:0,ticket:0,upt:0,mg:0,pc:0,att:0,dias:0,vd:0,cl:new Set()};
   const P = prevRows ? (stAgg(prevRows).get(0) || (CMP ? {venta:0,n:0,u:0,q:0,tk:0,ticket:0,upt:0,mg:0,pc:0,att:0,dias:0,vd:0,cl:new Set()} : null)) : null;
@@ -1932,7 +1995,7 @@ function cliStats(){
     }
   }
   // Historia completa (sin filtro de mes/semana) para estado y tendencia; al comparar, de ambos años
-  const all = rowsFor({months:new Set(), weeks:new Set(), side:false});
+  const all = rowsFor({months:new Set(), weeks:new Set(), days:true, side:false});
   for(const i of all){
     if(STORE_G.has(C.g[i])) continue;
     const o = map.get(C.c[i]); if(!o || C.n[i] <= 0) continue;
